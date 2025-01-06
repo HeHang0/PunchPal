@@ -1,0 +1,53 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFrameworks>net8.0-windows;net462</TargetFrameworks>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <Company>PicaPico</Company>
+    <Description>An efficient work hour management tool</Description>
+    <Copyright>Copyright ©  2024</Copyright>
+    <PackageProjectUrl>https://github.com/hehang0/PunchPal</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/hehang0/PunchPal</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Product>PunchPal</Product>
+    <Authors>PicaPico</Authors>
+    <Version>2.0.0</Version>
+    <AssemblyTitle>PunchPal</AssemblyTitle>
+    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+    <PackageIcon>logo.ico</PackageIcon>
+    <LangVersion>7.3</LangVersion>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+    <ApplicationIcon>logo.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="logo.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="PicaPico.AcrylicHelper" Version="1.0.0" />
+    <PackageReference Include="PicaPico.ThemeListener" Version="1.0.1" />
+    <PackageReference Include="WPF-UI" Version="3.0.5" />
+    <PackageReference Include="WPF-UI.Tray" Version="3.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>
