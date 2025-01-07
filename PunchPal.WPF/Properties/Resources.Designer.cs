@@ -59,5 +59,32 @@ namespace PunchPal.WPF.Properties {
                 resourceCulture = value;
             }
         }
+
+        internal static System.Drawing.Bitmap white
+        {
+            get
+            {
+                object obj = ResourceManager.GetObject("white", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+
+        internal static System.Drawing.Bitmap black
+        {
+            get
+            {
+                object obj = ResourceManager.GetObject("black", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+
+        internal static System.Drawing.Bitmap logo
+        {
+            get
+            {
+                object obj = ResourceManager.GetObject("logo", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }

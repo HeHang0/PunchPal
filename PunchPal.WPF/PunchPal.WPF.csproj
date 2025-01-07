@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFrameworks>net8.0-windows;net462</TargetFrameworks>
+    <TargetFrameworks>net462</TargetFrameworks>
     <ImplicitUsings>disable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <Company>PicaPico</Company>
@@ -33,6 +33,10 @@
     <PackageReference Include="PicaPico.ThemeListener" Version="1.0.1" />
     <PackageReference Include="WPF-UI" Version="3.0.5" />
     <PackageReference Include="WPF-UI.Tray" Version="3.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PunchPal.Core\PunchPal.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

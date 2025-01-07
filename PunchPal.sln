@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113 d17.12
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PunchPal.WPF", "PunchPal.WPF\PunchPal.WPF.csproj", "{79052BB1-74B0-49F7-ACAC-CE4ED6585B35}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PunchPal.Core", "PunchPal.Core\PunchPal.Core.csproj", "{53C3BCB8-4D2C-43CA-BF7D-50478F6EC02B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PunchPal.Startup", "PunchPal.Startup\PunchPal.Startup.csproj", "{B5399791-F914-4BB2-9B14-1E453A012DE2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PunchPal.Tools", "PunchPal.Tools\PunchPal.Tools.csproj", "{9FB30738-3292-4434-B1AA-626A9412174C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{B5399791-F914-4BB2-9B14-1E453A012DE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5399791-F914-4BB2-9B14-1E453A012DE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5399791-F914-4BB2-9B14-1E453A012DE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FB30738-3292-4434-B1AA-626A9412174C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FB30738-3292-4434-B1AA-626A9412174C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FB30738-3292-4434-B1AA-626A9412174C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FB30738-3292-4434-B1AA-626A9412174C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,12 +1,71 @@
-﻿<Window x:Class="PunchPal.WPF.MainWindow"
+﻿<ui:FluentWindow x:Class="PunchPal.WPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PunchPal.WPF"
+        xmlns:pages="clr-namespace:PunchPal.WPF.Pages"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:viewmodels="clr-namespace:PunchPal.WPF.ViewModels"
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=viewmodels:MainModel}"
+        ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+        ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+        ExtendsContentIntoTitleBar="True"
+        Icon="{Binding AppIcon}"
+        WindowBackdropType="{Binding WindowBackdropType}"
+        WindowCornerPreference="Round" ResizeMode="CanResize"
+        WindowStartupLocation="CenterScreen"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Border x:Name="DragHelper" Visibility="Collapsed" Background="#01000000" Height="48"/>
+        <ui:TitleBar Grid.Row="0" Title="工时助手 - 高效的管理工作"
+                     CanMaximize="True" ShowMaximize="True" ShowMinimize="True">
+            <ui:TitleBar.Icon>
+                <ui:ImageIcon Source="{Binding AppIcon}"/>
+            </ui:TitleBar.Icon>
+        </ui:TitleBar>
+        <ui:NavigationView
+            x:Name="PunchNavigationView"
+            Grid.Row="1"
+            Margin="20 0"
+            MenuItemsSource=""
+            IsBackButtonVisible="Collapsed"
+            IsPaneToggleVisible="False"
+            PaneDisplayMode="Top">
+            <ui:NavigationView.MenuItems>
+                <ui:NavigationViewItem ToolTip="记录"
+                    Margin="0" Height="48" Padding="0" Content="记录"
+                    Icon="{ui:SymbolIcon ClipboardBulletListLtr20}"
+                    TargetPageType="{x:Type pages:SettingsPage}">
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem ToolTip="工时"
+                    Margin="0" Height="48" Padding="0" Content="工时"
+                    Icon="{ui:SymbolIcon TextBulletListSquareClock20}"
+                    TargetPageType="{x:Type pages:SettingsPage}">
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem ToolTip="日历"
+                    Margin="0" Height="48" Padding="0" Content="日历"
+                    Icon="{ui:SymbolIcon CalendarLtr20}"
+                    TargetPageType="{x:Type pages:SettingsPage}">
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem ToolTip="概览"
+                    Margin="0" Height="48" Padding="0" Content="概览"
+                    Icon="{ui:SymbolIcon ChartMultiple20}"
+                    TargetPageType="{x:Type pages:SettingsPage}">
+                </ui:NavigationViewItem>
+            </ui:NavigationView.MenuItems>
+            <ui:NavigationView.FooterMenuItems>
+                <ui:NavigationViewItem
+                    Content="设置"  Margin="0" Height="48" Padding="0"
+                    Icon="{ui:SymbolIcon Settings24}" TargetPageType="{x:Type pages:SettingsPage}" />
+            </ui:NavigationView.FooterMenuItems>
+        </ui:NavigationView>
+        <Border Grid.Row="1" Height="4" Background="{DynamicResource TextFillColorPrimaryBrush}"
+                VerticalAlignment="Top" Margin="20 36 20 0" Opacity="0.05" CornerRadius="3"/>
     </Grid>
-</Window>
+</ui:FluentWindow>
