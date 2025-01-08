@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.IO;
 using PunchPal.Tools;
 using Newtonsoft.Json;
-using System.Diagnostics;
 using PunchPal.Startup;
 
 namespace PunchPal.Core.ViewModels
@@ -30,18 +27,6 @@ namespace PunchPal.Core.ViewModels
             }
             _startupManager = new StartupManager("PunchPal", System.Reflection.Assembly.GetExecutingAssembly().Location);
             if (_settings == null) _settings = new Settings();
-            try
-            {
-                if (!File.Exists(PathTools.StartupPath))
-                {
-                    File.WriteAllText(PathTools.StartupPath, string.Empty);
-                    SetStartup(true);
-                }
-            }
-            catch (Exception)
-            {
-            }
-
             if (_settings.IsStartupEnabled)
             {
                 SetStartup(true);

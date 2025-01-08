@@ -5,6 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="新文件夹\**" />
+    <EmbeddedResource Remove="新文件夹\**" />
+    <None Remove="新文件夹\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="EntityFramework" Version="6.5.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="SQLite.CodeFirst" Version="1.7.0.36" />
@@ -16,8 +22,19 @@
     <ProjectReference Include="..\PunchPal.Tools\PunchPal.Tools.csproj" />
   </ItemGroup>
 
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
-    <Exec Command="rd /s /q Resources\sqlite&#xD;&#xA;mkdir Resources\sqlite&#xD;&#xA;copy %25USERPROFILE%25\.nuget\packages\stub.system.data.sqlite.core.netframework\1.0.119\build\net40\x64\SQLite.Interop.dll Resources\sqlite\SQLite.Interop.x64.dll;&#xD;&#xA;copy %25USERPROFILE%25\.nuget\packages\stub.system.data.sqlite.core.netframework\1.0.119\build\net40\x86\SQLite.Interop.dll Resources\sqlite\SQLite.Interop.x86.dll;&#xD;&#xA;" />
-  </Target>
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
 
 </Project>

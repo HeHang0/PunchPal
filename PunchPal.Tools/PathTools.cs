@@ -19,13 +19,7 @@ namespace PunchPal.Tools
             }
         }
 
-        public static string CookiePath => Path.Combine(AppDataPath, "token");
-
         public static string SettingPath => Path.Combine(AppDataPath, "setting");
-
-        public static string StartupPath => Path.Combine(AppDataPath, "startup");
-
-        public static string LogPath => Path.Combine(AppDataPath, "log.txt");
 
         public static string WinSize => Path.Combine(AppDataPath, "win_size");
 
