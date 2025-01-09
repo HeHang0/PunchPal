@@ -10,23 +10,26 @@ using PunchPal.Startup;
 
 namespace PunchPal.Core.ViewModels
 {
-    public class Settings: INotifyPropertyChanged
+    public class SettingsModel: INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private static readonly Settings _settings;
+        private static readonly SettingsModel _settings;
 
-        static Settings()
+        public SettingsData Data { get; set; } = new SettingsData();
+        public SettingsCommon Common { get; set; } = new SettingsCommon();
+
+        static SettingsModel()
         {
             try
             {
-                _settings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText(PathTools.SettingPath));
+                _settings = JsonConvert.DeserializeObject<SettingsModel>(File.ReadAllText(PathTools.SettingPath));
             }
             catch (Exception)
             {
             }
             _startupManager = new StartupManager("PunchPal", System.Reflection.Assembly.GetExecutingAssembly().Location);
-            if (_settings == null) _settings = new Settings();
+            if (_settings == null) _settings = new SettingsModel();
             if (_settings.IsStartupEnabled)
             {
                 SetStartup(true);
@@ -57,11 +60,11 @@ namespace PunchPal.Core.ViewModels
             }
         }
 
-        private Settings()
+        private SettingsModel()
         {
         }
 
-        public static Settings Load()
+        public static SettingsModel Load()
         {
             return _settings;
         }

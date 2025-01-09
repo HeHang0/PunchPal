@@ -2,25 +2,22 @@
 using PunchPal.Core.ViewModels;
 using PunchPal.Tools;
 using PunchPal.WPF.Tools;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using System;
+using System.Collections.ObjectModel;
 using System.Windows.Media;
 using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
 
 namespace PunchPal.WPF.ViewModels
 {
-    public class MainModel : INotifyPropertyChanged
+    public class MainModel : Core.ViewModels.MainModel
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
         private ImageSource _appIcon = ImageTools.AppIcon;
         private ImageSource _whiteIcon => Properties.Resources.white.ToBitmapSource();
         private ImageSource _blackIcon => Properties.Resources.black.ToBitmapSource();
         public ImageSource AppIcon => _appIcon;
         public ImageSource TrayIcon => ThemeListener.IsDarkMode ? _whiteIcon : _blackIcon;
-        public Settings Setting => Settings.Load();
-
+        public SettingsModel Setting => SettingsModel.Load();
 
         private void ApplyTheme(bool isDark)
         {
@@ -85,12 +82,6 @@ namespace PunchPal.WPF.ViewModels
             //    AcrylicHelper.BackgroundDark = new SolidColorBrush(Color.FromRgb(0x1F, 0x1F, 0x1F));
             //    AcrylicHelper.BackgroundLight = new SolidColorBrush(Color.FromRgb(0xFF, 0xFF, 0xFF));
             //}
-        }
-
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

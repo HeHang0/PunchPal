@@ -32,8 +32,8 @@
         <ui:NavigationView
             x:Name="PunchNavigationView"
             Grid.Row="1"
-            Margin="20 0"
-            MenuItemsSource=""
+            Margin="16 0 16 16"
+            Navigating="PunchNavigationView_Navigating"
             IsBackButtonVisible="Collapsed"
             IsPaneToggleVisible="False"
             PaneDisplayMode="Top">
@@ -41,22 +41,22 @@
                 <ui:NavigationViewItem ToolTip="记录"
                     Margin="0" Height="48" Padding="0" Content="记录"
                     Icon="{ui:SymbolIcon ClipboardBulletListLtr20}"
-                    TargetPageType="{x:Type pages:SettingsPage}">
+                    TargetPageType="{x:Type pages:PunchRecordPage}">
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem ToolTip="工时"
                     Margin="0" Height="48" Padding="0" Content="工时"
                     Icon="{ui:SymbolIcon TextBulletListSquareClock20}"
-                    TargetPageType="{x:Type pages:SettingsPage}">
+                    TargetPageType="{x:Type pages:WorkingHoursPage}">
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem ToolTip="日历"
                     Margin="0" Height="48" Padding="0" Content="日历"
                     Icon="{ui:SymbolIcon CalendarLtr20}"
-                    TargetPageType="{x:Type pages:SettingsPage}">
+                    TargetPageType="{x:Type pages:CalendarPage}" DataContext="{Binding Calendar}">
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem ToolTip="概览"
                     Margin="0" Height="48" Padding="0" Content="概览"
                     Icon="{ui:SymbolIcon ChartMultiple20}"
-                    TargetPageType="{x:Type pages:SettingsPage}">
+                    TargetPageType="{x:Type pages:OverviewPage}">
                 </ui:NavigationViewItem>
             </ui:NavigationView.MenuItems>
             <ui:NavigationView.FooterMenuItems>

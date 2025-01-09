@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:PunchPal.WPF"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-             xmlns:controls="clr-namespace:PunchPal.WPF.Controls"
+             xmlns:converters="clr-namespace:PunchPal.WPF.Converters"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
@@ -12,7 +12,10 @@
                 <ui:ControlsDictionary />
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibility"/>
-            <controls:BooleanToNotVisibilityConverter x:Key="BooleanToNotVisibility"/>
+            <converters:BooleanToNotVisibilityConverter x:Key="BooleanToNotVisibility"/>
+            <converters:RectangleToThicknessConverter x:Key="RectangleToThickness"/>
+            <converters:BooleanToUnderlineDecorationsConverter x:Key="BooleanToUnderlineDecorations"/>
+            <converters:DrawBrushToMediaBrushConverter x:Key="DrawBrushToMediaBrush"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

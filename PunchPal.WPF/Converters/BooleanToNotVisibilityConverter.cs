@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows.Data;
 using System.Windows;
 
-namespace PunchPal.WPF.Controls
+namespace PunchPal.WPF.Converters
 {
     public class BooleanToNotVisibilityConverter : IValueConverter
     {
@@ -19,7 +19,7 @@ namespace PunchPal.WPF.Controls
             object parameter,
             CultureInfo culture)
         {
-            return value is Visibility visibility ? (object)(visibility == Visibility.Collapsed) : (object)true;
+            return value is Visibility visibility ? visibility == Visibility.Collapsed : (object)true;
         }
     }
 }
