@@ -1,25 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace PunchPal.Tools
 {
     public static class PathTools
     {
+        public static string AppName = "PunchPal";
         public static string AppDataPath
         {
             get
             {
                 string roming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                string appName = System.Reflection.Assembly.GetExecutingAssembly()?.GetName()?.Name?.ToString() ?? "PunchPal";
-                string dataPath = Path.Combine(roming, appName);
+                string dataPath = Path.Combine(roming, AppName);
                 if (!Directory.Exists(dataPath)) Directory.CreateDirectory(dataPath);
                 return dataPath;
             }
         }
 
         public static string SettingPath => Path.Combine(AppDataPath, "setting");
+
+        public static string DatabasePath = Path.Combine(PathTools.AppDataPath, "data.sqlite3");
 
         public static string WinSize => Path.Combine(AppDataPath, "win_size");
 

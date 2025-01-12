@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace PunchPal.WPF.Pages
 {
     /// <summary>
-    /// SettingCommon.xaml 的交互逻辑
+    /// SettingPersonalizePage.xaml 的交互逻辑
     /// </summary>
-    public partial class SettingCommon : Page
+    public partial class SettingPersonalizePage : Page
     {
-        public SettingCommon()
+        public SettingPersonalizePage()
         {
             InitializeComponent();
         }

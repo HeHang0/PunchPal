@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.InteropServices;
 
 namespace PunchPal.Startup
 {
-    public class WindowsStartupManager: IStartupManager
+    public class WindowsStartupManager : IStartupManager
     {
         public void EnableStartup(string appName, string appPath)
         {

@@ -1,0 +1,63 @@
+﻿using PunchPal.Core.Models;
+using PunchPal.Core.Services;
+using PunchPal.Tools;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Input;
+
+namespace PunchPal.Core.ViewModels
+{
+    public class WorkingHoursVM : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
+        public event EventHandler<string> TextCoping;
+
+        public async Task InitItems(DateTime dateTime)
+        {
+            Items.Clear();
+            var settings = SettingsModel.Load();
+            var dateStart = new DateTime(dateTime.Year, dateTime.Month, 1, settings.Data.DayStartHour, 0, 0);
+            var dateEnd = dateStart.AddMonths(1);
+            var dateStartValue = dateStart.TimestampUnix();
+            var dateEndValue = dateEnd.TimestampUnix();
+            var userId = settings.Common.CurrentUser?.UserId ?? "";
+            var result = await WorkHourService.Instance.List(settings.Data.DayStartHour, m => m.UserId == userId && m.PunchTime >= dateStartValue && m.PunchTime < dateEndValue);
+            result.ForEach(m => Items.Add(m));
+        }
+
+        public async Task InitItems(IList<PunchRecord> punchRecords)
+        {
+            Items.Clear();
+            var settings = SettingsModel.Load();
+            var result = await WorkHourService.Instance.List(settings.Data.DayStartHour, punchRecords);
+            result.ForEach(m => Items.Add(m));
+        }
+
+        public ICommand CopyWorkHoursCommand => new ActionCommand(OnCopyWorkHours);
+
+        private void OnCopyWorkHours()
+        {
+            var stringBuilder = new StringBuilder();
+            stringBuilder.Append("时间\t上班时间\t下班时间\t工时（分钟）\t \n");
+            foreach (var item in Items)
+            {
+                stringBuilder.Append(item.ExportText);
+                stringBuilder.Append("\n");
+            }
+
+            TextCoping?.Invoke(this, stringBuilder.ToString());
+        }
+
+        public ObservableCollection<WorkingHours> Items { get; } = new ObservableCollection<WorkingHours>();
+
+        public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+}

@@ -7,12 +7,13 @@ namespace PunchPal.Core.Models
 {
     public class AttendanceRecord
     {
-        [Key]public string AttendanceId { get; set; }
+        [Key] public string AttendanceId { get; set; }
         public string UserId { get; set; }
         public long StartTime { get; set; }
         public long EndTime { get; set; }
         public string Remark { get; set; }
-        [NotMapped] public DateTime? StartDateTime
+        [NotMapped]
+        public DateTime? StartDateTime
         {
             get
             {
@@ -20,9 +21,11 @@ namespace PunchPal.Core.Models
                 return StartTime.Unix2DateTime();
             }
         }
-        [NotMapped] public DateTime? EndDateTime
+        [NotMapped]
+        public DateTime? EndDateTime
         {
-            get {
+            get
+            {
                 if (EndTime == 0) return null;
                 return EndTime.Unix2DateTime();
             }

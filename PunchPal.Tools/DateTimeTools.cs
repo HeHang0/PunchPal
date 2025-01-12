@@ -4,6 +4,8 @@ namespace PunchPal.Tools
 {
     public static class DateTimeTools
     {
+        public const int HourSeconds = 60 * 60;
+        public const int DaySeconds = 24 * 60 * 60;
         public static DateTime Unix2DateTime(this long totalSecond)
         {
             return new DateTime(1970, 1, 1).AddSeconds(totalSecond);

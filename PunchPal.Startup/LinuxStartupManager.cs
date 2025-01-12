@@ -3,7 +3,7 @@ using System.IO;
 
 namespace PunchPal.Startup
 {
-    public class LinuxStartupManager: IStartupManager
+    public class LinuxStartupManager : IStartupManager
     {
         public void EnableStartup(string appName, string executablePath)
         {

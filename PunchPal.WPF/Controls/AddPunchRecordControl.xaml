@@ -1,0 +1,54 @@
+﻿<UserControl x:Class="PunchPal.WPF.Controls.AddPunchRecordControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PunchPal.WPF.Controls"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             mc:Ignorable="d" 
+             d:DataContext="{Binding RelativeSource={RelativeSource Self}}"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Style TargetType="ui:TextBox" BasedOn="{StaticResource DefaultTextBoxStyle}">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <DataTemplate x:Key="ComboBoxItemTemplate">
+            <TextBlock Text="{Binding Path=., StringFormat=00}" />
+        </DataTemplate>
+        <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource DefaultComboBoxStyle}">
+            <Setter Property="Padding" Value="5" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="MaxDropDownHeight" Value="180" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="ItemTemplate" Value="{StaticResource ComboBoxItemTemplate}"/>
+        </Style>
+    </UserControl.Resources>
+    <StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+            <Label Content="时间：" VerticalAlignment="Center"></Label>
+            <StackPanel Orientation="Horizontal" Height="30" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid Margin="0 0 10 0">
+                    <ui:TextBox Width="100" IsReadOnly="True" HorizontalContentAlignment="Center"
+                                Text="{Binding RecordDateText, Mode=OneWay}"></ui:TextBox>
+                    <ui:CalendarDatePicker Height="30" Width="100" IsTodayHighlighted="True" Opacity="0" Margin="0"
+                                           Date="{Binding RecordDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                </Grid>
+                <ComboBox ItemsSource="{Binding HoursList}" ItemTemplate="{StaticResource ComboBoxItemTemplate}"
+                          SelectedItem="{Binding Hour, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <Label Content=":" VerticalAlignment="Center" Margin="5 0"></Label>
+                <ComboBox ItemsSource="{Binding MinutesList}"
+                          SelectedItem="{Binding Minute, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <Label Content=":" VerticalAlignment="Center" Margin="5 0"></Label>
+                <ComboBox ItemsSource="{Binding SecondsList}"
+                          SelectedItem="{Binding Second, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0 10 0 0" HorizontalAlignment="Left">
+            <Label Content="备注：" VerticalAlignment="Center" /> 
+            <ui:TextBox Width="311" VerticalAlignment="Center" Padding="5"
+                        Text="{Binding RecordRemark}"></ui:TextBox>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

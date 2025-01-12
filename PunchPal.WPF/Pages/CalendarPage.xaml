@@ -7,42 +7,17 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:controls="clr-namespace:PunchPal.WPF.Controls"
       xmlns:vm="clr-namespace:PunchPal.Core.ViewModels;assembly=PunchPal.Core"
-      mc:Ignorable="d"
+      mc:Ignorable="d" ScrollViewer.CanContentScroll="False"
       d:DesignHeight="450" d:DesignWidth="800"
-      d:DataContext="{d:DesignInstance Type=vm:CalendarModel}"
+      d:DataContext="{d:DesignInstance Type=vm:CalendarVM}"
       Title="CalenderPage">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto" MinHeight="20"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <TextBlock Text="{Binding MonthText}" FontSize="14" FontWeight="SemiBold"
-                   Foreground="{DynamicResource CalendarViewForeground}" 
-                   Margin="5 4 0 5" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-        <StackPanel Margin="0 0 0 5" Orientation="Horizontal"
-                    HorizontalAlignment="Right" VerticalAlignment="Top">
-            <ui:Button Width="26" Height="26" Padding="0" Margin="0,0,8,0"
-                       HorizontalAlignment="Right" VerticalAlignment="Center"
-                       Appearance="Secondary" Background="Transparent"
-                       BorderBrush="Transparent" Content="" Cursor="Hand"
-                       Command="{Binding LastMonthCommand}"
-                       Focusable="False" Foreground="{DynamicResource CalendarViewButtonForeground}">
-                <ui:Button.Icon>
-                    <ui:SymbolIcon Filled="True" FontSize="26" Symbol="CaretUp20" />
-                </ui:Button.Icon>
-            </ui:Button>
-            <ui:Button Width="26" Height="26" Padding="0" Cursor="Hand"
-                       HorizontalAlignment="Right" VerticalAlignment="Center"
-                       Appearance="Secondary" Background="Transparent"
-                       BorderBrush="Transparent" Content=""
-                       Command="{Binding NextMonthCommand}"
-                       Focusable="False" Foreground="{DynamicResource CalendarViewButtonForeground}">
-                <ui:Button.Icon>
-                    <ui:SymbolIcon Filled="True" FontSize="26" Symbol="CaretDown20" />
-                </ui:Button.Icon>
-            </ui:Button>
-        </StackPanel>
         <ItemsControl Grid.Row="1" ItemsSource="{Binding CalendarHeaders}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -51,7 +26,7 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding}" HorizontalAlignment="Left" Margin="5 0 0 0"/>
+                    <TextBlock Text="{Binding}" HorizontalAlignment="Left" Margin="5 0 0 0" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
@@ -67,5 +42,8 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
+        <TextBlock Grid.Row="3" Text="{Binding HolidayCountdownText}" Margin="5 5 0 0"
+                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" HorizontalAlignment="Right"
+                   Visibility="{Binding HolidayCountdownVisible, Converter={StaticResource BooleanToVisibility}}" />
     </Grid>
 </Page>

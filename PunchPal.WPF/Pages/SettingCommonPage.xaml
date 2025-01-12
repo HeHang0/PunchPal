@@ -1,0 +1,59 @@
+﻿<Page x:Class="PunchPal.WPF.Pages.SettingCommonPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:PunchPal.WPF.Pages"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:vm="clr-namespace:PunchPal.Core.ViewModels;assembly=PunchPal.Core"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="SettingCommon" Margin="10 0 0 0"
+      d:DataContext="{d:DesignInstance Type=vm:SettingsCommon}">
+    <StackPanel>
+        <ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="ProjectionScreen24" />
+                    <ui:TextBlock FontTypography="Body" Text="开机启动" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:ToggleSwitch IsChecked="{Binding IsStartupEnabled}" />
+        </ui:CardControl>
+        <ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="Keyboard24" />
+                    <ui:TextBlock FontTypography="Body" Text="快捷键" />
+                    <ui:SymbolIcon Margin="10 0 0 0" Symbol="Info12" ToolTip="可点击右侧输入框直接按下快捷键更改；如果输入框为空说明默认快捷键被占用，可更改新的快捷键" Cursor="Hand" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:TextBox IsReadOnly="True" MinWidth="150" Height="28" Padding="8 4 8 0">
+            </ui:TextBox>
+        </ui:CardControl>
+        <ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="CalendarRtl24" />
+                    <ui:TextBlock FontTypography="Body" Text="日历起始日" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock VerticalAlignment="Center" Margin="0 0 5 0" Text="星期日"
+                           Visibility="{Binding IsCalendarStartSun, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                <TextBlock VerticalAlignment="Center" Margin="0 0 5 0" Text="星期一"
+                           Visibility="{Binding IsCalendarStartSun, Converter={StaticResource BooleanToNotVisibility}, Mode=OneWay}" />
+                <ui:ToggleSwitch IsChecked="{Binding IsCalendarStartSun}" />
+            </StackPanel>
+        </ui:CardControl>
+        <ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="CalendarPattern20" />
+                    <ui:TextBlock FontTypography="Body" Text="日历节假日背景" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:ToggleSwitch IsChecked="{Binding IsCalendarHolidayVisible}" />
+        </ui:CardControl>
+    </StackPanel>
+</Page>

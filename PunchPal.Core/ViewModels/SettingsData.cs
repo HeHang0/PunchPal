@@ -18,6 +18,23 @@ namespace PunchPal.Core.ViewModels
             }
         }
 
+        private int _dayStartHour = 6;
+
+        public int DayStartHour
+        {
+            get => _dayStartHour;
+            set
+            {
+                if (value < 0 || value > 8)
+                {
+                    return;
+                }
+
+                _dayStartHour = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {

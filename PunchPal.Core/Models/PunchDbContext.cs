@@ -12,12 +12,12 @@ namespace PunchPal.Core.Models
 {
     public class PunchDbContext : DbContext
     {
-        private static readonly string DbPath = Path.Combine(PathTools.AppDataPath, "data.sqlite3");
-        private static readonly string ConnectionText = $"Data Source={DbPath};";
+        private static readonly string ConnectionText = $"Data Source={PathTools.DatabasePath};";
 
         public DbSet<PunchRecord> PunchRecords { get; set; }
         public DbSet<AttendanceRecord> AttendanceRecords { get; set; }
         public DbSet<AttendanceType> AttendanceTypes { get; set; }
+        public DbSet<CalendarRecord> CalendarRecords { get; set; }
         public DbSet<User> Users { get; set; }
 
         public PunchDbContext() : base(new SQLiteConnection(ConnectionText), true)
@@ -31,6 +31,7 @@ namespace PunchPal.Core.Models
             var sqliteConnectionInitializer = new SqliteCreateDatabaseIfNotExists<PunchDbContext>(modelBuilder, true);
             Database.SetInitializer(sqliteConnectionInitializer);
             modelBuilder.Entity<PunchRecord>().Property(e => e.PunchTime).HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
+            modelBuilder.Entity<CalendarRecord>().Property(e => e.Date).HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
         }
 
         private void WriteDBLog(string text)

@@ -5,12 +5,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PunchPal.WPF.Controls"
              xmlns:vm="clr-namespace:PunchPal.Core.ViewModels;assembly=PunchPal.Core"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance Type=vm:CalendarItem}">
     <Border BorderBrush="{DynamicResource TabViewBorderBrush}"
-            BorderThickness="{Binding BorderThickness, Converter={StaticResource RectangleToThickness}}"
-            ToolTip="{Binding TimeText}">
+            BorderThickness="{Binding BorderThickness, Converter={StaticResource RectangleToThickness}}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"></RowDefinition>
@@ -22,19 +22,25 @@
             <Border Grid.Row="0" Grid.RowSpan="2" Background="{DynamicResource AccentButtonBackground}"
                     Opacity="{Binding BackgroundOpacity}">
             </Border>
-            <TextBlock Grid.Row="0" HorizontalAlignment="Left"
-                       Text="{Binding Day}" FontWeight="Bold"
+            <TextBlock Grid.Row="0" HorizontalAlignment="Left" Text="{Binding Day}" FontWeight="Bold" ToolTip="{Binding DateText}"
                        Foreground="{Binding DayColor, Converter={StaticResource DrawBrushToMediaBrush}}"
                        TextDecorations="{Binding IsDayDecorations, Converter={StaticResource BooleanToUnderlineDecorations}}"
                        Opacity="{Binding Opacity}" Margin="5 5 0 0"></TextBlock>
-            <TextBlock Grid.Row="0" HorizontalAlignment="Right" FontSize="12"
-                       Text="{Binding WorkHoursText}" 
-                       Opacity="{Binding WorkHoursTextOpacity}" Margin="0 5 5 0"></TextBlock>
-            <ListBox Grid.Row="1" Margin="5 3 0 5" ScrollViewer.VerticalScrollBarVisibility="Auto"
-                     ItemsSource="{Binding TextList}" Opacity="{Binding Opacity}">
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <ui:InfoBadge Severity="Critical" Style="{DynamicResource DotInfoBadgeStyle}" ToolTip="加班"
+                              Visibility="{Binding IsWorkOvertime, Converter={StaticResource BooleanToVisibility}}"/>
+                <Label FontSize="12" Content="{Binding WorkHoursText}" ToolTip="{Binding TimeText}"
+                       Opacity="{Binding WorkHoursTextOpacity}" Margin="5 5 5 0"></Label>
+            </StackPanel>
+            <ListBox Grid.Row="1" Margin="5 5 0 5" VerticalAlignment="Bottom"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     ItemsSource="{Binding TextList}" Opacity="{Binding Opacity}"
+                     ToolTip="{Binding TextListToolTip}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock FontSize="13" Text="{Binding }"></TextBlock>
+                        <TextBlock FontSize="13" Text="{Binding }" HorizontalAlignment="Left" Margin="0"
+                                   TextTrimming="CharacterEllipsis" Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>

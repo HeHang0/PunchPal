@@ -1,35 +1,46 @@
-﻿using PunchPal.Tools;
+﻿using PunchPal.Core.Models;
+using PunchPal.Tools;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Runtime;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace PunchPal.Core.ViewModels
 {
-    public class CalendarItem: INotifyPropertyChanged
+    public class CalendarItem : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
+        public static bool IsDarkMode { get; set; }
 
-        private bool _weak = false;
-        private bool _darkMode = false;
+        private readonly bool _weak = false;
         public DateTime Date { get; private set; }
+        public string DateText => Date.ToString("yyyy年MM月dd日");
         public string Day => Date.Day.ToString() ?? string.Empty;
         public float Opacity { get; set; } = 1;
-        public int WorkMinutes { get; set; }
-        private readonly WorkingHoursModel _workItem;
+        public int WorkMinutes => _workItem?.TotalMinutes ?? 0;
+        private WorkingHours _workItem;
+        public WorkingHours WorkItem
+        {
+            get => _workItem;
+            set
+            {
+                _workItem = value;
+            }
+        }
 
         public string TimeText
         {
             get
             {
-                var startText = _workItem?.StartTime.Unix2DateTime().ToLongTimeString();
-                var endText = _workItem?.EndTime.Unix2DateTime().ToLongTimeString();
+                var startDateTime = _workItem?.StartTime.Unix2DateTime();
+                var endDateTime = _workItem?.EndTime.Unix2DateTime();
+                var startText = startDateTime?.ToString("HH:mm:ss");
+                var endText = endDateTime?.ToString("HH:mm:ss");
+                var extText = startDateTime?.ToDateString() == endDateTime?.ToDateString() ? string.Empty : "(次日)";
                 if (!string.IsNullOrWhiteSpace(startText) && !string.IsNullOrWhiteSpace(endText))
                 {
-                    return $"{startText} - {endText}";
+                    return $"{startText} - {endText}{extText}";
                 }
 
                 return null;
@@ -38,23 +49,22 @@ namespace PunchPal.Core.ViewModels
         public string WorkHoursText => WorkMinutes <= 0 || _weak ? string.Empty : $"{(WorkMinutes * 1.0f / 60).ToString("F3").TrimEnd('0').TrimEnd('.')}(小时)";
         public float WorkHoursTextOpacity => WorkMinutes < (SettingsModel.Load().Data.EveryDayWorkHour * 60) ? 0.9f : 0.5f;
         public bool IsHoliday { get; set; }
-
+        public bool IsWorkday { get; set; }
         public Brush DayColor
         {
             get
             {
-                if (_weak)
-                {
-                    return _darkMode ? Brushes.White : Brushes.Black;
-                }
-                if (IsHoliday && !IsWeekends)
+                //if (_weak)
+                //{
+                //    return IsDarkMode ? Brushes.White : Brushes.Black;
+                //}
+                if (IsHoliday)
                 {
                     return Brushes.ForestGreen;
                 }
-
-                return !IsHoliday && IsWeekends
+                return !IsHoliday && !IsWorkday && IsWeekends
                     ? Brushes.Coral
-                    : (_darkMode ? Brushes.White : Brushes.Black);
+                    : (IsDarkMode ? Brushes.White : Brushes.Black);
             }
         }
 
@@ -72,7 +82,7 @@ namespace PunchPal.Core.ViewModels
             }
         }
 
-        private bool IsWeekends => Date.DayOfWeek == DayOfWeek.Saturday || Date.DayOfWeek == DayOfWeek.Sunday;
+        public bool IsWeekends => Date.DayOfWeek == DayOfWeek.Saturday || Date.DayOfWeek == DayOfWeek.Sunday;
 
         public string HolidayText { get; set; }
         public Rectangle BorderThickness { get; private set; }
@@ -100,9 +110,83 @@ namespace PunchPal.Core.ViewModels
             }
         }
 
-        public List<string> TextList { get; set; } = new List<string>();
+        public bool IsWorkOvertime { get; set; }
 
-        public CalendarItem(DateTime date, bool weak=false)
+        private List<string> _textList = null;
+        public List<string> TextList
+        {
+            get
+            {
+                if(_textList != null)
+                {
+                    return _textList;
+                }
+                _textList = new List<string>();
+                if(CalendarData == null)
+                {
+                    return _textList;
+                }
+                var record = CalendarData;
+                if (!string.IsNullOrWhiteSpace(record.Remark))
+                {
+                    _textList.Add(record.Remark);
+                }
+                var festivalEmpty = string.IsNullOrWhiteSpace(record.Festival);
+                var solarTermEmpty = string.IsNullOrWhiteSpace(record.SolarTerm);
+                if (!solarTermEmpty && record.SolarTerm != record.Festival)
+                {
+                    _textList.Add(record.SolarTerm);
+                }
+                if (!festivalEmpty)
+                {
+                    _textList.Add(record.Festival);
+                }
+                if (solarTermEmpty && festivalEmpty)
+                {
+                    if(record.LunarDate == "初一" && !string.IsNullOrWhiteSpace(record.LunarMonth))
+                    {
+                        _textList.Add(record.LunarMonth + "月");
+                    }
+                    else
+                    {
+                        _textList.Add(record.LunarDate);
+                    }
+                }
+                return _textList;
+            }
+        }
+
+        public string TextListToolTip
+        {
+            get
+            {
+                var lunarDate = _calendarData == null ? string.Empty : $"{_calendarData.LunarYear}年{_calendarData.LunarMonth}月{_calendarData.LunarDate}";
+                var text = string.Join(Environment.NewLine, TextList);
+                if (lunarDate.EndsWith(text))
+                {
+                    return lunarDate;
+                }
+                return string.Join(Environment.NewLine, TextList) + Environment.NewLine + lunarDate;
+            }
+        }
+
+        private CalendarRecord _calendarData;
+        public CalendarRecord CalendarData
+        {
+            get => _calendarData;
+            set
+            {
+                _calendarData = value;
+                if(_calendarData != null)
+                {
+                    IsHoliday = _calendarData.IsHoliday;
+                    IsWorkday = _calendarData.IsWorkday;
+                    IsWorkOvertime = !_calendarData.IsWorkday && (_calendarData.IsHoliday || IsWeekends) && WorkMinutes > 0;
+                }
+            }
+        }
+
+        public CalendarItem(DateTime date, bool weak = false)
         {
             Date = date;
             Opacity = weak ? 0.5f : 1f;
@@ -119,9 +203,8 @@ namespace PunchPal.Core.ViewModels
                 1);
         }
 
-        public void SetDark(bool dark)
+        public void UpdateDayColor()
         {
-            _darkMode = true;
             OnPropertyChanged(nameof(DayColor));
         }
 

@@ -4,11 +4,26 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:PunchPal.WPF.Pages"
-      mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      xmlns:vm="clr-namespace:PunchPal.Core.ViewModels;assembly=PunchPal.Core"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+      mc:Ignorable="d" ScrollViewer.CanContentScroll="False"
+      d:DesignHeight="450" d:DesignWidth="800" Margin="0"
+      d:DataContext="{d:DesignInstance Type=vm:WorkingHoursVM}"
       Title="WorkingHoursPage">
-
-    <Grid>
-        
-    </Grid>
+    <ui:DataGrid CanUserAddRows="False" AutoGenerateColumns="False" HeadersVisibility="Column"
+                 ItemsSource="{Binding Items}" Background="Transparent" IsReadOnly="True">
+        <DataGrid.Columns>
+            <DataGridTextColumn Header="日期" Width="100" Binding="{Binding WorkingDateTimeText}" />
+            <DataGridTextColumn Header="上班时间" Width="180" Binding="{Binding StartTimeText}" />
+            <DataGridTextColumn Header="下班时间" Width="180" Binding="{Binding EndTimeText}" />
+            <DataGridTextColumn Header="工时（分钟）" Width="110" Binding="{Binding TotalHoursText}" />
+            <DataGridTextColumn Header="备注" Width="*" MinWidth="80" Binding="{Binding Remark}" />
+        </DataGrid.Columns>
+        <b:Interaction.Triggers>
+            <b:EventTrigger EventName="MouseDoubleClick">
+                <b:InvokeCommandAction Command="{Binding CopyWorkHoursCommand}"/>
+            </b:EventTrigger>
+        </b:Interaction.Triggers>
+    </ui:DataGrid>
 </Page>

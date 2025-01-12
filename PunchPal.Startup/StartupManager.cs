@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Text;
+﻿using System.Runtime.InteropServices;
 
 namespace PunchPal.Startup
 {
     public class StartupManager
     {
-        private IStartupManager manager;
-        private string appName;
-        private string appPath;
+        private readonly IStartupManager manager;
+        private readonly string appName;
+        private readonly string appPath;
         public StartupManager(string appName, string appPath)
         {
             this.appName = appName;

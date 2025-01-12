@@ -1,7 +1,7 @@
-﻿using System.Data.Entity.Core.Common;
-using System.Data.SQLite.EF6;
+﻿using System.Data.Entity;
+using System.Data.Entity.Core.Common;
 using System.Data.SQLite;
-using System.Data.Entity;
+using System.Data.SQLite.EF6;
 
 namespace PunchPal.Core.Models
 {

@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Data;
-using System.Windows;
 using System.Drawing;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Data;
 
 namespace PunchPal.WPF.Converters
 {
@@ -14,7 +10,7 @@ namespace PunchPal.WPF.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if(value is Rectangle rectangle)
+            if (value is Rectangle rectangle)
             {
                 return new Thickness(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
             }

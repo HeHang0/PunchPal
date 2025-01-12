@@ -5,7 +5,7 @@ using System.Windows.Data;
 
 namespace PunchPal.WPF.Converters
 {
-    public class BooleanToUnderlineDecorationsConverter: IValueConverter
+    public class BooleanToUnderlineDecorationsConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

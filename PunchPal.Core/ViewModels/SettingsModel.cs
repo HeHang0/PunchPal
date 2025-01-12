@@ -1,16 +1,18 @@
-﻿using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using System.Threading;
-using System.IO;
-using PunchPal.Tools;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using PunchPal.Startup;
+using PunchPal.Tools;
+using System;
+using System.ComponentModel;
+using System.Globalization;
+using System.IO;
+using System.Runtime;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace PunchPal.Core.ViewModels
 {
-    public class SettingsModel: INotifyPropertyChanged
+    public class SettingsModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -18,6 +20,45 @@ namespace PunchPal.Core.ViewModels
 
         public SettingsData Data { get; set; } = new SettingsData();
         public SettingsCommon Common { get; set; } = new SettingsCommon();
+        public SettingsNetwork Network { get; set; } = new SettingsNetwork();
+        public SettingsPersonalize Personalize { get; set; } = new SettingsPersonalize();
+
+        public enum PageType
+        {
+            Data,
+            Common,
+            Network,
+            Personalize
+        }
+
+        [JsonIgnore] private PageType _currentPage = PageType.Common;
+        [JsonIgnore]public PageType CurrentPage
+        {
+            get => _currentPage;
+            set
+            {
+                if (_currentPage == value)
+                {
+                    return;
+                }
+                _currentPage = value;
+                OnPropertyChanged(nameof(CurrentTitle));
+            }
+        }
+        public string CurrentTitle
+        {
+            get
+            {
+                switch (_currentPage)
+                {
+                    case PageType.Common: return "常规";
+                    case PageType.Personalize: return "个性化";
+                    case PageType.Data: return "数据";
+                    case PageType.Network: return "网络";
+                    default: return string.Empty;
+                }
+            }
+        }
 
         static SettingsModel()
         {
@@ -28,35 +69,10 @@ namespace PunchPal.Core.ViewModels
             catch (Exception)
             {
             }
-            _startupManager = new StartupManager("PunchPal", System.Reflection.Assembly.GetExecutingAssembly().Location);
             if (_settings == null) _settings = new SettingsModel();
-            if (_settings.IsStartupEnabled)
+            if (_settings.Common.IsStartupEnabled)
             {
-                SetStartup(true);
-            }
-        }
-
-        public bool IsStartupEnabled
-        {
-            get => _startupManager?.IsStartupEnabled() ?? false;
-            set
-            {
-                SetStartup(value);
-                OnPropertyChanged(nameof(IsStartupEnabled));
-            }
-        }
-
-        private static StartupManager _startupManager;
-        private static void SetStartup(bool startup)
-        {
-            if (startup)
-            {
-                _startupManager?.EnableStartup();
-            }
-            else
-            {
-
-                _startupManager?.DisableStartup();
+                SettingsCommon.SetStartup(true);
             }
         }
 
@@ -90,7 +106,7 @@ namespace PunchPal.Core.ViewModels
             _ = SaveReal(saveCts.Token);
         }
 
-        private async Task SaveReal(CancellationToken? token = null)
+        public async Task SaveReal(CancellationToken? token = null)
         {
             try
             {

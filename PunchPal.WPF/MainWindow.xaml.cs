@@ -1,6 +1,27 @@
-﻿using PunchPal.WPF.ViewModels;
+﻿using Microsoft.Win32;
+using PicaPico;
+using PunchPal.Core.Models;
+using PunchPal.Core.Services;
+using PunchPal.Core.ViewModels;
+using PunchPal.Tools;
+using PunchPal.WPF.Controls;
+using PunchPal.WPF.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Interop;
+using System.Windows.Shell;
+using Wpf.Ui;
 using Wpf.Ui.Controls;
+using Wpf.Ui.Interop;
+using ControlAppearance = Wpf.Ui.Controls.ControlAppearance;
+using MainModel = PunchPal.WPF.ViewModels.MainModel;
 
 namespace PunchPal.WPF
 {
@@ -9,18 +30,159 @@ namespace PunchPal.WPF
     /// </summary>
     public partial class MainWindow : FluentWindow
     {
-        private MainModel _mainModel;
+        private readonly MainModel _mainModel;
         public MainWindow()
         {
             InitializeComponent();
             _mainModel = new MainModel();
             DataContext = _mainModel;
             Loaded += MainWindow_Loaded;
+            Closing += MainWindow_Closing;
+            _mainModel.ConfirmDialog += OnConfirmDialog;
+            _mainModel.Tips += OnTips;
+            _mainModel.AddRecord += OnAddRecord;
+            _mainModel.WorkingHours.TextCoping += OnTextCoping;
+            InitWindowBackdropType();
         }
 
-        private void MainWindow_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        private void OnTextCoping(object sender, string text)
+        {
+            try
+            {
+                Clipboard.SetText(text);
+                ShowTips(new TipsOption("提示", $"已复制到剪贴板", Core.Models.ControlAppearance.Success));
+            }
+            catch (Exception ex)
+            {
+                ShowTips(new TipsOption("提示", $"复制到剪贴板出错", Core.Models.ControlAppearance.Danger));
+            }
+        }
+
+        private async void OnAddRecord(object sender, EventArgs e)
+        {
+            var content = new AddPunchRecordControl()
+            {
+                Width = 380,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            var contentDialog = new ContentDialog()
+            {
+                Title = "添加打卡记录",
+                CloseButtonText = "取消",
+                PrimaryButtonText = "导入",
+                PrimaryButtonAppearance = ControlAppearance.Success,
+                SecondaryButtonText = "确认",
+                SecondaryButtonAppearance = ControlAppearance.Primary,
+                MinHeight = 0,
+                DialogHost = DialogPresenter,
+                Content = content
+            };
+
+            var result = await contentDialog.ShowAsync();
+            var records = new List<PunchRecord>();
+            switch (result)
+            {
+                case ContentDialogResult.Secondary:
+                    {
+                        var timestamp = content.RecordDateTime.TimestampUnix();
+                        var record = new PunchRecord
+                        {
+                            PunchTime = timestamp,
+                            PunchType = PunchRecord.PunchTypeManual,
+                            UserId = _mainModel.Setting.Common.CurrentUser?.UserId,
+                            Remark = content.RecordRemark
+                        };
+                        records.Add(record);
+                        break;
+                    }
+                case ContentDialogResult.Primary:
+                    _mainModel.Loading = true;
+                    await PunchRecordService.Instance.ImportFromFile(SelectFile(), _mainModel.Setting.Common.CurrentUser?.UserId);
+                    _mainModel.Loading = false;
+                    return;
+                default:
+                    break;
+            }
+            _mainModel.Loading = true;
+            var len = await PunchRecordService.Instance.Add(records);
+            _mainModel.Loading = false;
+            if (len > 0)
+            {
+                _mainModel.InitItems();
+                ShowTips(new TipsOption("提示", $"添加{len}条数据成功", Core.Models.ControlAppearance.Success));
+            }
+        }
+
+        private string SelectFile()
+        {
+            var openFileDialog = new OpenFileDialog()
+            {
+                Filter = "Text|*.txt|Sqlite|*.sqlite|All|*.*",
+                Multiselect = false
+            };
+
+            if (openFileDialog.ShowDialog() != true) return string.Empty;
+            return openFileDialog.FileName;
+        }
+
+        private void OnTips(object sender, TipsOption option)
+        {
+            ShowTips(option);
+        }
+
+        private SnackbarService _snackbarService;
+
+        private void ShowTips(TipsOption option)
+        {
+            if (SnackbarPresenter == null)
+            {
+                return;
+            }
+
+            if (_snackbarService == null)
+            {
+                _snackbarService = new SnackbarService();
+                _snackbarService.SetSnackbarPresenter(SnackbarPresenter);
+            }
+
+            _snackbarService.Show(
+                option.Title,
+                option.Message,
+                (ControlAppearance)option.Appearance,
+                new SymbolIcon(SymbolRegular.Fluent24),
+                option.Duration
+            );
+        }
+
+        private void OnConfirmDialog(object sender, ConfirmDialogEventArgs e)
+        {
+            var contentDialog = new ContentDialog()
+            {
+                Title = e.Title,
+                Content = e.Message,
+                CloseButtonText = "取消",
+                PrimaryButtonText = "确认",
+                PrimaryButtonAppearance = (ControlAppearance)e.Appearance,
+                MinHeight = 0,
+                DialogHost = DialogPresenter,
+            };
+            var resultTask = contentDialog.ShowAsync();
+            e.Result = resultTask.ContinueWith(t =>
+            {
+                return t.Result == ContentDialogResult.Primary;
+            });
+        }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             PunchNavigationView.Navigate("记录");
+        }
+
+        private void InitWindowBackdropType()
+        {
+            if (!OSVersionTools.IsAcrylicCustom || _mainModel.WindowBackdropType != WindowBackdropType.Acrylic) return;
+            AcrylicHelper.Apply(this, DragHelper);
         }
 
         private void PunchNavigationView_Navigating(NavigationView sender, NavigatingCancelEventArgs args)
@@ -29,24 +191,113 @@ namespace PunchPal.WPF
             {
                 return;
             }
-            if(page.DataContext != null)
+            switch (page.GetType())
+            {
+                case var type when type == typeof(Pages.SettingCommonPage):
+                    if (page.DataContext == null) page.DataContext = _mainModel.Setting.Common;
+                    _mainModel.Setting.CurrentPage = SettingsModel.PageType.Common;
+                    break;
+                case var type when type == typeof(Pages.SettingPersonalizePage):
+                    if (page.DataContext == null) page.DataContext = _mainModel.Setting.Personalize;
+                    _mainModel.Setting.CurrentPage = SettingsModel.PageType.Personalize;
+                    break;
+                case var type when type == typeof(Pages.PunchRecordPage):
+                    _mainModel.CurrentPage = Core.ViewModels.MainModel.PageType.PunchRecord;
+                    if (page.DataContext == null) page.DataContext = _mainModel.PunchRecord;
+                    break;
+                case var type when type == typeof(Pages.WorkingHoursPage):
+                    _mainModel.CurrentPage = Core.ViewModels.MainModel.PageType.WorkingHours;
+                    if (page.DataContext == null) page.DataContext = _mainModel.WorkingHours;
+                    break;
+                case var type when type == typeof(Pages.CalendarPage):
+                    _mainModel.CurrentPage = Core.ViewModels.MainModel.PageType.Calendar;
+                    if (page.DataContext == null) page.DataContext = _mainModel.Calendar;
+                    break;
+                case var type when type == typeof(Pages.OverviewPage):
+                    _mainModel.CurrentPage = Core.ViewModels.MainModel.PageType.Overview;
+                    break;
+                case var type when type == typeof(Pages.SettingsPage):
+                    _mainModel.CurrentPage = Core.ViewModels.MainModel.PageType.Settings;
+                    if (page.DataContext == null) page.DataContext = _mainModel.Setting;
+                    break;
+                default:
+                    _mainModel.CurrentPage = Core.ViewModels.MainModel.PageType.None;
+                    break;
+            }
+        }
+
+        private bool _exiting;
+
+        private void Exit(object sender, RoutedEventArgs e)
+        {
+            _exiting = true;
+            _ = _mainModel.Setting.SaveReal();
+            Application.Current.Shutdown();
+        }
+
+        private bool _toastShown;
+
+        private void MainWindow_Closing(object sender, CancelEventArgs e)
+        {
+            e.Cancel = true;
+            Hide();
+            if (_toastShown)
             {
                 return;
             }
-            switch (page.GetType())
+
+            Trace.WriteLine("已最小化到托盘");
+            _toastShown = true;
+        }
+
+        private void ShowWindow()
+        {
+            Show();
+            WindowState = WindowState.Normal;
+            Activate();
+            var handle = new WindowInteropHelper(this).Handle;
+            if (handle != IntPtr.Zero)
             {
-                case var type when type == typeof(Pages.PunchRecordPage):
-                    break;
-                case var type when type == typeof(Pages.WorkingHoursPage):
-                    break;
-                case var type when type == typeof(Pages.CalendarPage):
-                    page.DataContext = _mainModel.Calendar;
-                    break;
-                case var type when type == typeof(Pages.OverviewPage):
-                    break;
-                case var type when type == typeof(Pages.SettingsPage):
-                    break;
+                SetForegroundWindow(handle);
             }
+        }
+
+        private void OnShowWindowClick(object sender, RoutedEventArgs e)
+        {
+            ShowWindow();
+        }
+
+        private void OnShowSettingsClick(object sender, RoutedEventArgs e)
+        {
+            ShowWindow();
+            PunchNavigationView.Navigate("设置");
+        }
+
+        protected override void OnExtendsContentIntoTitleBarChanged(bool oldValue, bool newValue)
+        {
+            SetCurrentValue(WindowStyleProperty, WindowStyle);
+
+            WindowChrome.SetWindowChrome(
+                this,
+                new WindowChrome
+                {
+                    CaptionHeight = 0,
+                    CornerRadius = default,
+                    GlassFrameThickness = new Thickness(-1),
+                    ResizeBorderThickness = ResizeMode == ResizeMode.NoResize ? default : new Thickness(4),
+                    UseAeroCaptionButtons = false,
+                }
+            );
+            _ = UnsafeNativeMethods.RemoveWindowTitlebarContents(this);
+        }
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        private void OnWindowMouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            FocusHelper.Focus();
         }
     }
 }

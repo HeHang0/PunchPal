@@ -1,0 +1,64 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+    <Style x:Key="DefaultControlFocusVisualStyle">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <!--<Rectangle
+                        RadiusX="4"
+                        RadiusY="4"
+                        SnapsToDevicePixels="True"
+                        Stroke="{DynamicResource KeyboardFocusBorderColorBrush}"
+                        StrokeThickness="0" />-->
+                    <Border Height="3" Width="15" CornerRadius="2"
+                            Background="{DynamicResource TextFillColorPrimaryBrush}"
+                            HorizontalAlignment="Center" VerticalAlignment="Top" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="{x:Static SystemParameters.FocusVisualStyleKey}" BasedOn="{StaticResource DefaultControlFocusVisualStyle}" />
+    <Style TargetType="DataGridRowHeader" BasedOn="{StaticResource DefaultDataGridRowHeaderStyle}">
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource DefaultDataGridColumnHeaderStyle}">
+        <Setter Property="BorderBrush" Value="Transparent" />
+    </Style>
+    <Style TargetType="DataGridCell" BasedOn="{StaticResource DefaultDataGridCellStyle}">
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style TargetType="{x:Type ui:DataGrid}" BasedOn="{StaticResource DefaultDataGridStyle}">
+        <Setter Property="VerticalGridLinesBrush" Value="Transparent" />
+        <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource LayerOnMicaBaseAltFillColorSecondaryBrush}" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource DefaultListBoxItemStyle}">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="IsSelected" Value="False" />
+        <!--<Setter Property="IsEnabled" Value="False" />-->
+    </Style>
+    <Style TargetType="{x:Type ui:Button}" BasedOn="{StaticResource DefaultUiButtonStyle}">
+        <Style.Triggers>
+            <Trigger Property="Appearance" Value="Danger">
+                <Setter Property="Foreground" Value="White" />
+            </Trigger>
+            <Trigger Property="Appearance" Value="Primary">
+                <Setter Property="Foreground" Value="White" />
+            </Trigger>
+            <Trigger Property="Appearance" Value="Success">
+                <Setter Property="Foreground" Value="White" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <Style TargetType="{x:Type RadioButton}" BasedOn="{StaticResource DefaultRadioButtonStyle}">
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="Margin" Value="20 0 10 0" />
+    </Style>
+</ResourceDictionary>
