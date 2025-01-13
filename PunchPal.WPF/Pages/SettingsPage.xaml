@@ -26,7 +26,7 @@
             </ui:NavigationView.PaneHeader>
             <ui:NavigationView.Header>
                 <TextBlock Margin="10 0 0 20" FontSize="30" FontWeight="Bold"
-                           Text="{Binding CurrentTitle}" />
+                           Text="{Binding CurrentSettingTitle}" />
             </ui:NavigationView.Header>
             <ui:NavigationView.MenuItems>
                 <ui:NavigationViewItem
@@ -38,6 +38,11 @@
                     Margin="0" Padding="0" Content="个性化"
                     Icon="{ui:SymbolIcon Edit20}" ToolTip="个性化"
                     TargetPageType="{x:Type local:SettingPersonalizePage}">
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem
+                    Margin="0" Padding="0" Content="网络"
+                    Icon="{ui:SymbolIcon NetworkCheck20}" ToolTip="网络"
+                    TargetPageType="{x:Type local:SettingNetworkPage}">
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem
                     Margin="0" Padding="0" Content="关于"

@@ -17,8 +17,10 @@ namespace PunchPal.Core.ViewModels
             {
                 _requestProxyType = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(IsNetProxyCustom));
                 OnPropertyChanged(nameof(IsNetProxySystem));
                 OnPropertyChanged(nameof(IsNetProxyNone));
+                OnPropertyChanged(nameof(IsProxyServerAuthVisible));
             }
         }
 
@@ -91,9 +93,12 @@ namespace PunchPal.Core.ViewModels
             {
                 _isProxyServerAuth = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(IsProxyServerAuthVisible));
             }
         }
-        
+
+        public bool IsProxyServerAuthVisible => IsNetProxyCustom && IsProxyServerAuth;
+
         private string _proxyUserName = string.Empty;
         public string ProxyUserName
         {

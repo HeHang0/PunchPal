@@ -67,5 +67,62 @@
                         Visibility="{Binding IsAcrylicSupported, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}"/>
             </StackPanel>
         </ui:CardControl>
+        <ui:CardExpander Margin="0,0,0,12" ContentPadding="0" IsExpanded="{Binding BackgroundImageExists, Mode=OneWay}">
+            <ui:CardExpander.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Margin="0 0 10 0" Symbol="Image24" />
+                        <ui:TextBlock VerticalAlignment="Center" FontTypography="Body" Text="背景图片" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                        <ui:Button Appearance="Primary" Content="选择图片" Margin="0 0 20 0" Height="25" Padding="10 0"
+                                       Command="{Binding BackgroundImageSelectCommand}"/>
+                        <ui:ToggleSwitch IsChecked="{Binding BackgroundImageEnabled}" Margin="0 0 10 0"/>
+                    </StackPanel>
+                </Grid>
+            </ui:CardExpander.Header>
+            <Grid Margin="15 10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Border CornerRadius="8"  BorderThickness="0" Height="200"
+                            Opacity="{Binding BackgroundImageOpacity}"
+                            Visibility="{Binding BackgroundImageExists, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
+                    <Border.Background>
+                        <ImageBrush ImageSource="{Binding BackgroundImage}" Stretch="Uniform"/>
+                    </Border.Background>
+                    <Border.Effect>
+                        <BlurEffect Radius="{Binding BackgroundImageBlur}"  KernelType="Box"/>
+                    </Border.Effect>
+                </Border>
+                <Grid Grid.Column="1" Margin="20 0 0 0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Slider Orientation="Vertical" HorizontalAlignment="Center" Maximum="1" Minimum="0"
+                                IsSnapToTickEnabled="True" TickFrequency="0.1"
+                                Value="{Binding BackgroundImageOpacity}"/>
+                    <Label Grid.Row="1" Content="透明度" Margin="5 10 5 0"></Label>
+                </Grid>
+                <Grid Grid.Column="2" Margin="20 0 0 0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Slider Orientation="Vertical" HorizontalAlignment="Center" Maximum="25" Minimum="0"
+                                IsSnapToTickEnabled="True" TickFrequency="1"
+                                Value="{Binding BackgroundImageBlur}"/>
+                    <Label Grid.Row="1" Content="亚克力效果" Margin="5 10 5 0"></Label>
+                </Grid>
+            </Grid>
+        </ui:CardExpander>
     </StackPanel>
 </Page>

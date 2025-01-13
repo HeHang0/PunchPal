@@ -1,4 +1,5 @@
-﻿using PunchPal.Core.Models;
+﻿using PunchPal.Core.Events;
+using PunchPal.Core.Models;
 using PunchPal.Core.Services;
 using PunchPal.Tools;
 using System;

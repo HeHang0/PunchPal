@@ -1,7 +1,8 @@
-﻿using System;
+﻿using PunchPal.Core.Models;
+using System;
 using System.Threading.Tasks;
 
-namespace PunchPal.Core.Models
+namespace PunchPal.Core.Events
 {
     public class ConfirmDialogEventArgs : EventArgs
     {

@@ -1,8 +1,10 @@
-﻿using PunchPal.Core.Models;
+﻿using PunchPal.Core.Events;
+using PunchPal.Core.Models;
 using PunchPal.Tools;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO.Pipes;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
@@ -14,6 +16,7 @@ namespace PunchPal.Core.ViewModels
         public event EventHandler<TipsOption> Tips;
         public event EventHandler<ConfirmDialogEventArgs> ConfirmDialog;
         public event EventHandler AddRecord;
+        public event EventHandler ShowWindow;
 
         public enum PageType
         {

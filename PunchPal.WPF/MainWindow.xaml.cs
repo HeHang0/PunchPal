@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using PicaPico;
+using PunchPal.Core.Events;
 using PunchPal.Core.Models;
 using PunchPal.Core.Services;
 using PunchPal.Core.ViewModels;
@@ -10,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -42,7 +44,39 @@ namespace PunchPal.WPF
             _mainModel.Tips += OnTips;
             _mainModel.AddRecord += OnAddRecord;
             _mainModel.WorkingHours.TextCoping += OnTextCoping;
+            _mainModel.Setting.Personalize.PropertyChanged += OnPersonalizeChanged;
+            _mainModel.Setting.Personalize.FileSelecting += OnFileSelecting;
+            _mainModel.ShowWindow += OnShowWindow;
             InitWindowBackdropType();
+        }
+
+        private void OnFileSelecting(object sender, SelectFileEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog()
+            {
+                Filter = e.Filter,
+                Multiselect = e.Multiselect
+            };
+            if (openFileDialog.ShowDialog() != true)
+            {
+                return;
+            }
+            e.FileName = openFileDialog.FileName;
+            e.FileNames = openFileDialog.FileNames;
+        }
+
+        private void OnShowWindow(object sender, EventArgs e)
+        {
+            Dispatcher.Invoke(ShowWindow);
+        }
+
+        private void OnPersonalizeChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if(e.PropertyName != nameof(SettingsPersonalize.WindowEffectType))
+            {
+                return;
+            }
+            Restart();
         }
 
         private void OnTextCoping(object sender, string text)
@@ -195,11 +229,15 @@ namespace PunchPal.WPF
             {
                 case var type when type == typeof(Pages.SettingCommonPage):
                     if (page.DataContext == null) page.DataContext = _mainModel.Setting.Common;
-                    _mainModel.Setting.CurrentPage = SettingsModel.PageType.Common;
+                    _mainModel.Setting.CurrentSettingPage = SettingsModel.PageType.Common;
                     break;
                 case var type when type == typeof(Pages.SettingPersonalizePage):
                     if (page.DataContext == null) page.DataContext = _mainModel.Setting.Personalize;
-                    _mainModel.Setting.CurrentPage = SettingsModel.PageType.Personalize;
+                    _mainModel.Setting.CurrentSettingPage = SettingsModel.PageType.Personalize;
+                    break;
+                case var type when type == typeof(Pages.SettingNetworkPage):
+                    if (page.DataContext == null) page.DataContext = _mainModel.Setting.Network;
+                    _mainModel.Setting.CurrentSettingPage = SettingsModel.PageType.Network;
                     break;
                 case var type when type == typeof(Pages.PunchRecordPage):
                     _mainModel.CurrentPage = Core.ViewModels.MainModel.PageType.PunchRecord;
@@ -232,6 +270,30 @@ namespace PunchPal.WPF
         {
             _exiting = true;
             _ = _mainModel.Setting.SaveReal();
+            Application.Current.Shutdown();
+        }
+
+        private async void Restart()
+        {
+            var option = new ConfirmDialogEventArgs()
+            {
+                Title = "提示",
+                Message = "设置已更改，是否重启应用？",
+                Appearance = Core.Models.ControlAppearance.Caution
+            };
+            _ = _mainModel.Setting.SaveReal();
+            OnConfirmDialog(null, option);
+            if (option.Result == null)
+            {
+                return;
+            }
+            var result = await option.Result;
+            if(!result)
+            {
+                return;
+            }
+            _exiting = true;
+            Process.Start(Application.ResourceAssembly.Location, "--restarted");
             Application.Current.Shutdown();
         }
 

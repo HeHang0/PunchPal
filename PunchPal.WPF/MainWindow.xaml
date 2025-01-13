@@ -24,8 +24,17 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <TextBox x:Name="FocusHelper" Width="0" Height="0" Style="{x:Null}" Opacity="0"/>
-        <Border x:Name="DragHelper" Visibility="Collapsed" Background="#01000000" Height="48"/>
+        <TextBox x:Name="FocusHelper" Width="0" Height="0" Style="{x:Null}" Opacity="0" IsReadOnly="True"/>
+        <Image Grid.Row="0" Grid.RowSpan="2" Stretch="UniformToFill" StretchDirection="Both"
+               VerticalAlignment="Center" HorizontalAlignment="Center"
+               Source="{Binding Setting.Personalize.BackgroundImage}"
+               Opacity="{Binding Setting.Personalize.BackgroundImageOpacity}"
+               Visibility="{Binding Setting.Personalize.BackgroundImageVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
+            <Image.Effect>
+                <BlurEffect Radius="{Binding Setting.Personalize.BackgroundImageBlur}"  KernelType="Box"/>
+            </Image.Effect>
+        </Image>
+        <Border Grid.Row="0" x:Name="DragHelper" Visibility="Collapsed" Background="#01000000" Height="48"/>
         <ui:TitleBar Grid.Row="0" Title="{Binding Title}"
                      CanMaximize="True" ShowMaximize="True" ShowMinimize="True">
             <ui:TitleBar.Icon>

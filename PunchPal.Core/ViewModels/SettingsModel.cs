@@ -31,25 +31,28 @@ namespace PunchPal.Core.ViewModels
             Personalize
         }
 
-        [JsonIgnore] private PageType _currentPage = PageType.Common;
-        [JsonIgnore]public PageType CurrentPage
+        [JsonIgnore]
+        private PageType _currentSettingPage = PageType.Common;
+        [JsonIgnore]
+        public PageType CurrentSettingPage
         {
-            get => _currentPage;
+            get => _currentSettingPage;
             set
             {
-                if (_currentPage == value)
+                if (_currentSettingPage == value)
                 {
                     return;
                 }
-                _currentPage = value;
-                OnPropertyChanged(nameof(CurrentTitle));
+                _currentSettingPage = value;
+                OnPropertyChanged(nameof(CurrentSettingTitle));
             }
         }
-        public string CurrentTitle
+        [JsonIgnore]
+        public string CurrentSettingTitle
         {
             get
             {
-                switch (_currentPage)
+                switch (_currentSettingPage)
                 {
                     case PageType.Common: return "常规";
                     case PageType.Personalize: return "个性化";
@@ -74,6 +77,15 @@ namespace PunchPal.Core.ViewModels
             {
                 SettingsCommon.SetStartup(true);
             }
+            _settings.Common.PropertyChanged += OnChildPropertyChanged;
+            _settings.Data.PropertyChanged += OnChildPropertyChanged;
+            _settings.Network.PropertyChanged += OnChildPropertyChanged;
+            _settings.Personalize.PropertyChanged += OnChildPropertyChanged;
+        }
+
+        private static void OnChildPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            _settings?.Save();
         }
 
         private SettingsModel()
@@ -115,6 +127,7 @@ namespace PunchPal.Core.ViewModels
                     await Task.Delay(TimeSpan.FromSeconds(5), token.Value);
                 }
                 File.WriteAllText(PathTools.SettingPath, ToString());
+                saveCts?.Cancel();
             }
             catch (Exception)
             {

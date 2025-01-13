@@ -1,4 +1,7 @@
-﻿using System.ComponentModel;
+﻿using PunchPal.Core.Events;
+using System;
+using System.ComponentModel;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
@@ -7,6 +10,7 @@ namespace PunchPal.Core.ViewModels
     public class SettingsPersonalize : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
+        public event EventHandler<SelectFileEventArgs> FileSelecting;
 
         public enum ColorMode
         {
@@ -142,11 +146,64 @@ namespace PunchPal.Core.ViewModels
             }
         }
 
+        private string _backgroundImage = string.Empty;
+        public string BackgroundImage
+        {
+            get => _backgroundImage;
+            set
+            {
+                _backgroundImage = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(BackgroundImageVisible));
+                OnPropertyChanged(nameof(BackgroundImageExists));
+            }
+        }
+
+        private bool _backgroundImageEnabled;
+        public bool BackgroundImageEnabled
+        {
+            get => _backgroundImageEnabled;
+            set
+            {
+                _backgroundImageEnabled = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(BackgroundImageVisible));
+            }
+        }
+
+        public bool BackgroundImageVisible => _backgroundImageEnabled &&
+                                              !string.IsNullOrWhiteSpace(_backgroundImage) && File.Exists(_backgroundImage);
+        public bool BackgroundImageExists => !string.IsNullOrWhiteSpace(_backgroundImage) && File.Exists(_backgroundImage);
+
+        private float _backgroundImageOpacity = 1;
+        public float BackgroundImageOpacity
+        {
+            get => _backgroundImageOpacity;
+            set
+            {
+                _backgroundImageOpacity = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private int _backgroundImageBlur = 0;
+        public int BackgroundImageBlur
+        {
+            get => _backgroundImageBlur;
+            set
+            {
+                _backgroundImageBlur = value;
+                OnPropertyChanged();
+            }
+        }
+
         public bool IsTabbedSupported => Tools.OSVersionTools.IsMicaTabbedSupported;
         public bool IsMicaSupported => Tools.OSVersionTools.IsMicaSupported;
         public bool IsAcrylicSupported => Tools.OSVersionTools.IsAcrylicSupported;
 
         public ICommand OpenSystemThemeCommand => new ActionCommand(OnOpenSystemTheme);
+
+        public ICommand BackgroundImageSelectCommand => new ActionCommand(OnBackgroundImageSelect);
 
         private void OnOpenSystemTheme()
         {
@@ -162,6 +219,20 @@ namespace PunchPal.Core.ViewModels
             {
                 Tools.FileTools.ProcessStart("ms-settings:personalization-colors");
             }
+        }
+
+        private static readonly string ImageFilter = "图片文件 (*.jpg, *.jpeg, *.jpe, *.jfif, *.png) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png";
+        private void OnBackgroundImageSelect()
+        {
+            var option = new SelectFileEventArgs(ImageFilter);
+            FileSelecting?.Invoke(this, option);
+
+            if (string.IsNullOrWhiteSpace(option.FileName) || !File.Exists(option.FileName))
+            {
+                return;
+            }
+
+            BackgroundImage = option.FileName;
         }
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

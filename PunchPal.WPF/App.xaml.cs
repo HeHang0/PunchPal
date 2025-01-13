@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using System.IO.Pipes;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -17,6 +18,10 @@ namespace PunchPal.WPF
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+            if (e.Args.Length > 0 && e.Args[0] == "--restarted")
+            {
+                Task.Delay(TimeSpan.FromSeconds(1)).Wait();
+            }
             _procMutex = new System.Threading.Mutex(true, NameTools.AppMutex, out var result);
             if (!result && !CheckProcessVersion())
             {
