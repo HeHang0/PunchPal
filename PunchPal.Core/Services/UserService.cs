@@ -104,17 +104,16 @@ namespace PunchPal.Core.Services
             Instance = new UserService();
             using (var context = new PunchDbContext())
             {
-                var user = context.Users.FirstOrDefault();
-                if (user != null)
+                if (context.Users.Any())
                 {
                     return;
                 }
                 var userId = Guid.NewGuid().ToString("N").Substring(0, 8);
-                user = new User
+                var user = new User
                 {
-                    UserId = userId.Substring(0, 4),
+                    UserId = userId,
                     Name = "User",
-                    Remark = ""
+                    Remark = "初始用户"
                 };
                 context.Users.Add(user);
                 context.SaveChanges();

@@ -55,6 +55,11 @@
                     Icon="{ui:SymbolIcon ClipboardBulletListLtr20}"
                     TargetPageType="{x:Type pages:PunchRecordPage}">
                 </ui:NavigationViewItem>
+                <ui:NavigationViewItem ToolTip="考勤"
+                    Margin="0" Height="48" Padding="0" Content="考勤"
+                    Icon="{ui:SymbolIcon TaskListSquarePerson20}"
+                    TargetPageType="{x:Type pages:AttendanceRecordPage}">
+                </ui:NavigationViewItem>
                 <ui:NavigationViewItem ToolTip="工时"
                     Margin="0" Height="48" Padding="0" Content="工时"
                     Icon="{ui:SymbolIcon TextBulletListSquareClock20}"
@@ -124,13 +129,13 @@
         </ui:NavigationView>
         <Border Grid.Row="1" Height="4" Background="{DynamicResource TextFillColorPrimaryBrush}"
                 VerticalAlignment="Top" Margin="20 36 20 0" Opacity="0.05" CornerRadius="3"/>
-        <Border Grid.Row="1" Grid.RowSpan="3" Opacity="0.5" CornerRadius="8" Margin="15 0"
+        <Border Grid.Row="1" Opacity="0.5" CornerRadius="8" Margin="15 0"
                 Background="{DynamicResource LoadingScreenBackground}"
                 Visibility="{Binding Loading, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
             <ui:LoadingScreen HorizontalAlignment="Center" VerticalAlignment="Center"></ui:LoadingScreen>
         </Border>
-        <ContentPresenter x:Name="DialogPresenter" Grid.Row="1" />
-        <ui:SnackbarPresenter x:Name="SnackbarPresenter" Grid.Row="1" />
+        <ContentPresenter x:Name="DialogPresenter" Grid.Row="0" Grid.RowSpan="2" />
+        <ui:SnackbarPresenter x:Name="SnackbarPresenter" Grid.Row="0" Grid.RowSpan="2" />
         <tray:NotifyIcon
             FocusOnLeftClick="True"
             MenuOnRightClick="True"

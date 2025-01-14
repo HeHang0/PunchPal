@@ -32,8 +32,6 @@ namespace PunchPal.WPF.ViewModels
                 case nameof(SettingsPersonalize.ThemeColorMode):
                     ApplyTheme(ThemeListener.IsDarkMode);
                     break;
-                case nameof(SettingsPersonalize.WindowEffectType):
-                    break;
             }
         }
 

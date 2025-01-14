@@ -131,17 +131,22 @@ namespace PunchPal.Core.ViewModels
                 {
                     _textList.Add(record.Remark);
                 }
+                var lunarSolarTermVisible = SettingsModel.Load().Common.LunarSolarTermVisible;
+                if (!lunarSolarTermVisible && !IsHoliday)
+                {
+                    return _textList;
+                }
                 var festivalEmpty = string.IsNullOrWhiteSpace(record.Festival);
                 var solarTermEmpty = string.IsNullOrWhiteSpace(record.SolarTerm);
-                if (!solarTermEmpty && record.SolarTerm != record.Festival)
+                if (!solarTermEmpty && record.SolarTerm != record.Festival && !_textList.Contains(record.SolarTerm))
                 {
                     _textList.Add(record.SolarTerm);
                 }
-                if (!festivalEmpty)
+                if (lunarSolarTermVisible && !festivalEmpty && !_textList.Contains(record.Festival))
                 {
                     _textList.Add(record.Festival);
                 }
-                if (solarTermEmpty && festivalEmpty)
+                if (_textList.Count == 0 && record.LunarDate.Length > 0 && record.LunarMonth.Length > 0)
                 {
                     if(record.LunarDate == "初一" && !string.IsNullOrWhiteSpace(record.LunarMonth))
                     {
@@ -160,8 +165,15 @@ namespace PunchPal.Core.ViewModels
         {
             get
             {
-                var lunarDate = _calendarData == null ? string.Empty : $"{_calendarData.LunarYear}年{_calendarData.LunarMonth}月{_calendarData.LunarDate}";
                 var text = string.Join(Environment.NewLine, TextList);
+                if (!SettingsModel.Load().Common.LunarSolarTermVisible ||
+                    string.IsNullOrWhiteSpace(_calendarData.LunarYear) ||
+                    string.IsNullOrWhiteSpace(_calendarData.LunarMonth) ||
+                    string.IsNullOrWhiteSpace(_calendarData.LunarDate))
+                {
+                    return text;
+                }
+                var lunarDate = _calendarData == null ? string.Empty : $"{_calendarData.LunarYear}年{_calendarData.LunarMonth}月{_calendarData.LunarDate}";
                 if (lunarDate.EndsWith(text))
                 {
                     return lunarDate;

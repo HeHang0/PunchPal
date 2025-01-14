@@ -92,7 +92,69 @@ namespace PunchPal.WPF
             }
         }
 
-        private async void OnAddRecord(object sender, EventArgs e)
+        private void OnAddRecord(object sender, EventArgs e)
+        {
+            if (_mainModel.IsPunchRecord)
+            {
+                AddPunchRecord();
+            }else if(_mainModel.IsAttendanceRecord)
+            {
+                AddAttendanceRecord();
+            }
+        }
+
+        private async void AddAttendanceRecord()
+        {
+            var content = new AddAttendanceRecordControl()
+            {
+                Width = 380,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            var contentDialog = new ContentDialog()
+            {
+                Title = "添加考勤记录",
+                CloseButtonText = "取消",
+                PrimaryButtonText = "确认",
+                MinHeight = 0,
+                DialogHost = DialogPresenter,
+                Content = content
+            };
+            var result = await contentDialog.ShowAsync();
+            var records = new List<AttendanceRecord>();
+            switch (result)
+            {
+                case ContentDialogResult.Primary:
+                    {
+                        var startTime = content.StartDateTime.TimestampUnix();
+                        var endTime = content.EndDateTime.TimestampUnix();
+                        var record = new AttendanceRecord
+                        {
+                            AttendanceId = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                            AttendanceTypeId = content.AttendanceTypeId,
+                            UserId = _mainModel.Setting.Common.CurrentUser?.UserId,
+                            StartTime = startTime,
+                            EndTime = endTime,
+                            AttendanceTime = DateTime.Now.TimestampUnix(),
+                            Remark = content.RecordRemark
+                        };
+                        records.Add(record);
+                        break;
+                    }
+                default:
+                    return;
+            }
+            _mainModel.Loading = true;
+            var len = await AttendanceRecordService.Instance.Add(records);
+            _mainModel.Loading = false;
+            if (len > 0)
+            {
+                _mainModel.InitItems();
+                ShowTips(new TipsOption("提示", $"添加{len}条数据成功", Core.Models.ControlAppearance.Success));
+            }
+        }
+
+        private async void AddPunchRecord()
         {
             var content = new AddPunchRecordControl()
             {
@@ -211,6 +273,7 @@ namespace PunchPal.WPF
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             PunchNavigationView.Navigate("记录");
+            ShowWindow();
         }
 
         private void InitWindowBackdropType()
@@ -242,6 +305,10 @@ namespace PunchPal.WPF
                 case var type when type == typeof(Pages.PunchRecordPage):
                     _mainModel.CurrentPage = Core.ViewModels.MainModel.PageType.PunchRecord;
                     if (page.DataContext == null) page.DataContext = _mainModel.PunchRecord;
+                    break;
+                case var type when type == typeof(Pages.AttendanceRecordPage):
+                    _mainModel.CurrentPage = Core.ViewModels.MainModel.PageType.AttendanceRecord;
+                    if (page.DataContext == null) page.DataContext = _mainModel.AttendanceRecord;
                     break;
                 case var type when type == typeof(Pages.WorkingHoursPage):
                     _mainModel.CurrentPage = Core.ViewModels.MainModel.PageType.WorkingHours;

@@ -1,5 +1,6 @@
 ﻿using PunchPal.Core.Events;
 using PunchPal.Core.Models;
+using PunchPal.Core.Services;
 using PunchPal.Tools;
 using System;
 using System.ComponentModel;
@@ -22,6 +23,7 @@ namespace PunchPal.Core.ViewModels
         {
             None,
             PunchRecord,
+            AttendanceRecord,
             WorkingHours,
             Calendar,
             Overview,
@@ -31,7 +33,22 @@ namespace PunchPal.Core.ViewModels
         public MainModel()
         {
             PunchRecord.ConfirmDialog += (sender, e) => ConfirmDialog?.Invoke(sender, e);
+            AttendanceRecord.ConfirmDialog += (sender, e) => ConfirmDialog?.Invoke(sender, e);
             InitItems();
+            Setting.Common.PropertyChanged += OnPropertyChanged;
+        }
+
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(SettingsCommon.LunarSolarTermVisible):
+                    InitItems();
+                    break;
+                case nameof(SettingsCommon.HolidayCountdownVisible):
+                    Calendar.OnPropertyChanged(nameof(Calendar.HolidayCountdownVisible));
+                    break;
+            }
         }
 
         public string Title { get; } = "工时助手 - 高效的管理工作";
@@ -59,6 +76,7 @@ namespace PunchPal.Core.ViewModels
                 _currentPage = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(IsPunchRecord));
+                OnPropertyChanged(nameof(IsAttendanceRecord));
                 OnPropertyChanged(nameof(IsWorkingHours));
                 OnPropertyChanged(nameof(IsCalendar));
                 OnPropertyChanged(nameof(IsOverview));
@@ -68,11 +86,12 @@ namespace PunchPal.Core.ViewModels
             }
         }
         public bool IsPunchRecord => CurrentPage == PageType.PunchRecord;
+        public bool IsAttendanceRecord => CurrentPage == PageType.AttendanceRecord;
         public bool IsWorkingHours => CurrentPage == PageType.WorkingHours;
         public bool IsCalendar => CurrentPage == PageType.Calendar;
         public bool IsOverview => CurrentPage == PageType.Overview;
         public bool IsSettings => CurrentPage == PageType.Settings;
-        public bool CanAddRecord => IsPunchRecord;
+        public bool CanAddRecord => IsPunchRecord || IsAttendanceRecord;
         public bool CanYearMonth => !IsSettings;
 
         private DateTime _date = DateTime.Now;

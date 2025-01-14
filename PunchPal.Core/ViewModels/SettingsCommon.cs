@@ -43,6 +43,28 @@ namespace PunchPal.Core.ViewModels
             }
         }
 
+        private bool _lunarSolarTermVisible = true;
+        public bool LunarSolarTermVisible
+        {
+            get => _lunarSolarTermVisible;
+            set
+            {
+                _lunarSolarTermVisible = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _holidayCountdownVisible = true;
+        public bool HolidayCountdownVisible
+        {
+            get => _holidayCountdownVisible;
+            set
+            {
+                _holidayCountdownVisible = value;
+                OnPropertyChanged();
+            }
+        }
+
         private bool _isCalendarStartSun = true;
         public bool IsCalendarStartSun
         {

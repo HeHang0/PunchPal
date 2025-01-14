@@ -33,7 +33,7 @@ namespace PunchPal.Core.ViewModels
             }
         }
 
-        public bool HolidayCountdownVisible => !string.IsNullOrWhiteSpace(_holidayCountdownText);
+        public bool HolidayCountdownVisible => SettingsModel.Load().Common.HolidayCountdownVisible &&!string.IsNullOrWhiteSpace(_holidayCountdownText);
 
         public async Task InitItems(DateTime dateTime, IList<WorkingHours> hours)
         {

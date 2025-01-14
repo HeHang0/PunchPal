@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace PunchPal.Tools
 {
@@ -34,6 +35,22 @@ namespace PunchPal.Tools
         public static string ToMonthString(this DateTime dateTime)
         {
             return dateTime.ToString("yyyy-MM");
+        }
+
+        public readonly static List<int> HoursList = new List<int>();
+        public readonly static List<int> MinutesList = new List<int>();
+        public static List<int> SecondsList => MinutesList;
+
+        static DateTimeTools()
+        {
+            for (var i = 0; i < 60; i++)
+            {
+                if (i < 24)
+                {
+                    HoursList.Add(i);
+                }
+                MinutesList.Add(i);
+            }
         }
     }
 }

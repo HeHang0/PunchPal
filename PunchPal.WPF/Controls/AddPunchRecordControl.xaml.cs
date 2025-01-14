@@ -20,21 +20,10 @@ namespace PunchPal.WPF.Controls
             DataContext = this;
         }
 
-        static AddPunchRecordControl()
-        {
-            for (var i = 0; i < 60; i++)
-            {
-                if (i < 24)
-                {
-                    HoursList.Add(i);
-                }
-                MinutesList.Add(i);
-            }
-        }
+        public static List<int> HoursList => DateTimeTools.HoursList;
+        public static List<int> MinutesList => DateTimeTools.MinutesList;
+        public static List<int> SecondsList => DateTimeTools.SecondsList;
 
-        public static List<int> HoursList { get; } = new List<int>();
-        public static List<int> MinutesList { get; } = new List<int>();
-        public static List<int> SecondsList => MinutesList;
         private DateTime _recordDate = DateTime.Now;
         public DateTime RecordDate
         {
