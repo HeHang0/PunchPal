@@ -131,7 +131,7 @@ namespace PunchPal.Core.ViewModels
                 {
                     _textList.Add(record.Remark);
                 }
-                var lunarSolarTermVisible = SettingsModel.Load().Common.LunarSolarTermVisible;
+                var lunarSolarTermVisible = SettingsModel.Load().Calendar.LunarSolarTermVisible;
                 if (!lunarSolarTermVisible && !IsHoliday)
                 {
                     return _textList;
@@ -166,7 +166,7 @@ namespace PunchPal.Core.ViewModels
             get
             {
                 var text = string.Join(Environment.NewLine, TextList);
-                if (!SettingsModel.Load().Common.LunarSolarTermVisible ||
+                if (!SettingsModel.Load().Calendar.LunarSolarTermVisible ||
                     string.IsNullOrWhiteSpace(_calendarData.LunarYear) ||
                     string.IsNullOrWhiteSpace(_calendarData.LunarMonth) ||
                     string.IsNullOrWhiteSpace(_calendarData.LunarDate))
@@ -207,7 +207,7 @@ namespace PunchPal.Core.ViewModels
 
         public void SetRow(int row)
         {
-            var firstCol = Date.DayOfWeek == (SettingsModel.Load().Common.IsCalendarStartSun ? DayOfWeek.Sunday : DayOfWeek.Monday);
+            var firstCol = Date.DayOfWeek == SettingsModel.Load().Calendar.WeekStart;
             BorderThickness = new Rectangle(
                 firstCol ? 1 : 0,
                 row == 1 ? 1 : 0,

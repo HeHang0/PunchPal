@@ -7,6 +7,7 @@ namespace PunchPal.Core.ViewModels
 {
     public class ActionCommand: ICommand
     {
+        public event EventHandler CanExecuteChanged;
         private Action _action;
         private Func<bool> _canExecute;
         public ActionCommand(Action action, Func<bool> canExecute=null)
@@ -14,7 +15,6 @@ namespace PunchPal.Core.ViewModels
             _action = action;
             _canExecute = canExecute;
         }
-        public event EventHandler CanExecuteChanged;
         public bool CanExecute(object parameter)
         {
             return _canExecute?.Invoke() ?? true;

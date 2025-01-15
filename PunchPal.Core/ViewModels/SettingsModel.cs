@@ -19,6 +19,7 @@ namespace PunchPal.Core.ViewModels
         private static readonly SettingsModel _settings;
 
         public SettingsData Data { get; set; } = new SettingsData();
+        public SettingsCalendar Calendar { get; set; } = new SettingsCalendar();
         public SettingsCommon Common { get; set; } = new SettingsCommon();
         public SettingsNetwork Network { get; set; } = new SettingsNetwork();
         public SettingsPersonalize Personalize { get; set; } = new SettingsPersonalize();
@@ -28,7 +29,8 @@ namespace PunchPal.Core.ViewModels
             Data,
             Common,
             Network,
-            Personalize
+            Personalize,
+            Calendar
         }
 
         [JsonIgnore]
@@ -58,6 +60,7 @@ namespace PunchPal.Core.ViewModels
                     case PageType.Personalize: return "个性化";
                     case PageType.Data: return "数据";
                     case PageType.Network: return "网络";
+                    case PageType.Calendar: return "日历";
                     default: return string.Empty;
                 }
             }
@@ -78,6 +81,7 @@ namespace PunchPal.Core.ViewModels
                 SettingsCommon.SetStartup(true);
             }
             _settings.Common.PropertyChanged += OnChildPropertyChanged;
+            _settings.Calendar.PropertyChanged += OnChildPropertyChanged;
             _settings.Data.PropertyChanged += OnChildPropertyChanged;
             _settings.Network.PropertyChanged += OnChildPropertyChanged;
             _settings.Personalize.PropertyChanged += OnChildPropertyChanged;

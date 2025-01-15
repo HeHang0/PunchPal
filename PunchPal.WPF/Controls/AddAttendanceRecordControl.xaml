@@ -8,79 +8,24 @@
              mc:Ignorable="d" 
              d:DataContext="{Binding RelativeSource={RelativeSource Self}}"
              d:DesignHeight="450" d:DesignWidth="800">
-    <UserControl.Resources>
-        <Style TargetType="ui:TextBox" BasedOn="{StaticResource DefaultTextBoxStyle}">
-            <Setter Property="Padding" Value="0" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="Cursor" Value="Hand" />
-        </Style>
-        <DataTemplate x:Key="ComboBoxItemTemplate">
-            <TextBlock Text="{Binding Path=., StringFormat=00}" />
-        </DataTemplate>
-        <Style x:Key="BaseComboBoxStyle" TargetType="{x:Type ComboBox}" BasedOn="{StaticResource DefaultComboBoxStyle}">
-            <Setter Property="Padding" Value="5" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="MaxDropDownHeight" Value="180" />
-            <Setter Property="Cursor" Value="Hand" />
-        </Style>
-        <Style x:Key="TimeComboBoxStyle" TargetType="{x:Type ComboBox}" BasedOn="{StaticResource BaseComboBoxStyle}">
-            <Setter Property="ItemTemplate" Value="{StaticResource ComboBoxItemTemplate}"/>
-        </Style>
-    </UserControl.Resources>
     <StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
             <Label Content="开始时间：" VerticalAlignment="Center"></Label>
-            <StackPanel Orientation="Horizontal" Height="30" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Grid Margin="0 0 10 0">
-                    <ui:TextBox Width="100" IsReadOnly="True" HorizontalContentAlignment="Center"
-                                Text="{Binding StartDateText, Mode=OneWay}"></ui:TextBox>
-                    <ui:CalendarDatePicker Height="30" Width="100" IsTodayHighlighted="True" Opacity="0" Margin="0"
-                                           Date="{Binding StartDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                </Grid>
-                <ComboBox ItemsSource="{Binding HoursList}" ItemTemplate="{StaticResource ComboBoxItemTemplate}"
-                          SelectedItem="{Binding StartHour, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                          Style="{StaticResource TimeComboBoxStyle}" />
-                <Label Content=":" VerticalAlignment="Center" Margin="5 0"></Label>
-                <ComboBox ItemsSource="{Binding MinutesList}"
-                          SelectedItem="{Binding StartMinute, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                          Style="{StaticResource TimeComboBoxStyle}" />
-                <Label Content=":" VerticalAlignment="Center" Margin="5 0"></Label>
-                <ComboBox ItemsSource="{Binding SecondsList}"
-                          SelectedItem="{Binding StartSecond, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                          Style="{StaticResource TimeComboBoxStyle}" />
-            </StackPanel>
+            <local:DateTimePicker Width="310" DateTime="{Binding StartDateTime}" />
         </StackPanel>
         <StackPanel Orientation="Horizontal" Margin="0 10 0 0" HorizontalAlignment="Left">
             <Label Content="结束时间：" VerticalAlignment="Center"></Label>
-            <StackPanel Orientation="Horizontal" Height="30" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Grid Margin="0 0 10 0">
-                    <ui:TextBox Width="100" IsReadOnly="True" HorizontalContentAlignment="Center"
-                                Text="{Binding EndDateText, Mode=OneWay}"></ui:TextBox>
-                    <ui:CalendarDatePicker Height="30" Width="100" IsTodayHighlighted="True" Opacity="0" Margin="0"
-                                           Date="{Binding EndDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                </Grid>
-                <ComboBox ItemsSource="{Binding HoursList}" ItemTemplate="{StaticResource ComboBoxItemTemplate}"
-                          SelectedItem="{Binding EndHour, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                          Style="{StaticResource TimeComboBoxStyle}" />
-                <Label Content=":" VerticalAlignment="Center" Margin="5 0"></Label>
-                <ComboBox ItemsSource="{Binding MinutesList}"
-                          SelectedItem="{Binding EndMinute, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                          Style="{StaticResource TimeComboBoxStyle}" />
-                <Label Content=":" VerticalAlignment="Center" Margin="5 0"></Label>
-                <ComboBox ItemsSource="{Binding SecondsList}"
-                          SelectedItem="{Binding EndSecond, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                          Style="{StaticResource TimeComboBoxStyle}" />
-            </StackPanel>
+            <local:DateTimePicker Width="310" DateTime="{Binding EndDateTime}" />
         </StackPanel>
         <StackPanel Orientation="Horizontal" Margin="0 10 0 0" HorizontalAlignment="Left">
             <Label Content="考勤类型：" VerticalAlignment="Center"></Label>
-            <ComboBox Width="311" ItemsSource="{Binding AttendanceTypes}" SelectedValue="{Binding AttendanceTypeId}"
+            <ComboBox Width="310" ItemsSource="{Binding AttendanceTypes}" SelectedValue="{Binding AttendanceTypeId}"
                       DisplayMemberPath="TypeName" SelectedValuePath="TypeId"
                       Style="{StaticResource BaseComboBoxStyle}"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Margin="0 10 0 0" HorizontalAlignment="Left">
             <Label Content="备　　注：" VerticalAlignment="Center" />
-            <ui:TextBox Width="311" VerticalAlignment="Center" Padding="5"
+            <ui:TextBox Width="310" VerticalAlignment="Center" Padding="5"
                         Text="{Binding RecordRemark}"></ui:TextBox>
         </StackPanel>
     </StackPanel>

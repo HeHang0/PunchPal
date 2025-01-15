@@ -43,7 +43,7 @@
         </ui:TitleBar>
         <ui:NavigationView
             x:Name="PunchNavigationView"
-            Grid.Row="1"
+            Grid.Row="1" ScrollViewer.CanContentScroll="False"
             Margin="16 0 16 16" Padding="4 0"
             Navigating="PunchNavigationView_Navigating"
             IsBackButtonVisible="Collapsed"

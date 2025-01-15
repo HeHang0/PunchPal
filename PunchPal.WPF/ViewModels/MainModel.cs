@@ -1,9 +1,12 @@
-﻿using PicaPico;
+﻿using Microsoft.Win32;
+using PicaPico;
 using PunchPal.Core.ViewModels;
 using PunchPal.Tools;
 using PunchPal.WPF.Tools;
 using System;
 using System.ComponentModel;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Media;
 using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
@@ -21,8 +24,32 @@ namespace PunchPal.WPF.ViewModels
         public MainModel()
         {
             ThemeListener.ThemeChanged += ApplyTheme;
+            SystemEvents.UserPreferenceChanged += UserPreferenceChanged;
             ApplyTheme(ThemeListener.IsDarkMode);
             Setting.Personalize.PropertyChanged += OnPropertyChanged;
+        }
+
+        private async void UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
+        {
+            if (e.Category != UserPreferenceCategory.General)
+            {
+                return;
+            }
+            var isDark = ThemeListener.IsDarkMode;
+            if (Setting.Personalize.ThemeColorMode != SettingsPersonalize.ColorMode.System)
+            {
+                isDark = Setting.Personalize.IsColorModeDark;
+            }
+            if(isDark != _lastDark)
+            {
+                return;
+            }
+
+            ApplicationThemeManager.Apply(
+                isDark ? ApplicationTheme.Dark : ApplicationTheme.Light,
+                WindowBackdropType,
+                true
+            );
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -34,17 +61,19 @@ namespace PunchPal.WPF.ViewModels
                     break;
             }
         }
-
+        bool _lastDark = false;
         private void ApplyTheme(bool isDark)
         {
             if (Setting.Personalize.ThemeColorMode != SettingsPersonalize.ColorMode.System)
             {
                 isDark = Setting.Personalize.IsColorModeDark;
             }
+            _lastDark = isDark;
 
             ApplicationThemeManager.Apply(
                 isDark ? ApplicationTheme.Dark : ApplicationTheme.Light,
-                WindowBackdropType
+                WindowBackdropType,
+                true
             );
             CalendarItem.IsDarkMode = isDark;
             foreach (var item in Calendar.Items)

@@ -17,10 +17,16 @@ namespace PunchPal.Core.ViewModels
 
         public ObservableCollection<CalendarItem> Items { get; } = new ObservableCollection<CalendarItem>();
 
-        private readonly string[] _calendarHeaders = { "一", "二", "三", "四", "五", "六", "日" };
-        private readonly string[] _calendarSunHeaders = { "日", "一", "二", "三", "四", "五", "六" };
-        public string[] CalendarHeaders => SettingsModel.Load().Common.IsCalendarStartSun ? _calendarSunHeaders : _calendarHeaders;
-
+        private readonly string[] _calendarHeaders = { "日", "一", "二", "三", "四", "五", "六" };
+        //private readonly string[] _calendarSunHeaders = { "日", "一", "二", "三", "四", "五", "六" };
+        public string[] CalendarHeaders
+        {
+            get
+            {
+                var start = (int)SettingsModel.Load().Calendar.WeekStart;
+                return _calendarHeaders.Skip(start).Concat(_calendarHeaders.Take(start)).ToArray();
+            }
+        }
         private string _holidayCountdownText = string.Empty;
         public string HolidayCountdownText
         {
@@ -33,16 +39,17 @@ namespace PunchPal.Core.ViewModels
             }
         }
 
-        public bool HolidayCountdownVisible => SettingsModel.Load().Common.HolidayCountdownVisible &&!string.IsNullOrWhiteSpace(_holidayCountdownText);
+        public bool HolidayCountdownVisible => SettingsModel.Load().Calendar.HolidayCountdownVisible &&!string.IsNullOrWhiteSpace(_holidayCountdownText);
 
         public async Task InitItems(DateTime dateTime, IList<WorkingHours> hours)
         {
             Items.Clear();
             var result = new List<CalendarItem>();
-            var sunDayFirst = SettingsModel.Load().Common.IsCalendarStartSun;
+            var weekStart = SettingsModel.Load().Calendar.WeekStart;
+            var weekStartIndex = (int)weekStart;
             var firstDay = new DateTime(dateTime.Year, dateTime.Month, 1);
-            var firstDayWeek = firstDay.DayOfWeek == DayOfWeek.Sunday && !sunDayFirst ? 7 : (int)firstDay.DayOfWeek;
-            for (var i = sunDayFirst ? 0 : 1; i < firstDayWeek; i++)
+            var firstDayWeek = (int)firstDay.DayOfWeek;
+            for (var i = weekStartIndex; i < firstDayWeek; i++)
             {
                 result.Add(new CalendarItem(firstDay.AddDays(i - firstDayWeek), true));
             }
@@ -56,7 +63,12 @@ namespace PunchPal.Core.ViewModels
 
             var day = 0;
             var lastDayWeek = lastDay.DayOfWeek == DayOfWeek.Sunday ? 7 : (int)lastDay.DayOfWeek;
-            for (int i = lastDayWeek + 1; i <= (sunDayFirst ? 6 : 7); i++)
+            var weekEndIndex = weekStartIndex - 1;
+            if(weekEndIndex < 0)
+            {
+                weekEndIndex = 6;
+            }
+            for (int i = lastDayWeek + 1; i <= weekEndIndex; i++)
             {
                 result.Add(new CalendarItem(lastDay.AddDays(++day), true));
             }
@@ -75,7 +87,7 @@ namespace PunchPal.Core.ViewModels
             var row = 0;
             foreach (var item in result)
             {
-                if (item.Date.DayOfWeek == (sunDayFirst ? DayOfWeek.Sunday : DayOfWeek.Monday))
+                if (item.Date.DayOfWeek == weekStart)
                 {
                     row++;
                 }

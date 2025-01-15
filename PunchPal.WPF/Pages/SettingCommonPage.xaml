@@ -30,47 +30,5 @@
             <ui:TextBox IsReadOnly="True" MinWidth="150" Height="28" Padding="8 4 8 0">
             </ui:TextBox>
         </ui:CardControl>
-        <ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
-            <ui:CardControl.Header>
-                <StackPanel Orientation="Horizontal">
-                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="CalendarRtl24" />
-                    <ui:TextBlock FontTypography="Body" Text="日历起始日" />
-                </StackPanel>
-            </ui:CardControl.Header>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock VerticalAlignment="Center" Margin="0 0 5 0" Text="星期日"
-                           Visibility="{Binding IsCalendarStartSun, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
-                <TextBlock VerticalAlignment="Center" Margin="0 0 5 0" Text="星期一"
-                           Visibility="{Binding IsCalendarStartSun, Converter={StaticResource BooleanToNotVisibility}, Mode=OneWay}" />
-                <ui:ToggleSwitch IsChecked="{Binding IsCalendarStartSun}" />
-            </StackPanel>
-        </ui:CardControl>
-        <!--<ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
-            <ui:CardControl.Header>
-                <StackPanel Orientation="Horizontal">
-                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="CalendarPattern20" />
-                    <ui:TextBlock FontTypography="Body" Text="日历节假日背景" />
-                </StackPanel>
-            </ui:CardControl.Header>
-            <ui:ToggleSwitch IsChecked="{Binding IsCalendarHolidayVisible}" />
-        </ui:CardControl>-->
-        <ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
-            <ui:CardControl.Header>
-                <StackPanel Orientation="Horizontal">
-                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="AccessTime20" />
-                    <ui:TextBlock FontTypography="Body" Text="日历显示农历及节气" />
-                </StackPanel>
-            </ui:CardControl.Header>
-            <ui:ToggleSwitch IsChecked="{Binding LunarSolarTermVisible}" />
-        </ui:CardControl>
-        <ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
-            <ui:CardControl.Header>
-                <StackPanel Orientation="Horizontal">
-                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="Rocket20" />
-                    <ui:TextBlock FontTypography="Body" Text="日历显示节假日倒计时" />
-                </StackPanel>
-            </ui:CardControl.Header>
-            <ui:ToggleSwitch IsChecked="{Binding HolidayCountdownVisible}" />
-        </ui:CardControl>
     </StackPanel>
 </Page>

@@ -5,7 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:local="clr-namespace:PunchPal.WPF.Pages"
-      mc:Ignorable="d" 
+      mc:Ignorable="d" ScrollViewer.CanContentScroll="False"
       d:DesignHeight="450" d:DesignWidth="800"
       Title="SettingsPage">
     <Grid>
@@ -35,8 +35,18 @@
                     TargetPageType="{x:Type local:SettingCommonPage}">
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem
+                    Margin="0" Padding="0" Content="数据"
+                    Icon="{ui:SymbolIcon DataHistogram20}" ToolTip="数据"
+                    TargetPageType="{x:Type local:SettingDataPage}">
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem
+                    Margin="0" Padding="0" Content="日历"
+                    Icon="{ui:SymbolIcon CalendarLtr20}" ToolTip="日历"
+                    TargetPageType="{x:Type local:SettingCalendarPage}">
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem
                     Margin="0" Padding="0" Content="个性化"
-                    Icon="{ui:SymbolIcon Edit20}" ToolTip="个性化"
+                    Icon="{ui:SymbolIcon Color20}" ToolTip="个性化"
                     TargetPageType="{x:Type local:SettingPersonalizePage}">
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem

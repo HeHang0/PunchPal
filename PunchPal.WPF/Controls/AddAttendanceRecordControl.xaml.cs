@@ -7,17 +7,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace PunchPal.WPF.Controls
 {
@@ -46,10 +36,6 @@ namespace PunchPal.WPF.Controls
             AttendanceTypeId = AttendanceTypes.FirstOrDefault()?.TypeId ?? string.Empty;
         }
 
-        public static List<int> HoursList => DateTimeTools.HoursList;
-        public static List<int> MinutesList => DateTimeTools.MinutesList;
-        public static List<int> SecondsList => DateTimeTools.SecondsList;
-
         public ObservableCollection<AttendanceType> AttendanceTypes { get; } = new ObservableCollection<AttendanceType>();
 
         private string _attendanceTypeId = string.Empty;
@@ -63,17 +49,15 @@ namespace PunchPal.WPF.Controls
             }
         }
 
-        public DateTime StartDateTime => new DateTime(_startDate.Year, _startDate.Month, _startDate.Day, _startHour, _startMinute, _startSecond);
 
-        private DateTime _startDate = DateTime.Now;
-        public DateTime StartDate
+        private DateTime _startDateTime = DateTime.Now.Date;
+        public DateTime StartDateTime
         {
-            get => _startDate;
+            get => _startDateTime;
             set
             {
-                _startDate = value;
+                _startDateTime = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(StartDateText));
             }
         }
 
@@ -88,82 +72,13 @@ namespace PunchPal.WPF.Controls
             }
         }
 
-        public string StartDateText => _startDate.ToDateString();
-
-        private int _startSecond;
-        public int StartSecond
+        private DateTime _endDateTime = DateTime.Now.Date;
+        public DateTime EndDateTime
         {
-            get => _startSecond;
+            get => _endDateTime;
             set
             {
-                _startSecond = value;
-                OnPropertyChanged();
-            }
-        }
-        private int _startMinute;
-        public int StartMinute
-        {
-            get => _startMinute;
-            set
-            {
-                _startMinute = value;
-                OnPropertyChanged();
-            }
-        }
-        private int _startHour;
-        public int StartHour
-        {
-            get => _startHour;
-            set
-            {
-                _startHour = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public DateTime EndDateTime => new DateTime(_endDate.Year, _endDate.Month, _endDate.Day, _endHour, _endMinute, _endSecond);
-
-        private DateTime _endDate = DateTime.Now;
-        public DateTime EndDate
-        {
-            get => _endDate;
-            set
-            {
-                _endDate = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(EndDateText));
-            }
-        }
-
-        public string EndDateText => _endDate.ToDateString();
-
-        private int _endSecond;
-        public int EndSecond
-        {
-            get => _endSecond;
-            set
-            {
-                _endSecond = value;
-                OnPropertyChanged();
-            }
-        }
-        private int _endMinute;
-        public int EndMinute
-        {
-            get => _endMinute;
-            set
-            {
-                _endMinute = value;
-                OnPropertyChanged();
-            }
-        }
-        private int _endHour;
-        public int EndHour
-        {
-            get => _endHour;
-            set
-            {
-                _endHour = value;
+                _endDateTime = value;
                 OnPropertyChanged();
             }
         }

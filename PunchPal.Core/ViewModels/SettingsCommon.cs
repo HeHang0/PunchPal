@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 
 namespace PunchPal.Core.ViewModels
 {
-    public class SettingsCommon
+    public class SettingsCommon : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -40,39 +40,6 @@ namespace PunchPal.Core.ViewModels
             {
 
                 _startupManager?.DisableStartup();
-            }
-        }
-
-        private bool _lunarSolarTermVisible = true;
-        public bool LunarSolarTermVisible
-        {
-            get => _lunarSolarTermVisible;
-            set
-            {
-                _lunarSolarTermVisible = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private bool _holidayCountdownVisible = true;
-        public bool HolidayCountdownVisible
-        {
-            get => _holidayCountdownVisible;
-            set
-            {
-                _holidayCountdownVisible = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private bool _isCalendarStartSun = true;
-        public bool IsCalendarStartSun
-        {
-            get => _isCalendarStartSun;
-            set
-            {
-                _isCalendarStartSun = value;
-                OnPropertyChanged();
             }
         }
 

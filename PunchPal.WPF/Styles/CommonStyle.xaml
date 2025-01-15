@@ -61,4 +61,24 @@
         <Setter Property="MinWidth" Value="0" />
         <Setter Property="Margin" Value="20 0 10 0" />
     </Style>
+    <DataTemplate x:Key="TimeComboBoxItemTemplate">
+        <TextBlock Text="{Binding Path=., StringFormat=00}" />
+    </DataTemplate>
+    <Style x:Key="BaseComboBoxStyle" TargetType="{x:Type ComboBox}" BasedOn="{StaticResource DefaultComboBoxStyle}">
+        <Setter Property="Padding" Value="5" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="MaxDropDownHeight" Value="180" />
+    </Style>
+    <Style x:Key="TimeComboBoxStyle" TargetType="{x:Type ComboBox}" BasedOn="{StaticResource BaseComboBoxStyle}">
+        <Setter Property="ItemTemplate" Value="{StaticResource TimeComboBoxItemTemplate}"/>
+    </Style>
+    <Style TargetType="ui:TextBox" BasedOn="{StaticResource DefaultTextBoxStyle}">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Cursor" Value="IBeam" />
+    </Style>
+    <SolidColorBrush x:Key="ToggleSwitchKnobFillOn" Color="{StaticResource TextFillColorSecondary}" />
+    <SolidColorBrush x:Key="ToggleSwitchKnobFillOnPointerOver" Color="{StaticResource TextFillColorSecondary}" />
+    <SolidColorBrush x:Key="ToggleSwitchKnobFillOnPressed" Color="{StaticResource TextFillColorSecondary}" />
+    <SolidColorBrush x:Key="ToggleSwitchKnobFillOnDisabled" Color="{StaticResource TextFillColorDisabled}" />
 </ResourceDictionary>

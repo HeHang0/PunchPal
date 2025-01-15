@@ -1,0 +1,33 @@
+﻿<UserControl x:Class="PunchPal.WPF.Controls.DateTimePicker"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:local="clr-namespace:PunchPal.WPF.Controls"
+             mc:Ignorable="d"
+             d:DataContext="{Binding RelativeSource={RelativeSource Self}}"
+             d:DesignHeight="30" d:DesignWidth="300">
+    <Grid x:Name="ControlGrid">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid Margin="0 0 10 0">
+            <ui:TextBox IsReadOnly="True" HorizontalContentAlignment="Center"
+                    Text="{Binding DateText, Mode=OneWay}"></ui:TextBox>
+            <ui:CalendarDatePicker Width="Auto" IsTodayHighlighted="True" Opacity="0" Margin="0"
+                               Date="{Binding Date, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        </Grid>
+        <StackPanel Grid.Column="1" Orientation="Horizontal">
+            <ComboBox ItemsSource="{Binding HoursList}" Style="{StaticResource TimeComboBoxStyle}"
+                      SelectedItem="{Binding Hour, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <Label Content=":" VerticalAlignment="Center" Margin="5 0"></Label>
+            <ComboBox ItemsSource="{Binding MinutesList}" Style="{StaticResource TimeComboBoxStyle}"
+                      SelectedItem="{Binding Minute, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <Label Content=":" VerticalAlignment="Center" Margin="5 0"></Label>
+            <ComboBox ItemsSource="{Binding SecondsList}" Style="{StaticResource TimeComboBoxStyle}"
+                      SelectedItem="{Binding Second, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+        </StackPanel>
+    </Grid>
+</UserControl>

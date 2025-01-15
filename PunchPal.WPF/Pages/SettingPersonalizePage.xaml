@@ -6,65 +6,65 @@
       xmlns:local="clr-namespace:PunchPal.WPF.Pages"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:vm="clr-namespace:PunchPal.Core.ViewModels;assembly=PunchPal.Core"
-      mc:Ignorable="d" 
+      mc:Ignorable="d"
       d:DesignHeight="450" d:DesignWidth="800" Margin="10 0 0 0"
       d:DataContext="{d:DesignInstance Type=vm:SettingsPersonalize}">
-    <StackPanel>
+    <StackPanel ScrollViewer.CanContentScroll="True">
         <ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
             <ui:CardControl.Header>
                 <StackPanel Orientation="Horizontal">
                     <ui:SymbolIcon Margin="0 0 10 0" Symbol="DarkTheme24" />
                     <ui:TextBlock FontTypography="Body" Text="颜色模式" VerticalAlignment="Center"/>
                     <ui:HyperlinkButton VerticalAlignment="Center"
-                    Background="Transparent" Cursor="Hand" Margin="10 0 0 0"
-                    Command="{Binding OpenSystemThemeCommand}">
+                Background="Transparent" Cursor="Hand" Margin="10 0 0 0"
+                Command="{Binding OpenSystemThemeCommand}">
                         <TextBlock Text="在 Windows 设置中更改颜色" TextTrimming="CharacterEllipsis" />
                     </ui:HyperlinkButton>
                 </StackPanel>
             </ui:CardControl.Header>
             <StackPanel Orientation="Horizontal">
                 <RadioButton
-                        Content="跟随系统"
-                        GroupName="color_mode"
-                        IsChecked="{Binding IsColorModeSystem}"/>
+                    Content="跟随系统"
+                    GroupName="color_mode"
+                    IsChecked="{Binding IsColorModeSystem}"/>
                 <RadioButton
-                        Content="深色"
-                        GroupName="color_mode"
-                        IsChecked="{Binding IsColorModeDark}"/>
+                    Content="深色"
+                    GroupName="color_mode"
+                    IsChecked="{Binding IsColorModeDark}"/>
                 <RadioButton
-                        Content="浅色"
-                        GroupName="color_mode"
-                        IsChecked="{Binding IsColorModeLight}"/>
+                    Content="浅色"
+                    GroupName="color_mode"
+                    IsChecked="{Binding IsColorModeLight}"/>
             </StackPanel>
         </ui:CardControl>
         <ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
             <ui:CardControl.Header>
                 <StackPanel Orientation="Horizontal">
-                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="Color24" />
+                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="ColorBackground24" />
                     <ui:TextBlock FontTypography="Body" Text="窗口效果" />
                     <ui:SymbolIcon Margin="10 0 0 0" Symbol="Info12" ToolTip="重启后生效" Cursor="Hand" />
                 </StackPanel>
             </ui:CardControl.Header>
             <StackPanel Orientation="Horizontal">
                 <RadioButton
-                        Content="默认"
-                        GroupName="window_effect"
-                        IsChecked="{Binding IsWindowEffectDefault}"/>
+                    Content="默认"
+                    GroupName="window_effect"
+                    IsChecked="{Binding IsWindowEffectDefault}"/>
                 <RadioButton
-                        Content="Tabbed"
-                        GroupName="window_effect"
-                        IsChecked="{Binding IsWindowEffectTabbed}"
-                        Visibility="{Binding IsTabbedSupported, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}"/>
+                    Content="Tabbed"
+                    GroupName="window_effect"
+                    IsChecked="{Binding IsWindowEffectTabbed}"
+                    Visibility="{Binding IsTabbedSupported, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}"/>
                 <RadioButton
-                        Content="Mica"
-                        GroupName="window_effect"
-                        IsChecked="{Binding IsWindowEffectMica}"
-                        Visibility="{Binding IsMicaSupported, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}"/>
+                    Content="Mica"
+                    GroupName="window_effect"
+                    IsChecked="{Binding IsWindowEffectMica}"
+                    Visibility="{Binding IsMicaSupported, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}"/>
                 <RadioButton
-                        Content="Acrylic"
-                        GroupName="window_effect"
-                        IsChecked="{Binding IsWindowEffectAcrylic}"
-                        Visibility="{Binding IsAcrylicSupported, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}"/>
+                    Content="Acrylic"
+                    GroupName="window_effect"
+                    IsChecked="{Binding IsWindowEffectAcrylic}"
+                    Visibility="{Binding IsAcrylicSupported, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}"/>
             </StackPanel>
         </ui:CardControl>
         <ui:CardExpander Margin="0,0,0,12" ContentPadding="0" IsExpanded="{Binding BackgroundImageExists, Mode=OneWay}">
@@ -81,7 +81,7 @@
                     </StackPanel>
                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                         <ui:Button Appearance="Primary" Content="选择图片" Margin="0 0 20 0" Height="25" Padding="10 0"
-                                       Command="{Binding BackgroundImageSelectCommand}"/>
+                                    Command="{Binding BackgroundImageSelectCommand}"/>
                         <ui:ToggleSwitch IsChecked="{Binding BackgroundImageEnabled}" Margin="0 0 10 0"/>
                     </StackPanel>
                 </Grid>
@@ -92,9 +92,9 @@
                     <ColumnDefinition Width="Auto"></ColumnDefinition>
                     <ColumnDefinition Width="Auto"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
-                <Border CornerRadius="8"  BorderThickness="0" Height="200"
-                            Opacity="{Binding BackgroundImageOpacity}"
-                            Visibility="{Binding BackgroundImageExists, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
+                <Border Height="200" CornerRadius="8"  BorderThickness="0"
+                        Opacity="{Binding BackgroundImageOpacity}"
+                        Visibility="{Binding BackgroundImageExists, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
                     <Border.Background>
                         <ImageBrush ImageSource="{Binding BackgroundImage}" Stretch="Uniform"/>
                     </Border.Background>
@@ -108,8 +108,8 @@
                         <RowDefinition Height="Auto"></RowDefinition>
                     </Grid.RowDefinitions>
                     <Slider Orientation="Vertical" HorizontalAlignment="Center" Maximum="1" Minimum="0"
-                                IsSnapToTickEnabled="True" TickFrequency="0.1"
-                                Value="{Binding BackgroundImageOpacity}"/>
+                            IsSnapToTickEnabled="True" TickFrequency="0.1"
+                            Value="{Binding BackgroundImageOpacity}"/>
                     <Label Grid.Row="1" Content="透明度" Margin="5 10 5 0"></Label>
                 </Grid>
                 <Grid Grid.Column="2" Margin="20 0 0 0">
@@ -118,8 +118,8 @@
                         <RowDefinition Height="Auto"></RowDefinition>
                     </Grid.RowDefinitions>
                     <Slider Orientation="Vertical" HorizontalAlignment="Center" Maximum="25" Minimum="0"
-                                IsSnapToTickEnabled="True" TickFrequency="1"
-                                Value="{Binding BackgroundImageBlur}"/>
+                            IsSnapToTickEnabled="True" TickFrequency="1"
+                            Value="{Binding BackgroundImageBlur}"/>
                     <Label Grid.Row="1" Content="亚克力效果" Margin="5 10 5 0"></Label>
                 </Grid>
             </Grid>

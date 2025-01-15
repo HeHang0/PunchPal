@@ -294,6 +294,14 @@ namespace PunchPal.WPF
                     if (page.DataContext == null) page.DataContext = _mainModel.Setting.Common;
                     _mainModel.Setting.CurrentSettingPage = SettingsModel.PageType.Common;
                     break;
+                case var type when type == typeof(Pages.SettingDataPage):
+                    if (page.DataContext == null) page.DataContext = _mainModel.Setting.Data;
+                    _mainModel.Setting.CurrentSettingPage = SettingsModel.PageType.Data;
+                    break;
+                case var type when type == typeof(Pages.SettingCalendarPage):
+                    if (page.DataContext == null) page.DataContext = _mainModel.Setting.Calendar;
+                    _mainModel.Setting.CurrentSettingPage = SettingsModel.PageType.Calendar;
+                    break;
                 case var type when type == typeof(Pages.SettingPersonalizePage):
                     if (page.DataContext == null) page.DataContext = _mainModel.Setting.Personalize;
                     _mainModel.Setting.CurrentSettingPage = SettingsModel.PageType.Personalize;

@@ -35,17 +35,18 @@ namespace PunchPal.Core.ViewModels
             PunchRecord.ConfirmDialog += (sender, e) => ConfirmDialog?.Invoke(sender, e);
             AttendanceRecord.ConfirmDialog += (sender, e) => ConfirmDialog?.Invoke(sender, e);
             InitItems();
-            Setting.Common.PropertyChanged += OnPropertyChanged;
+            Setting.Calendar.PropertyChanged += OnPropertyChanged;
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
-                case nameof(SettingsCommon.LunarSolarTermVisible):
+                case nameof(SettingsCalendar.WeekStart):
+                case nameof(SettingsCalendar.LunarSolarTermVisible):
                     InitItems();
                     break;
-                case nameof(SettingsCommon.HolidayCountdownVisible):
+                case nameof(SettingsCalendar.HolidayCountdownVisible):
                     Calendar.OnPropertyChanged(nameof(Calendar.HolidayCountdownVisible));
                     break;
             }

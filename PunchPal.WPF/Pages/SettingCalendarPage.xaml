@@ -1,0 +1,51 @@
+﻿<Page x:Class="PunchPal.WPF.Pages.SettingCalendarPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:PunchPal.WPF.Pages"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:vm="clr-namespace:PunchPal.Core.ViewModels;assembly=PunchPal.Core"
+      mc:Ignorable="d"
+      d:DesignHeight="450" d:DesignWidth="800" Margin="10 0 0 0"
+      d:DataContext="{d:DesignInstance Type=vm:SettingsCalendar}">
+    <StackPanel>
+        <ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="CalendarRtl24" />
+                    <ui:TextBlock FontTypography="Body" Text="起始日" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ComboBox ItemsSource="{Binding WeekList}" SelectedValue="{Binding WeekStart}" Padding="5"
+                      SelectedValuePath="Key" DisplayMemberPath="Value"/>
+        </ui:CardControl>
+        <!--<ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="CalendarPattern20" />
+                    <ui:TextBlock FontTypography="Body" Text="节假日背景" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:ToggleSwitch IsChecked="{Binding IsCalendarHolidayVisible}" />
+        </ui:CardControl>-->
+        <ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="AccessTime20" />
+                    <ui:TextBlock FontTypography="Body" Text="显示农历及节气" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:ToggleSwitch IsChecked="{Binding LunarSolarTermVisible}" />
+        </ui:CardControl>
+        <ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="Rocket20" />
+                    <ui:TextBlock FontTypography="Body" Text="显示节假日倒计时" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:ToggleSwitch IsChecked="{Binding HolidayCountdownVisible}" />
+        </ui:CardControl>
+    </StackPanel>
+</Page>

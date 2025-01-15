@@ -38,6 +38,7 @@ namespace PunchPal.Tools
         }
 
         public readonly static List<int> HoursList = new List<int>();
+        public readonly static List<int> HourTotalList = new List<int>();
         public readonly static List<int> MinutesList = new List<int>();
         public static List<int> SecondsList => MinutesList;
 
@@ -48,6 +49,7 @@ namespace PunchPal.Tools
                 if (i < 24)
                 {
                     HoursList.Add(i);
+                    HourTotalList.Add(i + 1);
                 }
                 MinutesList.Add(i);
             }
