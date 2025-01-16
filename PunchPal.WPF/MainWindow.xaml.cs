@@ -46,8 +46,74 @@ namespace PunchPal.WPF
             _mainModel.WorkingHours.TextCoping += OnTextCoping;
             _mainModel.Setting.Personalize.PropertyChanged += OnPersonalizeChanged;
             _mainModel.Setting.Personalize.FileSelecting += OnFileSelecting;
+            _mainModel.Setting.WorkingTimeRange.Edited += OnWorkingTimeRangeEdited;
             _mainModel.ShowWindow += OnShowWindow;
             InitWindowBackdropType();
+        }
+
+        private async void OnWorkingTimeRangeEdited(object sender, WorkingTimeRange e)
+        {
+            var content = new EditWorkingTimeRangeControl()
+            {
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            if(e != null)
+            {
+                content.Date = e.DateTime;
+                content.IsAllDate = e.Date == 0;
+                content.SelectedType = e.Type;
+                content.StartTime = new DateTime().AddHours(e.StartHour).AddMinutes(e.StartMinute);
+                content.EndTime = new DateTime().AddHours(e.EndHour).AddMinutes(e.EndMinute);
+            }
+            var contentDialog = new ContentDialog()
+            {
+                Title = $"{(e == null ? "添加" : "编辑")}工作时间",
+                CloseButtonText = "取消",
+                PrimaryButtonText = "删除",
+                PrimaryButtonAppearance = e != null ? ControlAppearance.Danger : ControlAppearance.Primary,
+                IsPrimaryButtonEnabled = e != null && (e.Type != WorkingTimeRangeType.Work || e.Date != 0),
+                SecondaryButtonText = "确认",
+                SecondaryButtonAppearance = ControlAppearance.Success,
+                MinHeight = 0,
+                DialogHost = DialogPresenter,
+                Content = content
+            };
+            var result = await contentDialog.ShowAsync();
+            switch (result)
+            {
+                case ContentDialogResult.Primary:
+                    {
+                        _mainModel.Loading = true;
+                        await WorkingTimeRangeService.Instance.Remove(e);
+                        _mainModel.Loading = false;
+                        ShowTips(new TipsOption("提示", $"删除成功", Core.Models.ControlAppearance.Success));
+                        break;
+                    }
+                case ContentDialogResult.Secondary:
+                    {
+                        var record = new WorkingTimeRange
+                        {
+                            Date = content.IsAllDate ? 0 : content.Date.Date.TimestampUnix(),
+                            Type = content.SelectedType,
+                            StartHour = content.StartTime.Hour,
+                            StartMinute = content.StartTime.Minute,
+                            EndHour = content.EndTime.Hour,
+                            EndMinute = content.EndTime.Minute,
+                            UserId = _mainModel.Setting.Common.CurrentUser?.UserId
+                        };
+                        _mainModel.Loading = true;
+                        await WorkingTimeRangeService.Instance.Add(record);
+                        _mainModel.Loading = false;
+                        ShowTips(new TipsOption("提示", $"{(e == null ? "添加" : "编辑")}成功", Core.Models.ControlAppearance.Success));
+                        break;
+                    }
+                default:
+                    return;
+            }
+            _mainModel.Loading = true;
+            await _mainModel.Setting.WorkingTimeRange.InitRanges();
+            _mainModel.Loading = false;
         }
 
         private void OnFileSelecting(object sender, SelectFileEventArgs e)
@@ -305,6 +371,10 @@ namespace PunchPal.WPF
                 case var type when type == typeof(Pages.SettingPersonalizePage):
                     if (page.DataContext == null) page.DataContext = _mainModel.Setting.Personalize;
                     _mainModel.Setting.CurrentSettingPage = SettingsModel.PageType.Personalize;
+                    break;
+                case var type when type == typeof(Pages.SettingWorkingTimeRangePage):
+                    if (page.DataContext == null) page.DataContext = _mainModel.Setting.WorkingTimeRange;
+                    _mainModel.Setting.CurrentSettingPage = SettingsModel.PageType.WorkingTimeRange;
                     break;
                 case var type when type == typeof(Pages.SettingNetworkPage):
                     if (page.DataContext == null) page.DataContext = _mainModel.Setting.Network;

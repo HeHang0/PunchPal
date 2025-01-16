@@ -50,6 +50,11 @@
                     TargetPageType="{x:Type local:SettingPersonalizePage}">
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem
+                    Margin="0" Padding="0" Content="工作时间"
+                    Icon="{ui:SymbolIcon VirtualNetwork20}" ToolTip="工作时间"
+                    TargetPageType="{x:Type local:SettingWorkingTimeRangePage}">
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem
                     Margin="0" Padding="0" Content="网络"
                     Icon="{ui:SymbolIcon NetworkCheck20}" ToolTip="网络"
                     TargetPageType="{x:Type local:SettingNetworkPage}">

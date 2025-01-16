@@ -18,6 +18,7 @@ namespace PunchPal.Core.Models
         public DbSet<AttendanceRecord> AttendanceRecords { get; set; }
         public DbSet<AttendanceType> AttendanceTypes { get; set; }
         public DbSet<CalendarRecord> CalendarRecords { get; set; }
+        public DbSet<WorkingTimeRange> WorkingTimeRanges { get; set; }
         public DbSet<User> Users { get; set; }
 
         public PunchDbContext() : base(new SQLiteConnection(ConnectionText), true)

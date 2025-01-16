@@ -36,6 +36,12 @@
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
     </Style>
+    <Style TargetType="{x:Type Label}">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Foreground" Value="{DynamicResource TextControlForeground}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
     <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource DefaultListBoxItemStyle}">
         <Setter Property="Padding" Value="0" />
         <Setter Property="Background" Value="Transparent" />

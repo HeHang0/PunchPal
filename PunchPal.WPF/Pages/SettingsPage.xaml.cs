@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using PunchPal.Core.ViewModels;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace PunchPal.WPF.Pages
@@ -16,7 +17,15 @@ namespace PunchPal.WPF.Pages
 
         private void SettingsPage_Loaded(object sender, RoutedEventArgs e)
         {
-            PunchNavigationView.Navigate("常规");
+            if(DataContext is SettingsModel settingsModel &&
+                !string.IsNullOrWhiteSpace(settingsModel.CurrentSettingTitle))
+            {
+                PunchNavigationView.Navigate(settingsModel.CurrentSettingTitle);                
+            }
+            else
+            {
+                PunchNavigationView.Navigate("常规");
+            }
         }
     }
 }

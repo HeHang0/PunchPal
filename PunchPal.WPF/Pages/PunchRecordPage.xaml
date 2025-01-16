@@ -10,7 +10,7 @@
       mc:Ignorable="d" ScrollViewer.CanContentScroll="False"
       d:DataContext="{d:DesignInstance Type=vm:PunchRecordVM}"
       d:DesignHeight="450" d:DesignWidth="800">
-    <ui:DataGrid CanUserAddRows="True" AutoGenerateColumns="False" HeadersVisibility="Column"
+    <ui:DataGrid CanUserAddRows="False" AutoGenerateColumns="False" HeadersVisibility="Column"
                  ItemsSource="{Binding Items}" Background="Transparent" IsReadOnly="True"
                  SelectedItem="{Binding SelectedRecord}">
         <DataGrid.Columns>

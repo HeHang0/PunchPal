@@ -13,7 +13,7 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <Grid Margin="0 0 10 0">
+        <Grid Margin="0 0 10 0" Visibility="{Binding IsDateMode, Converter={StaticResource BooleanToVisibility}}">
             <ui:TextBox IsReadOnly="True" HorizontalContentAlignment="Center"
                     Text="{Binding DateText, Mode=OneWay}"></ui:TextBox>
             <ui:CalendarDatePicker Width="Auto" IsTodayHighlighted="True" Opacity="0" Margin="0"
@@ -21,13 +21,18 @@
         </Grid>
         <StackPanel Grid.Column="1" Orientation="Horizontal">
             <ComboBox ItemsSource="{Binding HoursList}" Style="{StaticResource TimeComboBoxStyle}"
-                      SelectedItem="{Binding Hour, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-            <Label Content=":" VerticalAlignment="Center" Margin="5 0"></Label>
+                      SelectedItem="{Binding Hour, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      Visibility="{Binding IsTimeMode, Converter={StaticResource BooleanToVisibility}}"/>
+            <Label Content=":" VerticalAlignment="Center" Margin="5 0"
+                   Visibility="{Binding IsTimeMode, Converter={StaticResource BooleanToVisibility}}"/>
             <ComboBox ItemsSource="{Binding MinutesList}" Style="{StaticResource TimeComboBoxStyle}"
-                      SelectedItem="{Binding Minute, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-            <Label Content=":" VerticalAlignment="Center" Margin="5 0"></Label>
+                      SelectedItem="{Binding Minute, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      Visibility="{Binding IsTimeMode, Converter={StaticResource BooleanToVisibility}}"/>
+            <Label Content=":" VerticalAlignment="Center" Margin="5 0"
+                   Visibility="{Binding IsDateTimeMode, Converter={StaticResource BooleanToVisibility}}"/>
             <ComboBox ItemsSource="{Binding SecondsList}" Style="{StaticResource TimeComboBoxStyle}"
-                      SelectedItem="{Binding Second, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                      SelectedItem="{Binding Second, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      Visibility="{Binding IsDateTimeMode, Converter={StaticResource BooleanToVisibility}}"/>
         </StackPanel>
     </Grid>
 </UserControl>

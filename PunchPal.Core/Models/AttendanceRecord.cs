@@ -43,6 +43,7 @@ namespace PunchPal.Core.Models
             }
         }
         [NotMapped] public string AttendanceDateTimeText => AttendanceDateTime?.ToDateTimeString() ?? string.Empty;
+        [NotMapped] public string AttendanceDateText => AttendanceDateTime?.ToDateString() ?? string.Empty;
         [NotMapped] public string StartDateTimeText => StartDateTime?.ToDateTimeString() ?? string.Empty;
         [NotMapped] public string EndDateTimeText => EndDateTime?.ToDateTimeString() ?? string.Empty;
     }

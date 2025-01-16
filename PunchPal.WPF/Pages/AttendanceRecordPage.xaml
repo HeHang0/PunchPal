@@ -10,22 +10,22 @@
       xmlns:controls="clr-namespace:PunchPal.WPF.Controls"
       mc:Ignorable="d" ScrollViewer.CanContentScroll="False"
       d:DataContext="{d:DesignInstance Type=vm:AttendanceRecordVM}"
-      d:DesignHeight="450" d:DesignWidth="800"
-      Title="AttendanceRecordPage">
-    <ui:DataGrid CanUserAddRows="True" AutoGenerateColumns="False" HeadersVisibility="Column"
+      d:DesignHeight="450" d:DesignWidth="800">
+    <ui:DataGrid CanUserAddRows="False" AutoGenerateColumns="False" HeadersVisibility="Column"
                  ItemsSource="{Binding Items}" Background="Transparent" IsReadOnly="True"
                  SelectedItem="{Binding SelectedRecord}">
-        <ui:DataGrid.Resources>
-            <Style TargetType="TextBlock">
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-            </Style>
-        </ui:DataGrid.Resources>
         <DataGrid.Columns>
-            <controls:DataGridTextTrimingColumn Header="编码" MinWidth="150" MaxWidth="165" Binding="{Binding AttendanceId}" />
-            <controls:DataGridTextTrimingColumn Header="类型" MinWidth="70" MaxWidth="90" Binding="{Binding AttendanceType}" />
-            <controls:DataGridTextTrimingColumn Header="开始时间" MinWidth="150" MaxWidth="165" Binding="{Binding StartDateTimeText}" />
-            <controls:DataGridTextTrimingColumn Header="结束时间" MinWidth="150" MaxWidth="165" Binding="{Binding EndDateTimeText}" />
-            <controls:DataGridTextTrimingColumn Header="记录时间" MinWidth="150" MaxWidth="165" Binding="{Binding AttendanceDateTimeText}" />
+            <DataGridTemplateColumn Header="日期" MinWidth="90" MaxWidth="165">
+                <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding AttendanceDateText}" ToolTip="{Binding AttendanceDateTimeText}" TextTrimming="CharacterEllipsis" />
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <controls:DataGridTextTrimingColumn Header="编码" Width="150" MaxWidth="165" Binding="{Binding AttendanceId}" />
+            <controls:DataGridTextTrimingColumn Header="类型" Width="90" Binding="{Binding AttendanceType}" />
+            <controls:DataGridTextTrimingColumn Header="开始时间" Width="165" Binding="{Binding StartDateTimeText}" />
+            <controls:DataGridTextTrimingColumn Header="结束时间" Width="165" Binding="{Binding EndDateTimeText}" />
             <controls:DataGridTextTrimingColumn Header="备注" MinWidth="80" Width="*" Binding="{Binding Remark}" />
         </DataGrid.Columns>
         <b:Interaction.Triggers>

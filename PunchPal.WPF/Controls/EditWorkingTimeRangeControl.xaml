@@ -1,0 +1,35 @@
+﻿<UserControl x:Class="PunchPal.WPF.Controls.EditWorkingTimeRangeControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PunchPal.WPF.Controls"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             mc:Ignorable="d" 
+             d:DataContext="{Binding RelativeSource={RelativeSource Self}}"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0 10 0 0" HorizontalAlignment="Left">
+            <Label Content="类　　型：" VerticalAlignment="Center" />
+            <ComboBox Width="128" ItemsSource="{Binding TypeList}" SelectedValue="{Binding SelectedType}"
+                      DisplayMemberPath="Value" SelectedValuePath="Key"
+                      Style="{StaticResource BaseComboBoxStyle}"/>            
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0 10 0 0" HorizontalAlignment="Left">
+            <Label Content="日　　期：" VerticalAlignment="Center" />
+            <local:DateTimePicker Width="138" Height="30" DateTime="{Binding Date}" Mode="Date"
+                      Visibility="{Binding IsAllDate, Converter={StaticResource BooleanToNotVisibility}}"/>
+            <ui:ToggleSwitch Margin="10 0 5 0" IsChecked="{Binding IsAllDate}" />
+            <Label Content="全部" VerticalAlignment="Center" Visibility="{Binding IsAllDate, Converter={StaticResource BooleanToVisibility}}"/>
+            <Label Content="指定" VerticalAlignment="Center" Visibility="{Binding IsAllDate, Converter={StaticResource BooleanToNotVisibility}}"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0 10 0 0" HorizontalAlignment="Left">
+            <Label Content="开始时间：" VerticalAlignment="Center" />
+            <local:DateTimePicker DateTime="{Binding StartTime}" Mode="Time"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0 10 0 0" HorizontalAlignment="Left">
+            <Label Content="结束时间：" VerticalAlignment="Center" />
+            <local:DateTimePicker DateTime="{Binding EndTime}" Mode="Time"/>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

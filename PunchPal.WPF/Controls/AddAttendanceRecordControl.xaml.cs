@@ -49,7 +49,6 @@ namespace PunchPal.WPF.Controls
             }
         }
 
-
         private DateTime _startDateTime = DateTime.Now.Date;
         public DateTime StartDateTime
         {

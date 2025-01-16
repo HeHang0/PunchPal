@@ -25,6 +25,13 @@ namespace PunchPal.WPF.Controls
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public enum ModeType
+        {
+            DateTime,
+            Date,
+            Time
+        }
+
         public DateTimePicker()
         {
             InitializeComponent();
@@ -42,6 +49,14 @@ namespace PunchPal.WPF.Controls
                 typeof(DateTime),
                 typeof(DateTimePicker),
                 new FrameworkPropertyMetadata(DateTime.Now, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, null, OnDateTimeChanged)
+            );
+
+        public static readonly DependencyProperty ModeProperty =
+            DependencyProperty.Register(
+                nameof(Mode),
+                typeof(ModeType),
+                typeof(DateTimePicker),
+                new FrameworkPropertyMetadata(ModeType.DateTime)
             );
 
         private static object OnDateTimeChanged(DependencyObject d, object baseValue)
@@ -75,6 +90,22 @@ namespace PunchPal.WPF.Controls
                 SetValue(DateTimeProperty, new DateTime(_date.Year, _date.Month, _date.Day, Hour, Minute, Second));
             }
         }
+
+        public ModeType Mode
+        {
+            get => (ModeType)GetValue(ModeProperty);
+            set
+            {
+                SetValue(ModeProperty, value);
+                OnPropertyChanged(nameof(IsDateMode));
+                OnPropertyChanged(nameof(IsTimeMode));
+                OnPropertyChanged(nameof(IsDateTimeMode));
+            }
+        }
+
+        public bool IsDateMode => Mode == ModeType.Date || Mode == ModeType.DateTime;
+        public bool IsTimeMode => Mode == ModeType.Time || Mode == ModeType.DateTime;
+        public bool IsDateTimeMode => Mode == ModeType.DateTime;
 
         private DateTime _date;
         public DateTime Date
