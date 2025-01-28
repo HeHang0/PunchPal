@@ -32,6 +32,11 @@ namespace PunchPal.Tools
             return dateTime.ToString("yyyy-MM-dd");
         }
 
+        public static string ToTimeString(this DateTime dateTime)
+        {
+            return dateTime.ToString("HH:mm:ss");
+        }
+
         public static string ToMonthString(this DateTime dateTime)
         {
             return dateTime.ToString("yyyy-MM");

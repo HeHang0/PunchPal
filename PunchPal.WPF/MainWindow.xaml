@@ -89,7 +89,7 @@
                     </ui:Button>
                     <StackPanel Orientation="Horizontal"
                                Visibility="{Binding CanYearMonth, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
-                        <ui:Button Width="20" Height="13" Padding="0" Cursor="Hand" ToolTip="上个月"
+                        <ui:Button Width="20" Height="20" Padding="0" Cursor="Hand" ToolTip="上个月"
                                    Appearance="Secondary" Background="Transparent" Focusable="False"
                                    BorderBrush="Transparent" Content="" Command="{Binding LastMonthCommand}"
                                    Foreground="{DynamicResource NavigationViewItemForeground}">
@@ -109,7 +109,7 @@
                                 </b:EventTrigger>
                             </b:Interaction.Triggers>
                         </Label>
-                        <ui:Button Width="20" Height="13" Padding="0" Cursor="Hand"
+                        <ui:Button Width="20" Height="20" Padding="0" Cursor="Hand"
                                    Appearance="Secondary" Background="Transparent"
                                    BorderBrush="Transparent" Content="" ToolTip="下个月"
                                    Command="{Binding NextMonthCommand}" Focusable="False"

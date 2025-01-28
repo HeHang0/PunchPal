@@ -51,7 +51,7 @@ namespace PunchPal.Core.ViewModels
             var firstDayWeek = (int)firstDay.DayOfWeek;
             for (var i = weekStartIndex; i < firstDayWeek; i++)
             {
-                result.Add(new CalendarItem(firstDay.AddDays(i - firstDayWeek), true));
+                result.Add(new CalendarItem(firstDay.AddDays(i - firstDayWeek), true) { IsLast = true });
             }
             var lastDay = firstDay.AddMonths(1).AddDays(-1);
             var days = (lastDay - firstDay).Days + 1;
@@ -68,9 +68,13 @@ namespace PunchPal.Core.ViewModels
             {
                 weekEndIndex = 6;
             }
+            if(lastDayWeek >= 7)
+            {
+                lastDayWeek = 0;
+            }
             for (int i = lastDayWeek + 1; i <= weekEndIndex; i++)
             {
-                result.Add(new CalendarItem(lastDay.AddDays(++day), true));
+                result.Add(new CalendarItem(lastDay.AddDays(++day), true) { IsNext = true });
             }
             var startValue = result.FirstOrDefault()?.Date.TimestampUnix() ?? 0;
             var endValue = result.LastOrDefault()?.Date.AddDays(1).TimestampUnix() ?? 0;
@@ -100,14 +104,19 @@ namespace PunchPal.Core.ViewModels
         public async Task UpdateHolidayCountdown()
         {
             var result = await CalendarService.Instance.GetRecentHolidays();
-            if(result.Distance > 0)
+            if(result.Record == null)
             {
-                var year = result.Record.SolarTerm == "国庆节" ? DateTime.Now.Year.ToString() : result.Record.LunarYear;
+                HolidayCountdownText = string.Empty;
+                return;
+            }
+            var year = result.Record.SolarTerm == "国庆节" ? DateTime.Now.Year.ToString() : result.Record.LunarYear;
+            if (result.Distance > 0)
+            {
                 HolidayCountdownText = $"距离 {year}年{result.Record.SolarTerm}假期 还有{result.Distance}天";
             }
             else
             {
-                HolidayCountdownText = string.Empty;
+                HolidayCountdownText = $"今天是 {year}年{result.Record.SolarTerm}假期";
             }
         }
 

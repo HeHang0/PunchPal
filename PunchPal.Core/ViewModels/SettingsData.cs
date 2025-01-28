@@ -46,7 +46,7 @@ namespace PunchPal.Core.ViewModels
             }
         }
 
-        private bool _isAttendanceTime = false;
+        private bool _isAttendanceTime = true;
         public bool IsAttendanceTime
         {
             get => _isAttendanceTime;
@@ -64,6 +64,17 @@ namespace PunchPal.Core.ViewModels
             set
             {
                 _isWeekendTime = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _isIgnoreDinnerAtHoliday = true;
+        public bool IsIgnoreDinnerAtHoliday
+        {
+            get => _isIgnoreDinnerAtHoliday;
+            set
+            {
+                _isIgnoreDinnerAtHoliday = value;
                 OnPropertyChanged();
             }
         }

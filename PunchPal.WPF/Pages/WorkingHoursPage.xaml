@@ -15,9 +15,11 @@
                  ItemsSource="{Binding Items}" Background="Transparent" IsReadOnly="True">
         <DataGrid.Columns>
             <DataGridTextColumn Header="日期" Width="100" Binding="{Binding WorkingDateTimeText}" />
-            <DataGridTextColumn Header="上班时间" Width="180" Binding="{Binding StartTimeText}" />
-            <DataGridTextColumn Header="下班时间" Width="180" Binding="{Binding EndTimeText}" />
-            <DataGridTextColumn Header="工时（分钟）" Width="110" Binding="{Binding TotalHoursText}" />
+            <DataGridTextColumn Header="上班时间" Width="80" Binding="{Binding StartTimeText}" />
+            <DataGridTextColumn Header="下班时间" Width="120" Binding="{Binding EndTimeText}" />
+            <DataGridTextColumn Header="工时（小时）" Width="110" Binding="{Binding TotalHoursText}" />
+            <DataGridTextColumn Header="迟到" Width="60" Binding="{Binding LateMinutesText}" />
+            <DataGridTextColumn Header="早退" Width="60" Binding="{Binding LeaveEarlyMinutesText}"/>
             <DataGridTextColumn Header="备注" Width="*" MinWidth="80" Binding="{Binding Remark}" />
         </DataGrid.Columns>
         <b:Interaction.Triggers>

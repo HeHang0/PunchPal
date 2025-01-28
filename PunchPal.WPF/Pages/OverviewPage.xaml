@@ -4,9 +4,92 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:PunchPal.WPF.Pages"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:vm="clr-namespace:PunchPal.Core.ViewModels;assembly=PunchPal.Core"
+      xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-      Title="OverviewPage">
+      d:DesignHeight="450" d:DesignWidth="800" DataContextChanged="Page_DataContextChanged"
+      d:DataContext="{d:DesignInstance Type=vm:OverviewVM}">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="5" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="5" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="5" />
+                </Grid.ColumnDefinitions>
+                <Border Grid.ColumnSpan="5" Background="{DynamicResource ToggleButtonBackground}" Opacity="1" CornerRadius="4"></Border>
+                <ToggleButton Grid.Column="1" IsChecked="{Binding IsWeeklySelected}" Content="周" Margin="0,5,0,5" HorizontalAlignment="Stretch"
+                              Visibility="{Binding IsCurrentMonth, Converter={StaticResource BooleanToVisibility}}"/>
+                <ToggleButton Grid.Column="{Binding MonthCol}" Grid.ColumnSpan="{Binding MonthSpan}" IsChecked="{Binding IsMonthSelected}" Content="月" Margin="0 5 0 5" HorizontalAlignment="Stretch"/>
+            </Grid>
+            <lvc:PieChart x:Name="HourPirChart" Grid.Row="1" Margin="0 25 0 0" Series="{Binding ChartSeries}"
+                          IsClockwise="False" InitialRotation="270" />
+            <StackPanel Grid.Row="1" Margin="0 10 0 0">
+                <StackPanel Orientation="Horizontal">
+                    <Border CornerRadius="2" Width="20" Height="10" Background="#4299E1"></Border>
+                    <Label Content="标准工作时长（小时）" Margin="10 0 0 0"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0 5 0 5">
+                    <Border CornerRadius="2" Width="20" Height="10" Background="#48BB78"></Border>
+                    <Label Content="工作日加班时长（小时）" Margin="10 0 0 0"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Border CornerRadius="2" Width="20" Height="10" Background="#ED8936"></Border>
+                    <Label Content="节假日加班时长（小时）" Margin="10 0 0 0"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Column="1" Margin="10 0 0 0" VerticalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <StackPanel>
+                <TextBlock Text="{Binding DayAverageText}" FontSize="22" Foreground="{DynamicResource WindowForeground}"/>
+                <TextBlock Text="{Binding DayAverageRateText}" FontSize="14" Foreground="{DynamicResource WindowForeground}"
+                           Opacity="0.6" Margin="0 5 0 0" Visibility="{Binding IsWeeklySelected, Converter={StaticResource BooleanToVisibility}}"/>
+
+                <StackPanel Orientation="Horizontal" Margin="0 20 0 0">
+                    <TextBlock Text="正常上班：" Foreground="{DynamicResource WindowForeground}"/>
+                    <TextBlock Text="{Binding StandardAverageText}" Foreground="{DynamicResource WindowForeground}"/>
+                    <TextBlock Text=" 小时/天" Foreground="{DynamicResource WindowForeground}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0 5 0 0">
+                    <TextBlock Text="工作日加班：" Foreground="{DynamicResource WindowForeground}"/>
+                    <TextBlock Text="{Binding OvertimeAverageText}" Foreground="{DynamicResource WindowForeground}"/>
+                    <TextBlock Text=" 小时/天" Foreground="{DynamicResource WindowForeground}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0 5 0 0">
+                    <TextBlock Text="节假日加班：" Foreground="{DynamicResource WindowForeground}"/>
+                    <TextBlock Text="{Binding HolidayAverageText}" Foreground="{DynamicResource WindowForeground}"/>
+                    <TextBlock Text=" 小时/天" Foreground="{DynamicResource WindowForeground}"/>
+                </StackPanel>
+            </StackPanel>
+            <Border Grid.Row="1" Background="{DynamicResource ToggleButtonBackground}"
+                    CornerRadius="4" VerticalAlignment="Top" Margin="0 20 0 0" Padding="10 7 10 7">
+                <ListBox VerticalAlignment="Top"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     ItemsSource="{Binding TipsTextList}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock FontSize="13" Text="{Binding }" HorizontalAlignment="Left" Margin="0 3 0 3"
+                                   TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Border>
+        </Grid>
     </Grid>
 </Page>

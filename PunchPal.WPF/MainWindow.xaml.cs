@@ -398,6 +398,7 @@ namespace PunchPal.WPF
                     break;
                 case var type when type == typeof(Pages.OverviewPage):
                     _mainModel.CurrentPage = Core.ViewModels.MainModel.PageType.Overview;
+                    if (page.DataContext == null) page.DataContext = _mainModel.Overview;
                     break;
                 case var type when type == typeof(Pages.SettingsPage):
                     _mainModel.CurrentPage = Core.ViewModels.MainModel.PageType.Settings;

@@ -56,6 +56,8 @@ namespace PunchPal.Core.ViewModels
 
         public CalendarVM Calendar { get; } = new CalendarVM();
 
+        public OverviewVM Overview { get; } = new OverviewVM();
+
         public PunchRecordVM PunchRecord { get; } = new PunchRecordVM();
 
         public WorkingHoursVM WorkingHours { get; } = new WorkingHoursVM();
@@ -159,6 +161,7 @@ namespace PunchPal.Core.ViewModels
             Trace.WriteLine($"WorkingHours InitItems: {DateTime.Now.TimestampUnix() - start}");
             await Calendar.InitItems(Date, WorkingHours.Items);
             Trace.WriteLine($"Calendar InitItems: {DateTime.Now.TimestampUnix() - start}");
+            await Overview.InitItems(Date, WorkingHours.Items);
             Loading = false;
         }
 

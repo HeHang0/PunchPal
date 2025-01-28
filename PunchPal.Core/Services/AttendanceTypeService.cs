@@ -64,7 +64,7 @@ namespace PunchPal.Core.Services
                 return new List<AttendanceType>();
             }
         }
-
+        public static readonly string[] AskForLeaveIds = new string[] { "AL", "SL", "PL", "ML", "PPL", "BL", "FL", "CL", "GL", "RL", "TL", "BD", "IW" };
         private static readonly KeyValuePair<string, string>[] initialTyps = new KeyValuePair<string, string>[]
         {
                 // 考勤类型

@@ -1,4 +1,7 @@
-﻿using System.Windows.Controls;
+﻿using PunchPal.Core.ViewModels;
+using System;
+using System.Threading.Tasks;
+using System.Windows.Controls;
 
 namespace PunchPal.WPF.Pages
 {
@@ -10,6 +13,29 @@ namespace PunchPal.WPF.Pages
         public OverviewPage()
         {
             InitializeComponent();
+        }
+
+        private void Page_DataContextChanged(object sender, System.Windows.DependencyPropertyChangedEventArgs e)
+        {
+            if(!(DataContext is OverviewVM overview))
+            {
+                return;
+            }
+            overview.PropertyChanged += Overview_PropertyChanged;
+        }
+
+        private void Overview_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if(e.PropertyName == nameof(OverviewVM.ChartSeries))
+            {
+                Task.Delay(TimeSpan.FromMilliseconds(100)).ContinueWith(t =>
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        HourPirChart.CoreChart.Update();
+                    });
+                });
+            }
         }
     }
 }

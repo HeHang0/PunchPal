@@ -1,5 +1,6 @@
 ﻿using PunchPal.Core.Models;
 using PunchPal.Core.ViewModels;
+using PunchPal.Tools;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -109,6 +110,40 @@ namespace PunchPal.Core.Services
             catch (Exception)
             {
                 return new List<WorkingTimeRange>();
+            }
+        }
+
+        public async Task<Dictionary<long, WorkingTimeRangeItems>> Items(long startDate, long endDate)
+        {
+            try
+            {
+                using (var context = new PunchDbContext())
+                {
+                    InitData(context);
+                    var data = await context.WorkingTimeRanges.Where(m => m.Date == 0 || (m.Date >= startDate && m.Date < endDate)).OrderBy(m => m.Date).ThenBy(m => m.Type).ToListAsync();
+                    var result = new Dictionary<long, WorkingTimeRangeItems>();
+                    var startDateTime = startDate.Unix2DateTime().Date;
+                    var endDateTime = endDate.Unix2DateTime().Date;
+                    var commonData = data.Where(m => m.Date == 0);
+                    var commonWork = commonData.FirstOrDefault(m => m.Type == WorkingTimeRangeType.Work);
+                    var commonLunch = commonData.FirstOrDefault(m => m.Type == WorkingTimeRangeType.Lunch);
+                    var commonDinner = commonData.FirstOrDefault(m => m.Type == WorkingTimeRangeType.Dinner);
+                    for (var date = startDateTime; date <= endDateTime; date = date.AddDays(1))
+                    {
+                        var currentUnix = date.TimestampUnix();
+                        var current = data.Where(m => m.Date == currentUnix);
+                        var item = new WorkingTimeRangeItems();
+                        item.Work = current.FirstOrDefault(m => m.Type == WorkingTimeRangeType.Work) ?? commonWork;
+                        item.Lunch = current.FirstOrDefault(m => m.Type == WorkingTimeRangeType.Lunch) ?? commonLunch;
+                        item.Dinner = current.FirstOrDefault(m => m.Type == WorkingTimeRangeType.Dinner) ?? commonDinner;
+                        result[currentUnix] = item;
+                    }
+                    return result;
+                }
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
     }

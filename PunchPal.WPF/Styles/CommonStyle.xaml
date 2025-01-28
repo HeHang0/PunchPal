@@ -83,6 +83,19 @@
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Cursor" Value="IBeam" />
     </Style>
+    <Style TargetType="{x:Type ToggleButton}" BasedOn="{StaticResource DefaultToggleButtonStyle}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Style.Triggers>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsMouseOver" Value="True" />
+                    <Condition Property="IsChecked" Value="False" />
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="Transparent" />
+            </MultiTrigger>
+        </Style.Triggers>
+    </Style>
     <SolidColorBrush x:Key="ToggleSwitchKnobFillOn" Color="{StaticResource TextFillColorSecondary}" />
     <SolidColorBrush x:Key="ToggleSwitchKnobFillOnPointerOver" Color="{StaticResource TextFillColorSecondary}" />
     <SolidColorBrush x:Key="ToggleSwitchKnobFillOnPressed" Color="{StaticResource TextFillColorSecondary}" />

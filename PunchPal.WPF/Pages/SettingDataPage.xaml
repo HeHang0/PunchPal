@@ -51,7 +51,7 @@
             <ui:CardControl.Header>
                 <StackPanel Orientation="Horizontal">
                     <ui:SymbolIcon Margin="0 0 10 0" Symbol="ArchiveMultiple24" />
-                    <ui:TextBlock FontTypography="Body" Text="请假记录计入工时"/>
+                    <ui:TextBlock FontTypography="Body" Text="请假记录计入总工时"/>
                 </StackPanel>
             </ui:CardControl.Header>
             <ui:ToggleSwitch IsChecked="{Binding IsAttendanceTime}" />
@@ -60,10 +60,19 @@
             <ui:CardControl.Header>
                 <StackPanel Orientation="Horizontal">
                     <ui:SymbolIcon Margin="0 0 10 0" Symbol="CalendarWorkWeek24" />
-                    <ui:TextBlock FontTypography="Body" Text="周末加班计入工时"/>
+                    <ui:TextBlock FontTypography="Body" Text="节假日加班计入总工时"/>
                 </StackPanel>
             </ui:CardControl.Header>
             <ui:ToggleSwitch IsChecked="{Binding IsWeekendTime}" />
+        </ui:CardControl>
+        <ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="Food24" />
+                    <ui:TextBlock FontTypography="Body" Text="非工作日忽略晚餐时间"/>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:ToggleSwitch IsChecked="{Binding IsIgnoreDinnerAtHoliday}" />
         </ui:CardControl>
     </StackPanel>
 </Page>

@@ -18,6 +18,8 @@ namespace PunchPal.Core.ViewModels
         public string DateText => Date.ToString("yyyy年MM月dd日");
         public string Day => Date.Day.ToString() ?? string.Empty;
         public float Opacity { get; set; } = 1;
+        public bool IsLast { get; set; }
+        public bool IsNext { get; set; }
         public int WorkMinutes => _workItem?.TotalMinutes ?? 0;
         private WorkingHours _workItem;
         public WorkingHours WorkItem
@@ -167,6 +169,7 @@ namespace PunchPal.Core.ViewModels
             {
                 var text = string.Join(Environment.NewLine, TextList);
                 if (!SettingsModel.Load().Calendar.LunarSolarTermVisible ||
+                    _calendarData == null ||
                     string.IsNullOrWhiteSpace(_calendarData.LunarYear) ||
                     string.IsNullOrWhiteSpace(_calendarData.LunarMonth) ||
                     string.IsNullOrWhiteSpace(_calendarData.LunarDate))
