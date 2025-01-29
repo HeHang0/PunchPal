@@ -27,8 +27,72 @@
                     <ui:SymbolIcon Margin="10 0 0 0" Symbol="Info12" ToolTip="可点击右侧输入框直接按下快捷键更改；如果输入框为空说明默认快捷键被占用，可更改新的快捷键" Cursor="Hand" />
                 </StackPanel>
             </ui:CardControl.Header>
-            <ui:TextBox IsReadOnly="True" MinWidth="150" Height="28" Padding="8 4 8 0">
-            </ui:TextBox>
+            <ui:TextBox Text="{Binding ShortcutText, Mode=OneWay}" KeyUp="ShortcutTextBox_OnKeyUp" IsReadOnly="True" MinWidth="150" Height="28" Padding="8 4 8 0" />
+        </ui:CardControl>
+        <Label FontWeight="Bold" Margin="0,24,0,8" Content="提醒" />
+        <ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="Clock24">
+                        <ui:SymbolIcon.RenderTransform>
+                            <ScaleTransform ScaleX="-1" CenterX="8"/>
+                        </ui:SymbolIcon.RenderTransform>
+                    </ui:SymbolIcon>
+                    <ui:TextBlock FontTypography="Body" Text="上班打卡提醒" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <StackPanel Orientation="Horizontal">
+                <ui:SymbolIcon Margin="0 0 0 0" Symbol="Info12" ToolTip="每天第一次解锁屏幕时提醒" Cursor="Hand" />
+                <Label Content="解锁时" Margin="5 0" Padding="0" VerticalAlignment="Center"/>
+                <ui:ToggleSwitch Margin="0 0 30 0" IsChecked="{Binding IsNotifyUnLockPunch}" />
+                <Label Content="定时" Margin="5 0" Padding="0" VerticalAlignment="Center"/>
+                <ComboBox ItemsSource="{Binding HoursList}" SelectedValue="{Binding StartPunchHour}" Style="{StaticResource TimeComboBoxStyle}" Cursor="IBeam">
+                    <ComboBox.Resources>
+                        <Style TargetType="ui:SymbolIcon">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </Style>
+                    </ComboBox.Resources>
+                </ComboBox>
+                <Label Content=":" Margin="5 0" Padding="0" VerticalAlignment="Center"/>
+                <ComboBox ItemsSource="{Binding MinutesList}" SelectedValue="{Binding StartPunchMinute}" Style="{StaticResource TimeComboBoxStyle}" Cursor="IBeam">
+                    <ComboBox.Resources>
+                        <Style TargetType="ui:SymbolIcon">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </Style>
+                    </ComboBox.Resources>
+                </ComboBox>
+                <ui:ToggleSwitch Margin="10 0 0 0" IsChecked="{Binding IsNotifyStartPunch}" />
+            </StackPanel>
+        </ui:CardControl>
+        <ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="Alert24" />
+                    <ui:TextBlock FontTypography="Body" Text="下班打卡提醒" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <StackPanel Orientation="Horizontal">
+                <ui:SymbolIcon Margin="0 0 0 0" Symbol="Info12" ToolTip="每天下班时间后锁屏时提醒" Cursor="Hand" />
+                <Label Content="锁屏时" Margin="5 0" Padding="0" VerticalAlignment="Center"/>
+                <ui:ToggleSwitch Margin="0 0 30 0" IsChecked="{Binding IsNotifyLockPunch}" />
+                <Label Content="定时" Margin="5 0" Padding="0" VerticalAlignment="Center"/>
+                <ComboBox ItemsSource="{Binding HoursList}" SelectedValue="{Binding EndPunchHour}" Style="{StaticResource TimeComboBoxStyle}" Cursor="IBeam">
+                    <ComboBox.Resources>
+                        <Style TargetType="ui:SymbolIcon">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </Style>
+                    </ComboBox.Resources>
+                </ComboBox>
+                <Label Content=":" Margin="5 0" Padding="0" VerticalAlignment="Center"/>
+                <ComboBox ItemsSource="{Binding MinutesList}" SelectedValue="{Binding EndPunchMinute}" Style="{StaticResource TimeComboBoxStyle}" Cursor="IBeam">
+                    <ComboBox.Resources>
+                        <Style TargetType="ui:SymbolIcon">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </Style>
+                    </ComboBox.Resources>
+                </ComboBox>
+                <ui:ToggleSwitch Margin="10 0 0 0" IsChecked="{Binding IsNotifyEndPunch}" />
+            </StackPanel>
         </ui:CardControl>
     </StackPanel>
 </Page>

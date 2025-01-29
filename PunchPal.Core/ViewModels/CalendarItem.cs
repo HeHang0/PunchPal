@@ -48,6 +48,7 @@ namespace PunchPal.Core.ViewModels
                 return null;
             }
         }
+        public bool Is996 => BackgroundOpacity == 1;
         public string WorkHoursText => WorkMinutes <= 0 || _weak ? string.Empty : $"{(WorkMinutes * 1.0f / 60).ToString("F3").TrimEnd('0').TrimEnd('.')}(小时)";
         public float WorkHoursTextOpacity => WorkMinutes < (SettingsModel.Load().Data.EveryDayWorkHour * 60) ? 0.9f : 0.5f;
         public bool IsHoliday { get; set; }

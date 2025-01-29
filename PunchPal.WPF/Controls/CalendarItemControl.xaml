@@ -32,6 +32,10 @@
                 <Label FontSize="12" Content="{Binding WorkHoursText}" ToolTip="{Binding TimeText}"
                        Opacity="{Binding WorkHoursTextOpacity}" Margin="5 5 5 0"></Label>
             </StackPanel>
+            <TextBlock Grid.Row="1" Text="❀" Opacity="0.5" Margin="0 0 5 5" FontSize="16"
+                       VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                       Foreground="{DynamicResource WindowForeground}"
+                       Visibility="{Binding Is996, Converter={StaticResource BooleanToVisibility}}"/>
             <ListBox Grid.Row="1" Margin="5 5 0 5" VerticalAlignment="Bottom"
                      ScrollViewer.VerticalScrollBarVisibility="Auto"
                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"

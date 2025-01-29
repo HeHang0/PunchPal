@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using PunchPal.Core.ViewModels;
+using System.Windows.Controls;
 
 namespace PunchPal.WPF.Pages
 {
@@ -10,6 +11,15 @@ namespace PunchPal.WPF.Pages
         public SettingCommonPage()
         {
             InitializeComponent();
+        }
+
+        private void ShortcutTextBox_OnKeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if(!(DataContext is SettingsCommon model))
+            {
+                return;
+            }
+            model.OnShortcutChanged((Core.Models.ModifierKeys)e.KeyboardDevice.Modifiers, (Core.Models.Key)e.Key);
         }
     }
 }

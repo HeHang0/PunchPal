@@ -40,6 +40,7 @@ namespace PunchPal.Core.Services
             var endUnix = monthEndDay.TimestampUnix();
             var workingTimeRanges = await WorkingTimeRangeService.Instance.Items(startUnix, endUnix);
             var attendanceRecords = await AttendanceRecordService.Instance.List(m => m.StartTime >= startUnix && m.StartTime < endUnix && AttendanceTypeService.AskForLeaveIds.Contains(m.AttendanceTypeId));
+            var calendars = await CalendarService.Instance.ListOrSync(m => m.Date >= startUnix && m.Date < endUnix, monthStartDay);
             for (var i = 1; i <= monthEndDay.Day; i++)
             {
                 if (monthEndDay.Year == now.Year && monthEndDay.Month == now.Month && i > now.Day)
@@ -52,7 +53,7 @@ namespace PunchPal.Core.Services
                 var timeEnd = timeStart + DateTimeTools.DaySeconds;
                 var currentRecords = punchRecords.Where(m => m.PunchTime >= timeStart && m.PunchTime < timeEnd).ToList();
                 var currentAttendanceRecords = GetAttendanceRecords(attendanceRecords, timeStart, timeEnd, workingTimeRanges[dateUnix]);
-                var item = ParseWorkingHours(currentRecords, timeStart, workingTimeRanges[dateUnix], currentAttendanceRecords);
+                var item = ParseWorkingHours(currentRecords, timeStart, workingTimeRanges[dateUnix], currentAttendanceRecords, calendars.FirstOrDefault(m => m.Date == dateUnix));
                 if(item != null)
                 {
                     result.Add(item);
@@ -84,12 +85,13 @@ namespace PunchPal.Core.Services
             return currentRecords;
         }
 
-        private WorkingHours ParseWorkingHours(List<PunchRecord> punchRecords, int timeStart, WorkingTimeRangeItems workingTime, List<AttendanceRecord> attendanceRecords)
+        private WorkingHours ParseWorkingHours(List<PunchRecord> punchRecords, int timeStart, WorkingTimeRangeItems workingTime, List<AttendanceRecord> attendanceRecords, CalendarRecord calendar)
         {
             var settings = SettingsModel.Load();
             var item = new WorkingHours()
             {
-                WorkingDate = timeStart
+                WorkingDate = timeStart,
+                IsHoliday = calendar != null && (calendar.IsHoliday || (calendar.IsWeekend && !calendar.IsWorkday)),
             };
             var (minTimePure, maxTimePure) = GetMinMaxTime(punchRecords);
             if (settings.Data.IsAttendanceTime)

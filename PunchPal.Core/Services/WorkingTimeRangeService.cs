@@ -113,6 +113,15 @@ namespace PunchPal.Core.Services
             }
         }
 
+        public async Task<WorkingTimeRangeItems> CurrentItems()
+        {
+            var date = DateTime.Now;
+            var startDate = new DateTime(date.Year, date.Month, 1);
+            var endDate = startDate.AddMonths(1);
+            var result = await Items(startDate.TimestampUnix(), endDate.TimestampUnix());
+            return result[date.Date.TimestampUnix()];
+        }
+
         public async Task<Dictionary<long, WorkingTimeRangeItems>> Items(long startDate, long endDate)
         {
             try

@@ -4,5 +4,6 @@
     {
         public static string NamedPipe => "_PUNCH_PAL_PIPE";
         public static string AppMutex => "_PUNCH_PAL_MUTEX";
+        public static string AppName => "PunchPal";
     }
 }

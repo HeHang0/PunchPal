@@ -101,7 +101,7 @@ namespace PunchPal.Core.Services
             return result;
         }
 
-        private static readonly string[] ChineseHolidays = { "元旦", "春节", "清明节", "劳动节", "端午节", "国庆节", "中秋节" };
+        private static readonly string[] ChineseHolidays = { "元旦", "春节", "清明节", "清明", "劳动节", "端午节", "国庆节", "中秋节" };
         public async Task<(CalendarRecord Record, int Distance)> GetRecentHolidays()
         {
             try
@@ -128,6 +128,10 @@ namespace PunchPal.Core.Services
                         {
                             break;
                         }
+                    }
+                    if(result.SolarTerm == "清明")
+                    {
+                        result.SolarTerm = "清明节";
                     }
                     return (result, distance);
                 }

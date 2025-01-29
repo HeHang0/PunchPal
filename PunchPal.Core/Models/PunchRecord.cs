@@ -16,5 +16,7 @@ namespace PunchPal.Core.Models
 
         [NotMapped] public static readonly string PunchTypeManual = "手动添加";
         [NotMapped] public static readonly string PunchTypeFile = "文件导入";
+        [NotMapped] public static readonly string PunchTypeLock = "锁屏";
+        [NotMapped] public static readonly string PunchTypeUnLock = "解锁";
     }
 }

@@ -1,4 +1,5 @@
-﻿using PunchPal.Core.ViewModels;
+﻿using PicaPico;
+using PunchPal.Core.ViewModels;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Controls;
@@ -26,16 +27,22 @@ namespace PunchPal.WPF.Pages
 
         private void Overview_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if(e.PropertyName == nameof(OverviewVM.ChartSeries))
+            if(e.PropertyName == nameof(OverviewVM.ChartSeries) ||
+                e.PropertyName == nameof(OverviewVM.IsDarkMode))
             {
-                Task.Delay(TimeSpan.FromMilliseconds(100)).ContinueWith(t =>
-                {
-                    Dispatcher.Invoke(() =>
-                    {
-                        HourPirChart.CoreChart.Update();
-                    });
-                });
+                UpdateChart();
             }
+        }
+
+        private void UpdateChart()
+        {
+            Task.Delay(TimeSpan.FromMilliseconds(100)).ContinueWith(t =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    HourPirChart.CoreChart.Update();
+                });
+            });
         }
     }
 }

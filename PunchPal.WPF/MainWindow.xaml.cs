@@ -6,15 +6,13 @@ using PunchPal.Core.Services;
 using PunchPal.Core.ViewModels;
 using PunchPal.Tools;
 using PunchPal.WPF.Controls;
+using PunchPal.WPF.Tools;
 using PunchPal.WPF.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Globalization;
-using System.IO;
 using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
@@ -48,7 +46,28 @@ namespace PunchPal.WPF
             _mainModel.Setting.Personalize.FileSelecting += OnFileSelecting;
             _mainModel.Setting.WorkingTimeRange.Edited += OnWorkingTimeRangeEdited;
             _mainModel.ShowWindow += OnShowWindow;
+            _mainModel.Setting.Common.PropertyChanged += Common_PropertyChanged;
             InitWindowBackdropType();
+        }
+
+        private void Common_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if(e.PropertyName != nameof(SettingsCommon.ShortcutText))
+            {
+                return;
+            }
+            HotKeyTools.Unregister();
+            if (_mainModel.Setting.Common.ShortcutModifierKeys != ModifierKeys.None &&
+                _mainModel.Setting.Common.ShortcutKey != Key.None)
+            {
+                var ok = HotKeyTools.Register((System.Windows.Input.ModifierKeys)_mainModel.Setting.Common.ShortcutModifierKeys,
+                    (System.Windows.Input.Key)_mainModel.Setting.Common.ShortcutKey);
+                if(!ok)
+                {
+                    _mainModel.Setting.Common.OnShortcutChanged(ModifierKeys.None, Key.None);
+                    ShowTips(new TipsOption("提示", "当前快捷键不可用，请重试", Core.Models.ControlAppearance.Caution));
+                }
+            }
         }
 
         private async void OnWorkingTimeRangeEdited(object sender, WorkingTimeRange e)
@@ -340,6 +359,79 @@ namespace PunchPal.WPF
         {
             PunchNavigationView.Navigate("记录");
             ShowWindow();
+            LockScreenTools.Register(new WindowInteropHelper(this).Handle, OnLockScreen);
+            HotKeyTools.SetCallback(this, OnHotKey);
+            Common_PropertyChanged(null, new PropertyChangedEventArgs(nameof(SettingsCommon.ShortcutText)));
+        }
+
+        private void OnHotKey()
+        {
+            if (IsVisible)
+            {
+                Close();
+            }
+            else
+            {
+                ShowWindow();
+            }
+        }
+
+        private bool _todayNotifyStartPunch;
+        private async void OnLockScreen(bool locked)
+        {
+            var settings = SettingsModel.Load();
+
+            if (settings.Data.IsAutoAddRecordAtLock)
+            {
+                await PunchRecordService.Instance.Add(new PunchRecord()
+                {
+                    PunchTime = DateTime.Now.TimestampUnix(),
+                    UserId = settings.Common.CurrentUser?.UserId,
+                    PunchType = locked ? PunchRecord.PunchTypeLock : PunchRecord.PunchTypeUnLock
+                });
+                _mainModel.InitItems();
+            }
+
+            if (!locked && settings.Common.IsNotifyStartPunch && !_todayNotifyStartPunch)
+            {
+                _todayNotifyStartPunch = true;
+                NotifyStartPunch();
+                return;
+            }
+
+            var workTime = await WorkingTimeRangeService.Instance.CurrentItems();
+            if (!locked || !settings.Common.IsNotifyLockPunch || workTime == null || workTime.Work == null)
+            {
+                return;
+            }
+
+            var now = DateTime.Now;
+            var offDuty = new DateTime(now.Year, now.Month, now.Day, workTime.Work.EndHour, workTime.Work.EndMinute,
+                0);
+            if (now < offDuty)
+            {
+                return;
+            }
+
+            NotifyEndPunch();
+        }
+
+        private async void NotifyEndPunch()
+        {
+            var record = PunchRecordService.Instance.TodayFirst(SettingsModel.Load().Data.DayStartHour);
+            if (record != null)
+            {
+                ShowToast("记得下班打卡哦！！！", true);
+            }
+        }
+
+        private async void NotifyStartPunch()
+        {
+            var record = await PunchRecordService.Instance.TodayFirst(SettingsModel.Load().Data.DayStartHour);
+            if (record == null)
+            {
+                ShowToast("记得上班打卡哦！！！", true);
+            }
         }
 
         private void InitWindowBackdropType()
@@ -416,6 +508,7 @@ namespace PunchPal.WPF
         {
             _exiting = true;
             _ = _mainModel.Setting.SaveReal();
+            ExitToast();
             Application.Current.Shutdown();
         }
 
@@ -454,7 +547,7 @@ namespace PunchPal.WPF
                 return;
             }
 
-            Trace.WriteLine("已最小化到托盘");
+            ShowToast("已最小化到托盘");
             _toastShown = true;
         }
 
@@ -507,5 +600,40 @@ namespace PunchPal.WPF
         {
             FocusHelper.Focus();
         }
+
+#if NETFRAMEWORK
+        private void OnToastActivated(Microsoft.Toolkit.Uwp.Notifications.ToastNotificationActivatedEventArgsCompat e)
+        {
+            ShowWindow();
+        }
+
+        public static void ShowToast(string message, bool longDuration = false)
+        {
+            try
+            {
+                Microsoft.Toolkit.Uwp.Notifications.ToastNotificationManagerCompat.History.Clear();
+                var builder = new Microsoft.Toolkit.Uwp.Notifications.ToastContentBuilder()
+                    .AddArgument(NameTools.AppName)
+                    .AddText(message);
+                builder.SetToastDuration(longDuration
+                    ? Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long
+                    : Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Short);
+                builder.Show();
+            }
+            catch (Exception e)
+            {
+                // ignore
+            }
+        }
+
+        public static void ExitToast()
+        {
+            Microsoft.Toolkit.Uwp.Notifications.ToastNotificationManagerCompat.History.Clear();
+            Microsoft.Toolkit.Uwp.Notifications.ToastNotificationManagerCompat.Uninstall();
+        }
+#else
+        public static void ShowToast(string message, bool longDuration = false) { }
+        public static void ExitToast() { }
+#endif
     }
 }

@@ -91,6 +91,24 @@ namespace PunchPal.Core.Services
             }
         }
 
+        public async Task<PunchRecord> TodayFirst(int dayStartHour = 6)
+        {
+            try
+            {
+                var now = DateTime.Now;
+                var dayStart = new DateTime(now.Year, now.Month, now.Day, dayStartHour, 0, 0);
+                var dayStartUnix = dayStart.TimestampUnix();
+                using (var context = new PunchDbContext())
+                {
+                    return await context.PunchRecords.Where(m => m.PunchTime > dayStartUnix).OrderByDescending(m => m.PunchTime).FirstOrDefaultAsync();
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
         public async Task ImportFromFile(string fileName, string userId)
         {
             if(string.IsNullOrWhiteSpace(fileName) || File.Exists(fileName))

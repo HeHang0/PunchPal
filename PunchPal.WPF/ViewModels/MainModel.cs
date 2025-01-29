@@ -82,6 +82,7 @@ namespace PunchPal.WPF.ViewModels
             }
             OnPropertyChanged(nameof(TrayIcon));
             InitAcrylicBackground();
+            Overview.IsDarkMode = isDark;
         }
 
         public WindowBackdropType WindowBackdropType

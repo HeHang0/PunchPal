@@ -1,9 +1,7 @@
 ﻿using PunchPal.Tools;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace PunchPal.Core.Models
 {
@@ -20,5 +18,14 @@ namespace PunchPal.Core.Models
         public bool IsWorkday { get; set; }
         public string Remark { get; set; }
         public CalendarType Type { get; set; } = CalendarType.Baidu;
+        [NotMapped]
+        public bool IsWeekend
+        {
+            get
+            {
+                var date = DateTime;
+                return date.DayOfWeek == DayOfWeek.Sunday || date.DayOfWeek == DayOfWeek.Saturday;
+            }
+        }
     }
 }

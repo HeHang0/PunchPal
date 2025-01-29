@@ -7,6 +7,7 @@ using SkiaSharp;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -52,7 +53,12 @@ namespace PunchPal.Core.ViewModels
         private int _overtimeAverage = 0;
         private int _holidayAverage = 0;
         private int _monthMinute = 0;
-        public string DayAverageText => $"日均{(_dayAverage / 60f).ToString("F3").TrimEnd('0').TrimEnd('.')}小时，当月{(_monthMinute >= 0 ? "盈余" : "欠")}{(Math.Abs(_monthMinute) / 60f).ToString("F3").TrimEnd('0').TrimEnd('.')}小时";
+        public Brush DayAverageColor => _dayAverage >= SettingsModel.Load().Data.EveryDayWorkHour * 60 ? Brushes.Green : Brushes.Red;
+        public Brush MonthMinuteColor => _monthMinute >= 0 ? Brushes.Green : Brushes.Red;
+
+        public string DayAverageText => (_dayAverage / 60f).ToString("F3").TrimEnd('0').TrimEnd('.');//$"日均{}小时，当月{(_monthMinute >= 0 ? "盈余" : "欠")}{(Math.Abs(_monthMinute) / 60f).ToString("F3").TrimEnd('0').TrimEnd('.')}小时";
+        public string MonthHourText => (Math.Abs(_monthMinute) / 60f).ToString("F3").TrimEnd('0').TrimEnd('.');
+        public string MonthHourUnit => "当月" + (_monthMinute >= 0 ? "盈余" : "欠");
         public string DayAverageRateText => _dayAverageRate != 0 ? $"较上周{(_dayAverageRate > 0 ? "增加" : "降低")}{Math.Abs(_dayAverageRate)}%" : string.Empty;
         public string StandardAverageText => $"{_standardAverage / 60f:F3}";
         public string OvertimeAverageText => $"{_overtimeAverage / 60f:F3}";
@@ -105,7 +111,7 @@ namespace PunchPal.Core.ViewModels
                 series.Name = string.Empty;
                 series.DataLabelsSize = 15;
                 series.DataLabelsPosition = LiveChartsCore.Measure.PolarLabelsPosition.Outer;
-                series.DataLabelsPaint = new SolidColorPaint(new SKColor(0xff, 0xff, 0xff));
+                series.DataLabelsPaint = _isDark ? WhitePaint : BlackPaint;
                 series.DataLabelsFormatter = point => point.Coordinate.PrimaryValue <= 0 ? string.Empty : $"{(point.Coordinate.PrimaryValue / 60).ToString("F3").TrimEnd('0').TrimEnd('.')}";
                 series.ToolTipLabelFormatter = point => $"{point.StackedValue.Share:P2}";
             });
@@ -141,11 +147,19 @@ namespace PunchPal.Core.ViewModels
             {
                 TipsTextList.Add($"当前工作强度过高，建议本周减少加班并安排至少 1 天完整休息时间");
             }
+            if(TipsTextList.Count == 0 && _dayAverage < ((settings.Data.EveryDayWorkHour + 1) * 60))
+            {
+                TipsTextList.Add($"当前工作强度正常，建议保持");
+            }
             OnPropertyChanged(nameof(DayAverageText));
             OnPropertyChanged(nameof(DayAverageRateText));
             OnPropertyChanged(nameof(StandardAverageText));
             OnPropertyChanged(nameof(OvertimeAverageText));
             OnPropertyChanged(nameof(HolidayAverageText));
+            OnPropertyChanged(nameof(DayAverageColor));
+            OnPropertyChanged(nameof(MonthMinuteColor));
+            OnPropertyChanged(nameof(MonthHourUnit));
+            OnPropertyChanged(nameof(MonthHourText));
         }
 
         private static (DateTime start, DateTime end) GetTimeRange(DateTime dateTime, bool isMonth)
@@ -170,6 +184,8 @@ namespace PunchPal.Core.ViewModels
         //public SolidColorPaint TooltipBackgroundPaint => new SolidColorPaint(new SKColor(0, 0, 0, 0));
         //public SolidColorPaint TooltipTextPaint => new SolidColorPaint(new SKColor(0, 0, 0, 0));
 
+        public static readonly SolidColorPaint BlackPaint = new SolidColorPaint(new SKColor(0, 0, 0));
+        public static readonly SolidColorPaint WhitePaint = new SolidColorPaint(new SKColor(0xFF, 0xFF, 0xFF));
         private int _index = 0;
         private SolidColorPaint[] _colors = new SolidColorPaint[] { new SolidColorPaint(new SKColor(0x42, 0x99, 0xE1)), new SolidColorPaint(new SKColor(0x48, 0xBB, 0x78)), new SolidColorPaint(new SKColor(0xED, 0x89, 0x36)) };
         private ObservableCollection<PieSeries<int>> _chartSeries = new ObservableCollection<PieSeries<int>>();
@@ -179,6 +195,21 @@ namespace PunchPal.Core.ViewModels
             set
             {
                 _chartSeries = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _isDark = false;
+        public bool IsDarkMode
+        {
+            get => _isDark;
+            set
+            {
+                _isDark = value;
+                foreach (var item in ChartSeries)
+                {
+                    item.DataLabelsPaint = _isDark ? WhitePaint : BlackPaint;
+                }
                 OnPropertyChanged();
             }
         }

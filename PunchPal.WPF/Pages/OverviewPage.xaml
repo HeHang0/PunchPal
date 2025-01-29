@@ -56,7 +56,16 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <StackPanel>
-                <TextBlock Text="{Binding DayAverageText}" FontSize="22" Foreground="{DynamicResource WindowForeground}"/>
+                <TextBlock FontSize="22" Foreground="{DynamicResource WindowForeground}">
+                    <Run Text="{Binding MonthHourUnit, Mode=OneWay}" />
+                    <Run Text="{Binding MonthHourText, Mode=OneWay}" Foreground="{Binding MonthMinuteColor, Converter={StaticResource DrawBrushToMediaBrush}}"/>
+                    <Run Text="小时" />
+                </TextBlock>
+                <TextBlock FontSize="22" Foreground="{DynamicResource WindowForeground}">
+                    <Run Text="日均" />
+                    <Run Text="{Binding DayAverageText, Mode=OneWay}" Foreground="{Binding DayAverageColor, Converter={StaticResource DrawBrushToMediaBrush}}"/>
+                    <Run Text="小时" />
+                </TextBlock>
                 <TextBlock Text="{Binding DayAverageRateText}" FontSize="14" Foreground="{DynamicResource WindowForeground}"
                            Opacity="0.6" Margin="0 5 0 0" Visibility="{Binding IsWeeklySelected, Converter={StaticResource BooleanToVisibility}}"/>
 
