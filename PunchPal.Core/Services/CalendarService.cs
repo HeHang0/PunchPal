@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using PunchPal.Core.Apis;
+﻿using PunchPal.Core.Apis;
 using PunchPal.Core.Models;
 using PunchPal.Tools;
 using System;
@@ -83,7 +82,7 @@ namespace PunchPal.Core.Services
                         var exists = context.CalendarRecords.Any(m => m.Date >= startValue && m.Date < endValue);
                         if (exists) continue;
                         var records = await BaiduAPI.GetCalendars(syncDate);
-                        if(records.Count > 0)
+                        if (records.Count > 0)
                         {
                             await SaveRecords(context, records);
                             if (i == date.Month)
@@ -129,7 +128,7 @@ namespace PunchPal.Core.Services
                             break;
                         }
                     }
-                    if(result.SolarTerm == "清明")
+                    if (result.SolarTerm == "清明")
                     {
                         result.SolarTerm = "清明节";
                     }
@@ -159,20 +158,20 @@ namespace PunchPal.Core.Services
 
         private async Task SaveRecords(PunchDbContext context, List<CalendarRecord> records)
         {
-            if(records.Count <= 0)
+            if (records.Count <= 0)
             {
                 return;
             }
             var startDate = records[0].Date.Unix2DateTime();
             var endDate = records[records.Count - 1].Date.Unix2DateTime();
-            for (; startDate <= endDate; startDate=startDate.AddMonths(1))
+            for (; startDate <= endDate; startDate = startDate.AddMonths(1))
             {
                 var monthStart = new DateTime(startDate.Year, startDate.Month, 1);
                 var monthEnd = monthStart.AddMonths(1);
                 var monthStartValue = monthStart.TimestampUnix();
                 var monthEndValue = monthEnd.TimestampUnix();
                 var monthRecords = records.Where(m => m.Date >= monthStartValue && m.Date < monthEndValue).ToList();
-                if(monthRecords.Count != GetYearDays(monthStart))
+                if (monthRecords.Count != GetYearDays(monthStart))
                 {
                     continue;
                 }

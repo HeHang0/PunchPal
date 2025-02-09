@@ -3,11 +3,11 @@
 namespace PunchPal.WPF.Pages
 {
     /// <summary>
-    /// SettingCalendarPage.xaml 的交互逻辑
+    /// SettingAboutPage.xaml 的交互逻辑
     /// </summary>
-    public partial class SettingCalendarPage : Page
+    public partial class SettingAboutPage : Page
     {
-        public SettingCalendarPage()
+        public SettingAboutPage()
         {
             InitializeComponent();
         }

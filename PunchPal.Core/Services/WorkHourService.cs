@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using PunchPal.Core.Models;
+using PunchPal.Core.ViewModels;
+using PunchPal.Tools;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using System;
-using PunchPal.Core.Models;
-using PunchPal.Tools;
-using System.Runtime;
-using System.Linq;
-using PunchPal.Core.ViewModels;
 
 namespace PunchPal.Core.Services
 {
@@ -54,7 +53,7 @@ namespace PunchPal.Core.Services
                 var currentRecords = punchRecords.Where(m => m.PunchTime >= timeStart && m.PunchTime < timeEnd).ToList();
                 var currentAttendanceRecords = GetAttendanceRecords(attendanceRecords, timeStart, timeEnd, workingTimeRanges[dateUnix]);
                 var item = ParseWorkingHours(currentRecords, timeStart, workingTimeRanges[dateUnix], currentAttendanceRecords, calendars.FirstOrDefault(m => m.Date == dateUnix));
-                if(item != null)
+                if (item != null)
                 {
                     result.Add(item);
                 }
@@ -65,7 +64,7 @@ namespace PunchPal.Core.Services
         private List<AttendanceRecord> GetAttendanceRecords(List<AttendanceRecord> attendanceRecords, long timeStart, long timeEnd, WorkingTimeRangeItems workingTime)
         {
             var currentRecords = attendanceRecords.Where(m => m.StartTime >= timeStart && m.StartTime < timeEnd).ToList();
-            if(workingTime == null || workingTime.Work == null)
+            if (workingTime == null || workingTime.Work == null)
             {
                 return currentRecords;
             }
@@ -102,7 +101,7 @@ namespace PunchPal.Core.Services
                     {
                         PunchTime = attendance.StartTime
                     });
-                    if(attendance.EndTime > 0)
+                    if (attendance.EndTime > 0)
                     {
                         punchRecords.Add(new PunchRecord()
                         {
@@ -116,7 +115,7 @@ namespace PunchPal.Core.Services
                 return null;
             }
             var (minTime, maxTime) = GetMinMaxTime(punchRecords);
-            if(workingTime != null && workingTime.Work != null)
+            if (workingTime != null && workingTime.Work != null)
             {
                 var dateStart = timeStart.Unix2DateTime();
                 var startWorkTime = new DateTime(dateStart.Year, dateStart.Month, dateStart.Day, workingTime.Work.StartHour, 0, 0);
@@ -127,7 +126,7 @@ namespace PunchPal.Core.Services
                 {
                     minTime = startWorkTimeUnix;
                 }
-                if(startWorkTimeUnix < minTime)
+                if (startWorkTimeUnix < minTime)
                 {
                     item.LateMinutes = (int)((minTime - startWorkTimeUnix) / 60);
                 }
@@ -136,7 +135,7 @@ namespace PunchPal.Core.Services
                     item.LeaveEarlyMinutes = (int)((endWorkTimeUnix - maxTime) / 60);
                 }
                 item.StandardMinutes = CalcTotalMinutes(Math.Max(minTimePure, startWorkTimeUnix), Math.Min(maxTimePure, endWorkTimeUnix), workingTime, true);
-                if(maxTimePure > endWorkTimeUnix)
+                if (maxTimePure > endWorkTimeUnix)
                 {
                     item.WorkOvertimeMinutes = CalcTotalMinutes(endWorkTimeUnix, maxTimePure, workingTime, false);
                 }
@@ -145,7 +144,7 @@ namespace PunchPal.Core.Services
             item.TotalMinutes = totalMinutes;
             item.StartTime = minTime;
             item.EndTime = maxTime;
-            if(minTime != minTimePure && maxTime != maxTimePure)
+            if (minTime != minTimePure && maxTime != maxTimePure)
             {
                 item.TotalRealMinutes = CalcTotalMinutes(minTimePure, maxTimePure, workingTime, item.IsHoliday && settings.Data.IsIgnoreDinnerAtHoliday);
             }
@@ -178,13 +177,13 @@ namespace PunchPal.Core.Services
                 return (int)(totalMinute / 60);
             }
             var startDateTime = startTime.Unix2DateTime();
-            if(workingTime.Lunch != null)
+            if (workingTime.Lunch != null)
             {
                 var lunchStart = new DateTime(startDateTime.Year, startDateTime.Month, startDateTime.Day, workingTime.Lunch.StartHour, workingTime.Lunch.StartMinute, 0).TimestampUnix();
                 var lunchEnd = new DateTime(startDateTime.Year, startDateTime.Month, startDateTime.Day, workingTime.Lunch.EndHour, workingTime.Lunch.EndMinute, 0).TimestampUnix();
                 totalMinute -= CalculateOverlap(startTime, endTime, lunchStart, lunchEnd);
             }
-            if(!ignoreDinner && workingTime.Dinner != null)
+            if (!ignoreDinner && workingTime.Dinner != null)
             {
                 var dinnerStart = new DateTime(startDateTime.Year, startDateTime.Month, startDateTime.Day, workingTime.Dinner.StartHour, workingTime.Dinner.StartMinute, 0).TimestampUnix();
                 var dinnerEnd = new DateTime(startDateTime.Year, startDateTime.Month, startDateTime.Day, workingTime.Dinner.EndHour, workingTime.Dinner.EndMinute, 0).TimestampUnix();

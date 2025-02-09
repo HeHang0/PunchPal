@@ -1,0 +1,99 @@
+﻿<Page x:Class="PunchPal.WPF.Pages.SettingAboutPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:PunchPal.WPF.Pages"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:vm="clr-namespace:PunchPal.Core.ViewModels;assembly=PunchPal.Core"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      d:DataContext="{d:DesignInstance Type=vm:SettingsAbout}">
+    <Page.Resources>
+        <Style TargetType="ui:Anchor" BasedOn="{StaticResource DefaultUiAnchorStyle}">
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0,0,0,0"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+    </Page.Resources>
+    <StackPanel>
+        <ui:Anchor NavigateUri="https://hehang0.github.io/PunchPal">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="ProtocolHandler24" />
+                    <TextBlock Text="项目地址" />
+                </StackPanel>
+                <ui:SymbolIcon Grid.Column="1" Symbol="Link24" />
+            </Grid>
+        </ui:Anchor>
+        <ui:Anchor NavigateUri="https://github.com/HeHang0/PunchPal">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="Branch24" />
+                    <TextBlock Text="仓库地址" />
+                </StackPanel>
+                <ui:SymbolIcon Grid.Column="1" Symbol="Link24" />
+            </Grid>
+        </ui:Anchor>
+        <ui:Anchor NavigateUri="https://github.com/HeHang0/PunchPal/issues">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="Bug24" />
+                    <TextBlock Text="报告BUG" />
+                </StackPanel>
+                <ui:SymbolIcon Grid.Column="1" Symbol="Link24" />
+            </Grid>
+        </ui:Anchor>
+        <ui:Anchor Command="{Binding EmailWithMe}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="PersonChat24" />
+                    <TextBlock Text="联系作者" />
+                </StackPanel>
+                <ui:SymbolIcon Grid.Column="1" Symbol="Link24" />
+            </Grid>
+        </ui:Anchor>
+        <ui:Anchor Cursor="Arrow" Padding="16 16 6 16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Clover24" />
+                    <TextBlock Margin="10 0 0 0" Text="{Binding AppVersion, Mode=OneWay}"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <ui:HyperlinkButton Opacity="0" Visibility="Hidden" Content="　"></ui:HyperlinkButton>
+                    <ui:HyperlinkButton Content="{Binding CheckUpdateText}"
+                                    Command="{Binding CheckUpdate}" Cursor="Hand"
+                                 Visibility="{Binding IsUpdateChecking, Converter={StaticResource BooleanToNotVisibility}, Mode=OneWay}"></ui:HyperlinkButton>
+                    <ui:ProgressRing Width="20" Height="20" IsIndeterminate="True" Progress="70" Margin="0 0 10 0"
+                                 Visibility="{Binding IsUpdateChecking, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}"/>
+                </StackPanel>
+            </Grid>
+        </ui:Anchor>
+    </StackPanel>
+</Page>

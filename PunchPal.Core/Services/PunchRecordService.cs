@@ -64,7 +64,7 @@ namespace PunchPal.Core.Services
             {
                 using (var context = new PunchDbContext())
                 {
-                    var record = await context.PunchRecords.FirstOrDefaultAsync(m => m.UserId == entity.UserId);
+                    var record = await context.PunchRecords.FirstOrDefaultAsync(m => m.UserId == entity.UserId && m.PunchTime == entity.PunchTime);
                     context.PunchRecords.Remove(record);
                     await context.SaveChangesAsync();
                 }
@@ -111,7 +111,7 @@ namespace PunchPal.Core.Services
 
         public async Task ImportFromFile(string fileName, string userId)
         {
-            if(string.IsNullOrWhiteSpace(fileName) || File.Exists(fileName))
+            if (string.IsNullOrWhiteSpace(fileName) || File.Exists(fileName))
             {
                 return;
             }

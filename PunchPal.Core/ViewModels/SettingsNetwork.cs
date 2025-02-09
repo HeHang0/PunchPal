@@ -1,13 +1,9 @@
 ﻿using PunchPal.Core.Models;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 
 namespace PunchPal.Core.ViewModels
 {
-    public class SettingsNetwork : INotifyPropertyChanged
+    public class SettingsNetwork : NotifyPropertyBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
         private ProxyType _requestProxyType = ProxyType.System;
 
         public ProxyType RequestProxyType
@@ -77,7 +73,7 @@ namespace PunchPal.Core.ViewModels
             get => _proxyServerPort;
             set
             {
-                if(value > 0 && value < 65535)
+                if (value > 0 && value < 65535)
                 {
                     _proxyServerPort = value;
                 }
@@ -119,12 +115,6 @@ namespace PunchPal.Core.ViewModels
                 _proxyPassword = value;
                 OnPropertyChanged();
             }
-        }
-
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

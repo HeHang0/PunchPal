@@ -9,7 +9,7 @@ namespace PunchPal.Core.Events
         public string Filter { get; set; }
         public bool Multiselect { get; set; }
 
-        public SelectFileEventArgs(string filters, bool multiselect=false)
+        public SelectFileEventArgs(string filters, bool multiselect = false)
         {
             Filter = filters;
             Multiselect = multiselect;

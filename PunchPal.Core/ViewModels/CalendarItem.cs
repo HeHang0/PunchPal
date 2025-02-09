@@ -2,15 +2,12 @@
 using PunchPal.Tools;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Runtime.CompilerServices;
 
 namespace PunchPal.Core.ViewModels
 {
-    public class CalendarItem : INotifyPropertyChanged
+    public class CalendarItem : NotifyPropertyBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
         public static bool IsDarkMode { get; set; }
 
         private readonly bool _weak = false;
@@ -120,12 +117,12 @@ namespace PunchPal.Core.ViewModels
         {
             get
             {
-                if(_textList != null)
+                if (_textList != null)
                 {
                     return _textList;
                 }
                 _textList = new List<string>();
-                if(CalendarData == null)
+                if (CalendarData == null)
                 {
                     return _textList;
                 }
@@ -151,7 +148,7 @@ namespace PunchPal.Core.ViewModels
                 }
                 if (_textList.Count == 0 && record.LunarDate.Length > 0 && record.LunarMonth.Length > 0)
                 {
-                    if(record.LunarDate == "初一" && !string.IsNullOrWhiteSpace(record.LunarMonth))
+                    if (record.LunarDate == "初一" && !string.IsNullOrWhiteSpace(record.LunarMonth))
                     {
                         _textList.Add(record.LunarMonth + "月");
                     }
@@ -193,7 +190,7 @@ namespace PunchPal.Core.ViewModels
             set
             {
                 _calendarData = value;
-                if(_calendarData != null)
+                if (_calendarData != null)
                 {
                     IsHoliday = _calendarData.IsHoliday;
                     IsWorkday = _calendarData.IsWorkday;
@@ -222,11 +219,6 @@ namespace PunchPal.Core.ViewModels
         public void UpdateDayColor()
         {
             OnPropertyChanged(nameof(DayColor));
-        }
-
-        public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

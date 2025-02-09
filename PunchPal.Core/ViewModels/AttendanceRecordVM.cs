@@ -4,16 +4,13 @@ using PunchPal.Core.Services;
 using PunchPal.Tools;
 using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace PunchPal.Core.ViewModels
 {
-    public class AttendanceRecordVM : INotifyPropertyChanged
+    public class AttendanceRecordVM : NotifyPropertyBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler<ConfirmDialogEventArgs> ConfirmDialog;
 
         public async Task InitItems(DateTime dateTime)
@@ -61,11 +58,6 @@ namespace PunchPal.Core.ViewModels
                 Items.Remove(SelectedRecord);
                 SelectedRecord = null;
             }
-        }
-
-        public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

@@ -1,15 +1,12 @@
 ﻿using PunchPal.Core.Events;
 using System;
-using System.ComponentModel;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
 namespace PunchPal.Core.ViewModels
 {
-    public class SettingsPersonalize : INotifyPropertyChanged
+    public class SettingsPersonalize : NotifyPropertyBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler<SelectFileEventArgs> FileSelecting;
 
         public enum ColorMode
@@ -233,11 +230,6 @@ namespace PunchPal.Core.ViewModels
             }
 
             BackgroundImage = option.FileName;
-        }
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

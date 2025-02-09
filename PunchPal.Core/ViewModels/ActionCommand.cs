@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows.Input;
 
 namespace PunchPal.Core.ViewModels
 {
-    public class ActionCommand: ICommand
+    public class ActionCommand : ICommand
     {
         public event EventHandler CanExecuteChanged;
-        private Action _action;
-        private Func<bool> _canExecute;
-        public ActionCommand(Action action, Func<bool> canExecute=null)
+        private readonly Action _action;
+        private readonly Func<bool> _canExecute;
+        public ActionCommand(Action action, Func<bool> canExecute = null)
         {
             _action = action;
             _canExecute = canExecute;

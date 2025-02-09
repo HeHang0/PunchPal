@@ -18,14 +18,15 @@
         WindowBackdropType="{Binding WindowBackdropType}"
         WindowCornerPreference="Round" ResizeMode="CanResize"
         WindowStartupLocation="CenterScreen" Title="{Binding Title}"
-        MinHeight="475" MinWidth="700" Height="475" Width="800">
+        MinHeight="475" MinWidth="750" Height="500" Width="800">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <TextBox x:Name="FocusHelper" Width="0" Height="0" Style="{x:Null}" Opacity="0" IsReadOnly="True"/>
-        <Image Grid.Row="0" Grid.RowSpan="2" Stretch="UniformToFill" StretchDirection="Both"
+        <Image Grid.Row="0" Grid.RowSpan="3" Stretch="UniformToFill" StretchDirection="Both"
                VerticalAlignment="Center" HorizontalAlignment="Center"
                Source="{Binding Setting.Personalize.BackgroundImage}"
                Opacity="{Binding Setting.Personalize.BackgroundImageOpacity}"
@@ -41,9 +42,35 @@
                 <ui:ImageIcon Source="{Binding AppIcon}"/>
             </ui:TitleBar.Icon>
         </ui:TitleBar>
+        <Grid Grid.Row="1" Margin="20 0 20 0"
+              Visibility="{Binding Setting.Common.IsShowHoursOnMain, Converter={StaticResource BooleanToVisibility}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal"
+                        Visibility="{Binding IsSettings, Converter={StaticResource BooleanToNotVisibility}}">
+                <TextBlock Foreground="{DynamicResource WindowForeground}">
+                    <Run Text="{Binding Overview.MonthHourUnit, Mode=OneWay}" />
+                    <Run Text="{Binding Overview.MonthHourText, Mode=OneWay}" Foreground="{Binding Overview.MonthMinuteColor, Converter={StaticResource DrawBrushToMediaBrush}}"/>
+                    <Run Text="小时，" />
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource WindowForeground}">
+                    <Run Text="日均工时：" />
+                    <Run Text="{Binding Overview.DayAverageText, Mode=OneWay}" Foreground="{Binding Overview.DayAverageColor, Converter={StaticResource DrawBrushToMediaBrush}}"/>
+                    <Run Text="小时" />
+                </TextBlock>
+            </StackPanel>
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <TextBlock Opacity="0" Text="　"/>
+                <TextBlock Opacity="0.6" FontSize="13" Foreground="{DynamicResource WindowForeground}"
+                           Text="{Binding Setting.WorkingTimeRange.Text}"/>
+            </StackPanel>
+        </Grid>
         <ui:NavigationView
             x:Name="PunchNavigationView"
-            Grid.Row="1" ScrollViewer.CanContentScroll="False"
+            Grid.Row="2" ScrollViewer.CanContentScroll="False"
             Margin="16 0 16 16" Padding="4 0"
             Navigating="PunchNavigationView_Navigating"
             IsBackButtonVisible="Collapsed"
@@ -127,15 +154,15 @@
                     Icon="{ui:SymbolIcon Settings24}" TargetPageType="{x:Type pages:SettingsPage}" />
             </ui:NavigationView.FooterMenuItems>
         </ui:NavigationView>
-        <Border Grid.Row="1" Height="4" Background="{DynamicResource TextFillColorPrimaryBrush}"
+        <Border Grid.Row="2" Height="4" Background="{DynamicResource TextFillColorPrimaryBrush}"
                 VerticalAlignment="Top" Margin="20 36 20 0" Opacity="0.05" CornerRadius="3"/>
-        <Border Grid.Row="1" Opacity="0.5" CornerRadius="8" Margin="15 0"
+        <Border Grid.Row="2" Opacity="0.5" CornerRadius="8" Margin="15 0"
                 Background="{DynamicResource LoadingScreenBackground}"
                 Visibility="{Binding Loading, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
             <ui:LoadingScreen HorizontalAlignment="Center" VerticalAlignment="Center"></ui:LoadingScreen>
         </Border>
-        <ContentPresenter x:Name="DialogPresenter" Grid.Row="0" Grid.RowSpan="2" />
-        <ui:SnackbarPresenter x:Name="SnackbarPresenter" Grid.Row="0" Grid.RowSpan="2" />
+        <ContentPresenter x:Name="DialogPresenter" Grid.Row="0" Grid.RowSpan="3" />
+        <ui:SnackbarPresenter x:Name="SnackbarPresenter" Grid.Row="0" Grid.RowSpan="3" />
         <tray:NotifyIcon
             FocusOnLeftClick="True"
             MenuOnRightClick="True"

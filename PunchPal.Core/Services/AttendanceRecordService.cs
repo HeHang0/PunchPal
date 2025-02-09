@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using PunchPal.Core.Models;
 using System;
-using PunchPal.Core.Models;
+using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Migrations;
 using System.Linq;
-using System.Data.Entity;
-using PunchPal.Core.Events;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace PunchPal.Core.Services
 {
@@ -63,7 +61,7 @@ namespace PunchPal.Core.Services
             {
                 using (var context = new PunchDbContext())
                 {
-                    var record = await context.AttendanceRecords.FirstOrDefaultAsync(m => m.UserId == entity.UserId);
+                    var record = await context.AttendanceRecords.FirstOrDefaultAsync(m => m.UserId == entity.UserId && m.AttendanceId == entity.AttendanceId);
                     context.AttendanceRecords.Remove(record);
                     await context.SaveChangesAsync();
                 }

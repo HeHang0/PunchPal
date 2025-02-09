@@ -1,14 +1,10 @@
 ﻿using PunchPal.Tools;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 
 namespace PunchPal.Core.ViewModels
 {
-    public class SettingsData : INotifyPropertyChanged
+    public class SettingsData : NotifyPropertyBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public static List<int> HoursList => DateTimeTools.HoursList;
 
         public static List<int> HoursTotalList => DateTimeTools.HourTotalList;
@@ -88,12 +84,6 @@ namespace PunchPal.Core.ViewModels
                 _isAutoAddRecordAtLock = value;
                 OnPropertyChanged();
             }
-        }
-
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

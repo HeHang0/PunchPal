@@ -4,26 +4,27 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:vm="clr-namespace:PunchPal.Core.ViewModels;assembly=PunchPal.Core"
       xmlns:local="clr-namespace:PunchPal.WPF.Pages"
       mc:Ignorable="d" ScrollViewer.CanContentScroll="False"
       d:DesignHeight="450" d:DesignWidth="800"
-      Title="SettingsPage">
+      d:DataContext="{d:DesignInstance Type=vm:SettingsModel}" >
     <Grid>
         <ui:NavigationView
             x:Name="PunchNavigationView"
             Margin="0" Padding="0"
-            IsPaneOpen="False" FrameMargin="0"
+            IsPaneOpen="{Binding IsPaneOpen, Mode=TwoWay}" FrameMargin="0"
             IsBackButtonVisible="Collapsed"
-            IsPaneToggleVisible="False">
+            IsPaneToggleVisible="True" OpenPaneLength="120">
             <ui:NavigationView.Resources>
                 <!--<SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent" />-->
                 <SolidColorBrush x:Key="NavigationViewContentGridBorderBrush" Color="Transparent" />
                 <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent" />
             </ui:NavigationView.Resources>
-            <ui:NavigationView.PaneHeader>
+            <!--<ui:NavigationView.PaneHeader>
                 <TextBlock Text="设置" FontSize="30" Margin="0 0 0 20" Foreground="{DynamicResource TextFillColorPrimaryBrush}"
                 Visibility="{Binding ElementName=PunchNavigationView, Path=IsPaneOpen, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}"/>
-            </ui:NavigationView.PaneHeader>
+            </ui:NavigationView.PaneHeader>-->
             <ui:NavigationView.Header>
                 <TextBlock Margin="10 0 0 20" FontSize="30" FontWeight="Bold"
                            Text="{Binding CurrentSettingTitle}" />
@@ -33,6 +34,11 @@
                     Margin="0" Padding="0" Content="常规"
                     Icon="{ui:SymbolIcon Settings20}" ToolTip="常规"
                     TargetPageType="{x:Type local:SettingCommonPage}">
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem
+                    Margin="0" Padding="0" Content="数据源"
+                    Icon="{ui:SymbolIcon BookDatabase20}" ToolTip="数据源"
+                    TargetPageType="{x:Type local:SettingDataSourcePage}">
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem
                     Margin="0" Padding="0" Content="数据"
@@ -61,7 +67,8 @@
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem
                     Margin="0" Padding="0" Content="关于"
-                    Icon="{ui:SymbolIcon ChannelShare20}" ToolTip="关于">
+                    Icon="{ui:SymbolIcon InkStroke20}" ToolTip="关于"
+                    TargetPageType="{x:Type local:SettingAboutPage}">
                 </ui:NavigationViewItem>
             </ui:NavigationView.MenuItems>
         </ui:NavigationView>

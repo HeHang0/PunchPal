@@ -3,16 +3,13 @@ using PunchPal.Tools;
 using System;
 using System.ComponentModel;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace PunchPal.Core.ViewModels
 {
-    public class SettingsModel : INotifyPropertyChanged
+    public class SettingsModel : NotifyPropertyBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
         private static readonly SettingsModel _settings;
 
         public SettingsData Data { get; set; } = new SettingsData();
@@ -20,7 +17,9 @@ namespace PunchPal.Core.ViewModels
         public SettingsCommon Common { get; set; } = new SettingsCommon();
         public SettingsNetwork Network { get; set; } = new SettingsNetwork();
         public SettingsPersonalize Personalize { get; set; } = new SettingsPersonalize();
-        [JsonIgnore]public SettingsWorkingTimeRange WorkingTimeRange { get; set; } = new SettingsWorkingTimeRange();
+        [JsonIgnore] public SettingsAbout About { get; set; } = new SettingsAbout();
+        [JsonIgnore] public DataSourceModel DataSource { get; set; } = DataSourceModel.Load();
+        [JsonIgnore] public SettingsWorkingTimeRange WorkingTimeRange { get; set; } = new SettingsWorkingTimeRange();
 
         public enum PageType
         {
@@ -29,7 +28,9 @@ namespace PunchPal.Core.ViewModels
             Network,
             Personalize,
             Calendar,
-            WorkingTimeRange
+            WorkingTimeRange,
+            DataSource,
+            Abount
         }
 
         [JsonIgnore]
@@ -48,7 +49,7 @@ namespace PunchPal.Core.ViewModels
                 OnPropertyChanged(nameof(CurrentSettingTitle));
                 if (_currentSettingPage == PageType.WorkingTimeRange)
                 {
-                    WorkingTimeRange.InitRanges();
+                    _ = WorkingTimeRange.InitRanges();
                 }
             }
         }
@@ -62,11 +63,25 @@ namespace PunchPal.Core.ViewModels
                     case PageType.Common: return "常规";
                     case PageType.Personalize: return "个性化";
                     case PageType.Data: return "数据";
+                    case PageType.DataSource: return "数据源";
                     case PageType.Network: return "网络";
                     case PageType.Calendar: return "日历";
                     case PageType.WorkingTimeRange: return "工作时间";
+                    case PageType.Abount: return "关于";
                     default: return string.Empty;
                 }
+            }
+        }
+
+        private bool _isPaneOpen = false;
+        public bool IsPaneOpen
+        {
+            get => _isPaneOpen;
+            set
+            {
+                _isPaneOpen = value;
+                OnPropertyChanged();
+                Save();
             }
         }
 
@@ -89,6 +104,7 @@ namespace PunchPal.Core.ViewModels
             _settings.Data.PropertyChanged += OnChildPropertyChanged;
             _settings.Network.PropertyChanged += OnChildPropertyChanged;
             _settings.Personalize.PropertyChanged += OnChildPropertyChanged;
+            _ = _settings.WorkingTimeRange.InitRanges();
         }
 
         private static void OnChildPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -141,11 +157,6 @@ namespace PunchPal.Core.ViewModels
             {
                 // ignore
             }
-        }
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

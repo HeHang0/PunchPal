@@ -2,20 +2,14 @@
 using PunchPal.Core.Services;
 using PunchPal.Startup;
 using PunchPal.Tools;
-using ShellLink.Flags;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
-using System.Runtime.CompilerServices;
 using ModifierKeys = PunchPal.Core.Models.ModifierKeys;
 
 namespace PunchPal.Core.ViewModels
 {
-    public class SettingsCommon : INotifyPropertyChanged
+    public class SettingsCommon : NotifyPropertyBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public static List<int> HoursList => DateTimeTools.HoursList;
 
         public static List<int> MinutesList => DateTimeTools.MinutesList;
@@ -63,6 +57,18 @@ namespace PunchPal.Core.ViewModels
             set
             {
                 _currentUser = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _isShowHoursOnMain = true;
+
+        public bool IsShowHoursOnMain
+        {
+            get => _isShowHoursOnMain;
+            set
+            {
+                _isShowHoursOnMain = value;
                 OnPropertyChanged();
             }
         }
@@ -250,11 +256,6 @@ namespace PunchPal.Core.ViewModels
             }
 
             return num >= 90 && num <= 113;
-        }
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

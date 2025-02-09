@@ -4,7 +4,7 @@ using System.Windows.Data;
 
 namespace PunchPal.WPF.Controls
 {
-    public class DataGridTextTrimingColumn: DataGridTextColumn
+    public class DataGridTextTrimingColumn : DataGridTextColumn
     {
         protected override FrameworkElement GenerateElement(DataGridCell cell, object dataItem)
         {

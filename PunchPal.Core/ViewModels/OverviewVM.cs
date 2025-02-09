@@ -6,19 +6,14 @@ using PunchPal.Tools;
 using SkiaSharp;
 using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace PunchPal.Core.ViewModels
 {
-    public class OverviewVM : INotifyPropertyChanged
+    public class OverviewVM : NotifyPropertyBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
         private bool _isWeeklySelected = false;
         public bool IsWeeklySelected
         {
@@ -83,7 +78,7 @@ namespace PunchPal.Core.ViewModels
 
         private async Task InitData()
         {
-            if(currentDate == null || workingHours == null)
+            if (currentDate == null || workingHours == null)
             {
                 return;
             }
@@ -91,7 +86,7 @@ namespace PunchPal.Core.ViewModels
             var startUnix = start.TimestampUnix();
             var endUnix = end.TimestampUnix();
             var dayHours = SettingsModel.Load().Data.EveryDayWorkHour;
-            _monthMinute = workingHours.Where(m => !m.IsToday && !m.IsHoliday).Select(m => m.TotalMinutes - dayHours*60).Sum();
+            _monthMinute = workingHours.Where(m => !m.IsToday && !m.IsHoliday).Select(m => m.TotalMinutes - dayHours * 60).Sum();
             var currentWorkHours = workingHours.Where(m => !m.IsToday && m.WorkingDate >= startUnix && m.WorkingDate <= endUnix).ToList();
             var workDayHours = currentWorkHours.Where(m => !m.IsHoliday).ToList();
             var standardMinute = workDayHours.Sum(m => m.StandardMinutes);
@@ -104,18 +99,21 @@ namespace PunchPal.Core.ViewModels
             _dayAverage = currentWorkHours.Count == 0 ? 0 : currentWorkHours.Sum(m => m.TotalMinutes) / currentWorkHours.Count;
             _index = 0;
             ChartSeries.Clear();
-            ChartSeries = new[] { standardMinute, overtimeMinute, holidayMinute }.AsPieSeries((value, series) =>
+            if (standardMinute != 0 || overtimeMinute != 0 || holidayMinute != 0)
             {
-                series.InnerRadius = 0;
-                series.Fill = _colors[_index++];
-                series.Name = string.Empty;
-                series.DataLabelsSize = 15;
-                series.DataLabelsPosition = LiveChartsCore.Measure.PolarLabelsPosition.Outer;
-                series.DataLabelsPaint = _isDark ? WhitePaint : BlackPaint;
-                series.DataLabelsFormatter = point => point.Coordinate.PrimaryValue <= 0 ? string.Empty : $"{(point.Coordinate.PrimaryValue / 60).ToString("F3").TrimEnd('0').TrimEnd('.')}";
-                series.ToolTipLabelFormatter = point => $"{point.StackedValue.Share:P2}";
-            });
-            if(!IsMonthSelected)
+                ChartSeries = new[] { standardMinute, overtimeMinute, holidayMinute }.AsPieSeries((value, series) =>
+                {
+                    series.InnerRadius = 0;
+                    series.Fill = _colors[_index++];
+                    series.Name = string.Empty;
+                    series.DataLabelsSize = 15;
+                    series.DataLabelsPosition = LiveChartsCore.Measure.PolarLabelsPosition.Outer;
+                    series.DataLabelsPaint = _isDark ? WhitePaint : BlackPaint;
+                    series.DataLabelsFormatter = point => point.Coordinate.PrimaryValue <= 0 ? string.Empty : $"{(point.Coordinate.PrimaryValue / 60).ToString("F3").TrimEnd('0').TrimEnd('.')}";
+                    series.ToolTipLabelFormatter = point => $"{point.StackedValue.Share:P2}";
+                });
+            }
+            if (!IsMonthSelected)
             {
                 var (startLW, endLW) = GetTimeRange(currentDate.AddDays(-7), false);
                 var startUnixLW = startLW.TimestampUnix();
@@ -135,19 +133,19 @@ namespace PunchPal.Core.ViewModels
             {
                 TipsTextList.Add($"日均工作时长超过标准工作时间{(extraMinute / 60f).ToString("F1").TrimEnd('0').TrimEnd('.')}小时，请合理安排工作时间");
             }
-            if(_overtimeAverage > 90)
+            if (_overtimeAverage > 90)
             {
                 TipsTextList.Add($"日均加班时长超过1.5小时，建议保证充足休息时间");
             }
-            if(holidayList.Count > 1)
+            if (holidayList.Count > 1)
             {
                 TipsTextList.Add($"周末加班过多，建议关注工作与生活的平衡");
             }
-            if(_dayAverage >= 10 * 60)
+            if (_dayAverage >= 10 * 60)
             {
                 TipsTextList.Add($"当前工作强度过高，建议本周减少加班并安排至少 1 天完整休息时间");
             }
-            if(TipsTextList.Count == 0 && _dayAverage < ((settings.Data.EveryDayWorkHour + 1) * 60))
+            if (TipsTextList.Count == 0 && _dayAverage < ((settings.Data.EveryDayWorkHour + 1) * 60))
             {
                 TipsTextList.Add($"当前工作强度正常，建议保持");
             }
@@ -174,7 +172,7 @@ namespace PunchPal.Core.ViewModels
             else
             {
                 // 获取当前周的时间范围（假设一周从周一开始）
-                int diffToMonday = (int)dateTime.DayOfWeek == 0 ? 6 : (int)dateTime.DayOfWeek - 1; // 计算距周一的天数
+                int diffToMonday = dateTime.DayOfWeek == 0 ? 6 : (int)dateTime.DayOfWeek - 1; // 计算距周一的天数
                 DateTime start = dateTime.Date.AddDays(-diffToMonday);                             // 本周周一
                 DateTime end = start.AddDays(7).AddTicks(-1);                                     // 本周周日的最后时刻
                 return (start, end);
@@ -187,7 +185,7 @@ namespace PunchPal.Core.ViewModels
         public static readonly SolidColorPaint BlackPaint = new SolidColorPaint(new SKColor(0, 0, 0));
         public static readonly SolidColorPaint WhitePaint = new SolidColorPaint(new SKColor(0xFF, 0xFF, 0xFF));
         private int _index = 0;
-        private SolidColorPaint[] _colors = new SolidColorPaint[] { new SolidColorPaint(new SKColor(0x42, 0x99, 0xE1)), new SolidColorPaint(new SKColor(0x48, 0xBB, 0x78)), new SolidColorPaint(new SKColor(0xED, 0x89, 0x36)) };
+        private readonly SolidColorPaint[] _colors = new SolidColorPaint[] { new SolidColorPaint(new SKColor(0x42, 0x99, 0xE1)), new SolidColorPaint(new SKColor(0x48, 0xBB, 0x78)), new SolidColorPaint(new SKColor(0xED, 0x89, 0x36)) };
         private ObservableCollection<PieSeries<int>> _chartSeries = new ObservableCollection<PieSeries<int>>();
         public ObservableCollection<PieSeries<int>> ChartSeries
         {
@@ -212,11 +210,6 @@ namespace PunchPal.Core.ViewModels
                 }
                 OnPropertyChanged();
             }
-        }
-
-        public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

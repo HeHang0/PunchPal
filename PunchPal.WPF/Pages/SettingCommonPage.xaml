@@ -29,6 +29,19 @@
             </ui:CardControl.Header>
             <ui:TextBox Text="{Binding ShortcutText, Mode=OneWay}" KeyUp="ShortcutTextBox_OnKeyUp" IsReadOnly="True" MinWidth="150" Height="28" Padding="8 4 8 0" />
         </ui:CardControl>
+        <ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="AppTitle24">
+                        <ui:SymbolIcon.RenderTransform>
+                            <RotateTransform Angle="180" CenterX="8" CenterY="9.5" />
+                        </ui:SymbolIcon.RenderTransform>
+                    </ui:SymbolIcon>
+                    <ui:TextBlock FontTypography="Body" Text="主界面展示工时概况" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:ToggleSwitch IsChecked="{Binding IsShowHoursOnMain}" />
+        </ui:CardControl>
         <Label FontWeight="Bold" Margin="0,24,0,8" Content="提醒" />
         <ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
             <ui:CardControl.Header>

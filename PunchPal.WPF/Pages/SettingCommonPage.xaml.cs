@@ -15,7 +15,7 @@ namespace PunchPal.WPF.Pages
 
         private void ShortcutTextBox_OnKeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            if(!(DataContext is SettingsCommon model))
+            if (!(DataContext is SettingsCommon model))
             {
                 return;
             }

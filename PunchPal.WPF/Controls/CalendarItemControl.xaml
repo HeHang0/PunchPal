@@ -7,7 +7,7 @@
              xmlns:vm="clr-namespace:PunchPal.Core.ViewModels;assembly=PunchPal.Core"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800"
+             d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance Type=vm:CalendarItem}">
     <Border BorderBrush="{DynamicResource TabViewBorderBrush}"
             BorderThickness="{Binding BorderThickness, Converter={StaticResource RectangleToThickness}}">

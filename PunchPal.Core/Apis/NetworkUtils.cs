@@ -1,10 +1,8 @@
 ﻿using PunchPal.Core.Models;
 using PunchPal.Core.ViewModels;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Runtime;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -31,13 +29,14 @@ namespace PunchPal.Core.Apis
             {
                 request.Proxy = WebRequest.DefaultWebProxy;
             }
-            else if(settings.Network.RequestProxyType == ProxyType.Custom)
+            else if (settings.Network.RequestProxyType == ProxyType.Custom)
             {
                 var proxy = new WebProxy(settings.Network.ProxyServerAddress, settings.Network.ProxyServerPort);
                 if (settings.Network.IsProxyServerAuth)
                 {
                     proxy.Credentials = new NetworkCredential(settings.Network.ProxyUserName, settings.Network.ProxyPassword);
-                }else
+                }
+                else
                 {
                     proxy.UseDefaultCredentials = true;
                 }

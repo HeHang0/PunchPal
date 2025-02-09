@@ -17,10 +17,10 @@ namespace PunchPal.WPF.Pages
 
         private void SettingsPage_Loaded(object sender, RoutedEventArgs e)
         {
-            if(DataContext is SettingsModel settingsModel &&
+            if (DataContext is SettingsModel settingsModel &&
                 !string.IsNullOrWhiteSpace(settingsModel.CurrentSettingTitle))
             {
-                PunchNavigationView.Navigate(settingsModel.CurrentSettingTitle);                
+                PunchNavigationView.Navigate(settingsModel.CurrentSettingTitle);
             }
             else
             {

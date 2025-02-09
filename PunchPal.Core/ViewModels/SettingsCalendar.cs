@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace PunchPal.Core.ViewModels
 {
-    public class SettingsCalendar : INotifyPropertyChanged
+    public class SettingsCalendar : NotifyPropertyBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
         private bool _lunarSolarTermVisible = true;
         public bool LunarSolarTermVisible
         {
@@ -64,10 +59,5 @@ namespace PunchPal.Core.ViewModels
             new KeyValuePair<DayOfWeek, string>(DayOfWeek.Friday, "星期五"),
             new KeyValuePair<DayOfWeek, string>(DayOfWeek.Saturday, "星期六")
         };
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 }

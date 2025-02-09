@@ -1,5 +1,4 @@
-﻿using PicaPico;
-using PunchPal.Core.ViewModels;
+﻿using PunchPal.Core.ViewModels;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Controls;
@@ -18,7 +17,7 @@ namespace PunchPal.WPF.Pages
 
         private void Page_DataContextChanged(object sender, System.Windows.DependencyPropertyChangedEventArgs e)
         {
-            if(!(DataContext is OverviewVM overview))
+            if (!(DataContext is OverviewVM overview))
             {
                 return;
             }
@@ -27,7 +26,7 @@ namespace PunchPal.WPF.Pages
 
         private void Overview_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if(e.PropertyName == nameof(OverviewVM.ChartSeries) ||
+            if (e.PropertyName == nameof(OverviewVM.ChartSeries) ||
                 e.PropertyName == nameof(OverviewVM.IsDarkMode))
             {
                 UpdateChart();

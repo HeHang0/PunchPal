@@ -3,10 +3,7 @@ using PicaPico;
 using PunchPal.Core.ViewModels;
 using PunchPal.Tools;
 using PunchPal.WPF.Tools;
-using System;
 using System.ComponentModel;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Media;
 using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
@@ -29,7 +26,7 @@ namespace PunchPal.WPF.ViewModels
             Setting.Personalize.PropertyChanged += OnPropertyChanged;
         }
 
-        private async void UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
+        private void UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
         {
             if (e.Category != UserPreferenceCategory.General)
             {
@@ -40,7 +37,7 @@ namespace PunchPal.WPF.ViewModels
             {
                 isDark = Setting.Personalize.IsColorModeDark;
             }
-            if(isDark != _lastDark)
+            if (isDark != _lastDark)
             {
                 return;
             }

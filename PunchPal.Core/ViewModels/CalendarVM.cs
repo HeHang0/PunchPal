@@ -4,17 +4,13 @@ using PunchPal.Tools;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace PunchPal.Core.ViewModels
 {
-    public class CalendarVM : INotifyPropertyChanged
+    public class CalendarVM : NotifyPropertyBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public ObservableCollection<CalendarItem> Items { get; } = new ObservableCollection<CalendarItem>();
 
         private readonly string[] _calendarHeaders = { "日", "一", "二", "三", "四", "五", "六" };
@@ -39,7 +35,7 @@ namespace PunchPal.Core.ViewModels
             }
         }
 
-        public bool HolidayCountdownVisible => SettingsModel.Load().Calendar.HolidayCountdownVisible &&!string.IsNullOrWhiteSpace(_holidayCountdownText);
+        public bool HolidayCountdownVisible => SettingsModel.Load().Calendar.HolidayCountdownVisible && !string.IsNullOrWhiteSpace(_holidayCountdownText);
 
         public async Task InitItems(DateTime dateTime, IList<WorkingHours> hours)
         {
@@ -64,11 +60,11 @@ namespace PunchPal.Core.ViewModels
             var day = 0;
             var lastDayWeek = lastDay.DayOfWeek == DayOfWeek.Sunday ? 7 : (int)lastDay.DayOfWeek;
             var weekEndIndex = weekStartIndex - 1;
-            if(weekEndIndex < 0)
+            if (weekEndIndex < 0)
             {
                 weekEndIndex = 6;
             }
-            if(lastDayWeek >= 7)
+            if (lastDayWeek >= 7)
             {
                 lastDayWeek = 0;
             }
@@ -104,7 +100,7 @@ namespace PunchPal.Core.ViewModels
         public async Task UpdateHolidayCountdown()
         {
             var result = await CalendarService.Instance.GetRecentHolidays();
-            if(result.Record == null)
+            if (result.Record == null)
             {
                 HolidayCountdownText = string.Empty;
                 return;
@@ -138,11 +134,6 @@ namespace PunchPal.Core.ViewModels
                 recordMap[item.Date.Unix2DateTime().ToDateString()] = item;
             }
             return recordMap;
-        }
-
-        public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

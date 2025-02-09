@@ -4,17 +4,14 @@ using PunchPal.Tools;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace PunchPal.Core.ViewModels
 {
-    public class WorkingHoursVM : INotifyPropertyChanged
+    public class WorkingHoursVM : NotifyPropertyBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler<string> TextCoping;
 
         public async Task InitItems(DateTime dateTime)
@@ -54,10 +51,5 @@ namespace PunchPal.Core.ViewModels
         }
 
         public ObservableCollection<WorkingHours> Items { get; } = new ObservableCollection<WorkingHours>();
-
-        public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 }

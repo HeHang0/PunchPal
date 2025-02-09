@@ -2,16 +2,13 @@
 using PunchPal.Core.Services;
 using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace PunchPal.Core.ViewModels
 {
-    public class SettingsWorkingTimeRange : INotifyPropertyChanged
+    public class SettingsWorkingTimeRange : NotifyPropertyBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler<WorkingTimeRange> Edited;
 
         public ObservableCollection<WorkingTimeRange> Items { get; private set; } = new ObservableCollection<WorkingTimeRange>();
@@ -25,6 +22,19 @@ namespace PunchPal.Core.ViewModels
             foreach (var item in result)
             {
                 Items.Add(item);
+            }
+            var currentItems = await WorkingTimeRangeService.Instance.CurrentItems();
+            Text = currentItems.Text;
+        }
+
+        public string _text = string.Empty;
+        public string Text
+        {
+            get => _text;
+            set
+            {
+                _text = value;
+                OnPropertyChanged();
             }
         }
 
@@ -40,11 +50,6 @@ namespace PunchPal.Core.ViewModels
         private void OnAdd()
         {
             Edited?.Invoke(this, null);
-        }
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

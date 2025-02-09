@@ -19,6 +19,8 @@ namespace PunchPal.Tools
 
         public static string SettingPath => Path.Combine(AppDataPath, "setting");
 
+        public static string DataSourcePath => Path.Combine(AppDataPath, "data_source");
+
         public static string DatabasePath = Path.Combine(PathTools.AppDataPath, "data.sqlite3");
 
         public static string WinSize => Path.Combine(AppDataPath, "win_size");

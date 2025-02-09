@@ -2,19 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace PunchPal.WPF.Controls
 {
@@ -61,7 +51,7 @@ namespace PunchPal.WPF.Controls
 
         private static object OnDateTimeChanged(DependencyObject d, object baseValue)
         {
-            if(d is DateTimePicker picker && baseValue is DateTime dateTime)
+            if (d is DateTimePicker picker && baseValue is DateTime dateTime)
             {
                 picker._isUpdating = true;
                 picker.Date = dateTime.Date;
@@ -160,7 +150,7 @@ namespace PunchPal.WPF.Controls
 
         private void OnDateTimePropertyChanged()
         {
-            if(_isUpdating)
+            if (_isUpdating)
             {
                 return;
             }

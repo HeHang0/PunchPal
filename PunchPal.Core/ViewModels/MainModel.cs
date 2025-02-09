@@ -4,16 +4,12 @@ using PunchPal.Core.Services;
 using PunchPal.Tools;
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.IO.Pipes;
-using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
 namespace PunchPal.Core.ViewModels
 {
-    public class MainModel : INotifyPropertyChanged
+    public class MainModel : NotifyPropertyBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler<TipsOption> Tips;
         public event EventHandler<ConfirmDialogEventArgs> ConfirmDialog;
         public event EventHandler AddRecord;
@@ -34,7 +30,7 @@ namespace PunchPal.Core.ViewModels
         {
             PunchRecord.ConfirmDialog += (sender, e) => ConfirmDialog?.Invoke(sender, e);
             AttendanceRecord.ConfirmDialog += (sender, e) => ConfirmDialog?.Invoke(sender, e);
-            InitItems();
+            InitAutoAddRecord();
             Setting.Calendar.PropertyChanged += OnPropertyChanged;
         }
 
@@ -52,7 +48,7 @@ namespace PunchPal.Core.ViewModels
             }
         }
 
-        public string Title { get; } = "工时助手 - 高效的管理工作";
+        public string Title { get; } = $"{NameTools.AppTitle} - {NameTools.AppSubTitle} {NameTools.AppVersion}";
 
         public CalendarVM Calendar { get; } = new CalendarVM();
 
@@ -72,7 +68,7 @@ namespace PunchPal.Core.ViewModels
             get => _currentPage;
             set
             {
-                if(_currentPage == value)
+                if (_currentPage == value)
                 {
                     return;
                 }
@@ -135,7 +131,7 @@ namespace PunchPal.Core.ViewModels
 
         private void OnCurrentMonth()
         {
-            if(Date.ToString("yyyyMM") == DateTime.Now.ToString("yyyyMM"))
+            if (Date.ToString("yyyyMM") == DateTime.Now.ToString("yyyyMM"))
             {
                 return;
             }
@@ -148,19 +144,37 @@ namespace PunchPal.Core.ViewModels
             AddRecord?.Invoke(this, EventArgs.Empty);
         }
 
+        private async void InitAutoAddRecord()
+        {
+            var settings = SettingsModel.Load();
+            if (!settings.Data.IsAutoAddRecordAtLock)
+            {
+                InitItems();
+                return;
+            }
+            var currentItem = await PunchRecordService.Instance.TodayFirst(settings.Data.DayStartHour);
+            if (currentItem != null)
+            {
+                InitItems();
+                return;
+            }
+            await PunchRecordService.Instance.Add(new PunchRecord()
+            {
+                PunchTime = DateTime.Now.TimestampUnix(),
+                UserId = settings.Common.CurrentUser?.UserId,
+                PunchType = Models.PunchRecord.PunchTypeUnLock
+            });
+            InitItems();
+        }
+
         public async void InitItems()
         {
             Loading = true;
             var start = DateTime.Now.TimestampUnix();
-            Trace.WriteLine($"Start InitItems: {start}");
             await PunchRecord.InitItems(Date);
-            Trace.WriteLine($"PunchRecord InitItems: {DateTime.Now.TimestampUnix() - start}");
             await AttendanceRecord.InitItems(Date);
-            Trace.WriteLine($"AttendanceRecord InitItems: {DateTime.Now.TimestampUnix() - start}");
             await WorkingHours.InitItems(PunchRecord.Items);
-            Trace.WriteLine($"WorkingHours InitItems: {DateTime.Now.TimestampUnix() - start}");
             await Calendar.InitItems(Date, WorkingHours.Items);
-            Trace.WriteLine($"Calendar InitItems: {DateTime.Now.TimestampUnix() - start}");
             await Overview.InitItems(Date, WorkingHours.Items);
             Loading = false;
         }
@@ -170,10 +184,5 @@ namespace PunchPal.Core.ViewModels
         public ICommand NextMonthCommand => new ActionCommand(OnNextMonth);
         public ICommand AddRecordCommand => new ActionCommand(OnAddRecord);
         public ICommand RefreshCommand => new ActionCommand(InitItems);
-
-        public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 }

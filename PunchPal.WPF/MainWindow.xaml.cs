@@ -7,7 +7,6 @@ using PunchPal.Core.ViewModels;
 using PunchPal.Tools;
 using PunchPal.WPF.Controls;
 using PunchPal.WPF.Tools;
-using PunchPal.WPF.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -52,7 +51,7 @@ namespace PunchPal.WPF
 
         private void Common_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if(e.PropertyName != nameof(SettingsCommon.ShortcutText))
+            if (e.PropertyName != nameof(SettingsCommon.ShortcutText))
             {
                 return;
             }
@@ -62,7 +61,7 @@ namespace PunchPal.WPF
             {
                 var ok = HotKeyTools.Register((System.Windows.Input.ModifierKeys)_mainModel.Setting.Common.ShortcutModifierKeys,
                     (System.Windows.Input.Key)_mainModel.Setting.Common.ShortcutKey);
-                if(!ok)
+                if (!ok)
                 {
                     _mainModel.Setting.Common.OnShortcutChanged(ModifierKeys.None, Key.None);
                     ShowTips(new TipsOption("提示", "当前快捷键不可用，请重试", Core.Models.ControlAppearance.Caution));
@@ -77,7 +76,7 @@ namespace PunchPal.WPF
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             };
-            if(e != null)
+            if (e != null)
             {
                 content.Date = e.DateTime;
                 content.IsAllDate = e.Date == 0;
@@ -157,7 +156,7 @@ namespace PunchPal.WPF
 
         private void OnPersonalizeChanged(object sender, PropertyChangedEventArgs e)
         {
-            if(e.PropertyName != nameof(SettingsPersonalize.WindowEffectType))
+            if (e.PropertyName != nameof(SettingsPersonalize.WindowEffectType))
             {
                 return;
             }
@@ -171,7 +170,7 @@ namespace PunchPal.WPF
                 Clipboard.SetText(text);
                 ShowTips(new TipsOption("提示", $"已复制到剪贴板", Core.Models.ControlAppearance.Success));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 ShowTips(new TipsOption("提示", $"复制到剪贴板出错", Core.Models.ControlAppearance.Danger));
             }
@@ -182,7 +181,8 @@ namespace PunchPal.WPF
             if (_mainModel.IsPunchRecord)
             {
                 AddPunchRecord();
-            }else if(_mainModel.IsAttendanceRecord)
+            }
+            else if (_mainModel.IsAttendanceRecord)
             {
                 AddAttendanceRecord();
             }
@@ -468,9 +468,17 @@ namespace PunchPal.WPF
                     if (page.DataContext == null) page.DataContext = _mainModel.Setting.WorkingTimeRange;
                     _mainModel.Setting.CurrentSettingPage = SettingsModel.PageType.WorkingTimeRange;
                     break;
+                case var type when type == typeof(Pages.SettingDataSourcePage):
+                    if (page.DataContext == null) page.DataContext = _mainModel.Setting.DataSource;
+                    _mainModel.Setting.CurrentSettingPage = SettingsModel.PageType.DataSource;
+                    break;
                 case var type when type == typeof(Pages.SettingNetworkPage):
                     if (page.DataContext == null) page.DataContext = _mainModel.Setting.Network;
                     _mainModel.Setting.CurrentSettingPage = SettingsModel.PageType.Network;
+                    break;
+                case var type when type == typeof(Pages.SettingAboutPage):
+                    if (page.DataContext == null) page.DataContext = _mainModel.Setting.About;
+                    _mainModel.Setting.CurrentSettingPage = SettingsModel.PageType.Abount;
                     break;
                 case var type when type == typeof(Pages.PunchRecordPage):
                     _mainModel.CurrentPage = Core.ViewModels.MainModel.PageType.PunchRecord;
@@ -527,7 +535,7 @@ namespace PunchPal.WPF
                 return;
             }
             var result = await option.Result;
-            if(!result)
+            if (!result)
             {
                 return;
             }
@@ -620,7 +628,7 @@ namespace PunchPal.WPF
                     : Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Short);
                 builder.Show();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // ignore
             }

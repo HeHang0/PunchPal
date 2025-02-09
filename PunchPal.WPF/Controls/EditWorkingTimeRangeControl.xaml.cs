@@ -1,12 +1,10 @@
-﻿using Microsoft.Xaml.Behaviors.Core;
-using PunchPal.Core.Models;
+﻿using PunchPal.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Controls;
-using System.Windows.Input;
 
 namespace PunchPal.WPF.Controls
 {

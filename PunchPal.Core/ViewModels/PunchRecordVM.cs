@@ -4,18 +4,14 @@ using PunchPal.Core.Services;
 using PunchPal.Tools;
 using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace PunchPal.Core.ViewModels
 {
-    public class PunchRecordVM : INotifyPropertyChanged
+    public class PunchRecordVM : NotifyPropertyBase
     {
         public event EventHandler<ConfirmDialogEventArgs> ConfirmDialog;
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public async Task InitItems(DateTime dateTime)
         {
@@ -63,10 +59,5 @@ namespace PunchPal.Core.ViewModels
         }
 
         public ObservableCollection<PunchRecord> Items { get; } = new ObservableCollection<PunchRecord>();
-
-        public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 }

@@ -1,8 +1,7 @@
-﻿using System;
+﻿using Microsoft.Xaml.Behaviors.Core;
+using System;
 using System.Globalization;
 using System.Windows.Data;
-using System.Windows;
-using Microsoft.Xaml.Behaviors.Core;
 
 namespace PunchPal.WPF.Converters
 {
@@ -10,7 +9,7 @@ namespace PunchPal.WPF.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if(value is Action action)
+            if (value is Action action)
             {
                 return new ActionCommand(action);
             }
