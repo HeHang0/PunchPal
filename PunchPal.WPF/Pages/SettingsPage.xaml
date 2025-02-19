@@ -26,8 +26,19 @@
                 Visibility="{Binding ElementName=PunchNavigationView, Path=IsPaneOpen, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}"/>
             </ui:NavigationView.PaneHeader>-->
             <ui:NavigationView.Header>
-                <TextBlock Margin="10 0 0 20" FontSize="30" FontWeight="Bold"
-                           Text="{Binding CurrentSettingTitle}" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Margin="10 0 0 20" FontSize="30" FontWeight="Bold" Text="{Binding CurrentSettingTitle}" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="10 0 0 20"
+                                Visibility="{Binding DataSourceOperateVisible, Converter={StaticResource BooleanToVisibility}}">
+                        <ui:Button Appearance="Caution" Content="导入" Foreground="White"/>
+                        <ui:Button Appearance="Info" Content="导出" Margin="8 0"/>
+                        <ui:Button Appearance="Success" Content="保存" />
+                    </StackPanel>
+                </Grid>
             </ui:NavigationView.Header>
             <ui:NavigationView.MenuItems>
                 <ui:NavigationViewItem

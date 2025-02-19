@@ -64,8 +64,18 @@
             </StackPanel>
             <StackPanel Grid.Column="2" Orientation="Horizontal">
                 <TextBlock Opacity="0" Text="　"/>
-                <TextBlock Opacity="0.6" FontSize="13" Foreground="{DynamicResource WindowForeground}"
-                           Text="{Binding Setting.WorkingTimeRange.Text}"/>
+                <!--<TextBlock Opacity="0.6" FontSize="13" Foreground="{DynamicResource WindowForeground}"
+                           Text="{Binding Setting.WorkingTimeRange.Text}"/>-->
+                <ui:HyperlinkButton Background="Transparent" Padding="0" MouseDoubleClick="ToWorkTimeEdit"
+                                    ToolTip="双击编辑工作时间">
+                    <TextBlock Opacity="0.6" FontSize="13" Foreground="{DynamicResource WindowForeground}"
+                               Text="{Binding Setting.WorkingTimeRange.Text}"/>
+                    <ui:HyperlinkButton.Resources>
+                        <SolidColorBrush x:Key="HyperlinkButtonBackgroundPointerOver" Color="Transparent" />
+                        <SolidColorBrush x:Key="HyperlinkButtonBackgroundPressed" Color="Transparent" />
+                        <SolidColorBrush x:Key="HyperlinkButtonBackgroundDisabled" Color="Transparent" />
+                    </ui:HyperlinkButton.Resources>
+                </ui:HyperlinkButton>
             </StackPanel>
         </Grid>
         <ui:NavigationView

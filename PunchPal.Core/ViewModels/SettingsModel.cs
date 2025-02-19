@@ -47,6 +47,7 @@ namespace PunchPal.Core.ViewModels
                 }
                 _currentSettingPage = value;
                 OnPropertyChanged(nameof(CurrentSettingTitle));
+                OnPropertyChanged(nameof(DataSourceOperateVisible));
                 if (_currentSettingPage == PageType.WorkingTimeRange)
                 {
                     _ = WorkingTimeRange.InitRanges();
@@ -72,6 +73,8 @@ namespace PunchPal.Core.ViewModels
                 }
             }
         }
+        [JsonIgnore]
+        public bool DataSourceOperateVisible => _currentSettingPage == PageType.DataSource;
 
         private bool _isPaneOpen = false;
         public bool IsPaneOpen

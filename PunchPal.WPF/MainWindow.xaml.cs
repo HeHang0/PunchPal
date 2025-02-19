@@ -364,6 +364,12 @@ namespace PunchPal.WPF
             Common_PropertyChanged(null, new PropertyChangedEventArgs(nameof(SettingsCommon.ShortcutText)));
         }
 
+        private void ToWorkTimeEdit(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            _mainModel.Setting.CurrentSettingPage = SettingsModel.PageType.WorkingTimeRange;
+            PunchNavigationView.Navigate("设置");
+        }
+
         private void OnHotKey()
         {
             if (IsVisible)
