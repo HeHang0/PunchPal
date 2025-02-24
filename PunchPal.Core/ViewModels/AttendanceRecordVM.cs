@@ -11,8 +11,6 @@ namespace PunchPal.Core.ViewModels
 {
     public class AttendanceRecordVM : NotifyPropertyBase
     {
-        public event EventHandler<ConfirmDialogEventArgs> ConfirmDialog;
-
         public async Task InitItems(DateTime dateTime)
         {
             Items.Clear();
@@ -41,14 +39,14 @@ namespace PunchPal.Core.ViewModels
             {
                 return;
             }
-            var option = new ConfirmDialogEventArgs()
+            var option = new EventManager.ConfirmDialogOption()
             {
                 Title = "提示",
                 Message = $"确认要删除【{SelectedRecord.AttendanceId}】的记录吗?",
                 Appearance = ControlAppearance.Danger
             };
-            ConfirmDialog?.Invoke(this, option);
-            if (option.Result != null && !(await option.Result))
+            var confirm = await EventManager.ShowConfirmDialog(option);
+            if (!confirm)
             {
                 return;
             }

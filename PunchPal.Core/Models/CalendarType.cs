@@ -2,6 +2,6 @@
 {
     public enum CalendarType
     {
-        Baidu
+        Baidu, Custom
     }
 }

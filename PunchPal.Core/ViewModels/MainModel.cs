@@ -1,5 +1,4 @@
-﻿using PunchPal.Core.Events;
-using PunchPal.Core.Models;
+﻿using PunchPal.Core.Models;
 using PunchPal.Core.Services;
 using PunchPal.Tools;
 using System;
@@ -11,7 +10,6 @@ namespace PunchPal.Core.ViewModels
     public class MainModel : NotifyPropertyBase
     {
         public event EventHandler<TipsOption> Tips;
-        public event EventHandler<ConfirmDialogEventArgs> ConfirmDialog;
         public event EventHandler AddRecord;
         public event EventHandler ShowWindow;
 
@@ -28,8 +26,6 @@ namespace PunchPal.Core.ViewModels
 
         public MainModel()
         {
-            PunchRecord.ConfirmDialog += (sender, e) => ConfirmDialog?.Invoke(sender, e);
-            AttendanceRecord.ConfirmDialog += (sender, e) => ConfirmDialog?.Invoke(sender, e);
             InitAutoAddRecord();
             Setting.Calendar.PropertyChanged += OnPropertyChanged;
         }

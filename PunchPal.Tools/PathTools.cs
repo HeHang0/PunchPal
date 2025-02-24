@@ -6,13 +6,17 @@ namespace PunchPal.Tools
     public static class PathTools
     {
         public static string AppName = "PunchPal";
+        private static string _appDataPath = null;
+        public static string RomingPath => Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         public static string AppDataPath
         {
             get
             {
+                if (_appDataPath != null) return _appDataPath;
                 string roming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
                 string dataPath = Path.Combine(roming, AppName);
                 if (!Directory.Exists(dataPath)) Directory.CreateDirectory(dataPath);
+                _appDataPath = dataPath;
                 return dataPath;
             }
         }

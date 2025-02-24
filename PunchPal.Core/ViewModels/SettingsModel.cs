@@ -1,10 +1,12 @@
 ﻿using Newtonsoft.Json;
+using PunchPal.Core.Services;
 using PunchPal.Tools;
 using System;
 using System.ComponentModel;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace PunchPal.Core.ViewModels
 {
@@ -87,6 +89,12 @@ namespace PunchPal.Core.ViewModels
                 Save();
             }
         }
+        [JsonIgnore]
+        public ICommand ImportDataSource => DataSource.ImportDataSource;
+        [JsonIgnore]
+        public ICommand ExportDataSource => DataSource.ExportDataSource;
+        [JsonIgnore]
+        public ICommand SaveDataSource => DataSource.SaveDataSource;
 
         static SettingsModel()
         {
@@ -107,6 +115,10 @@ namespace PunchPal.Core.ViewModels
             _settings.Data.PropertyChanged += OnChildPropertyChanged;
             _settings.Network.PropertyChanged += OnChildPropertyChanged;
             _settings.Personalize.PropertyChanged += OnChildPropertyChanged;
+            if (_settings.Common.CurrentUser != null)
+            {
+                _settings.Common.CurrentUser = UserService.Instance.FirstOrDefault(m => m.UserId == _settings.Common.CurrentUser.UserId) ?? UserService.Instance.FirstOrDefault();
+            }
             _ = _settings.WorkingTimeRange.InitRanges();
         }
 
@@ -155,6 +167,7 @@ namespace PunchPal.Core.ViewModels
                 }
                 File.WriteAllText(PathTools.SettingPath, ToString());
                 saveCts?.Cancel();
+                await DataSource.SaveReal();
             }
             catch (Exception)
             {

@@ -1,10 +1,12 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using PunchPal.Core.Models;
 using PunchPal.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace PunchPal.Core.Apis
@@ -19,6 +21,7 @@ namespace PunchPal.Core.Apis
             return ParseBaseCalendarJson(json, date);
         }
 
+        private static bool usedDefaltData = false;
 
         public static List<CalendarRecord> ParseBaseCalendarJson(string json, DateTime date)
         {
@@ -59,6 +62,19 @@ namespace PunchPal.Core.Apis
             }
             catch (Exception)
             {
+                if (usedDefaltData)
+                {
+                    return calendarRecords;
+                }
+                usedDefaltData = true;
+                try
+                {
+                    calendarRecords = JsonConvert.DeserializeObject<List<CalendarRecord>>(Encoding.UTF8.GetString(Properties.Resources.CalendarsText));
+                }
+                catch (Exception)
+                {
+                    // ignore
+                }
             }
 
             return calendarRecords;

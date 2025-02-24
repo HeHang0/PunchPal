@@ -1,5 +1,4 @@
 ﻿using PunchPal.Core.Events;
-using System;
 using System.IO;
 using System.Windows.Input;
 
@@ -7,8 +6,6 @@ namespace PunchPal.Core.ViewModels
 {
     public class SettingsPersonalize : NotifyPropertyBase
     {
-        public event EventHandler<SelectFileEventArgs> FileSelecting;
-
         public enum ColorMode
         {
             System,
@@ -221,15 +218,16 @@ namespace PunchPal.Core.ViewModels
         private static readonly string ImageFilter = "图片文件 (*.jpg, *.jpeg, *.jpe, *.jfif, *.png) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png";
         private void OnBackgroundImageSelect()
         {
-            var option = new SelectFileEventArgs(ImageFilter);
-            FileSelecting?.Invoke(this, option);
-
-            if (string.IsNullOrWhiteSpace(option.FileName) || !File.Exists(option.FileName))
+            var option = new EventManager.FileDialogOption()
             {
-                return;
-            }
+                Filter = ImageFilter
+            };
+            var fileNames = EventManager.ShowFileDialog(option);
 
-            BackgroundImage = option.FileName;
+            if (fileNames != null && fileNames.Length > 0)
+            {
+                BackgroundImage = fileNames[0];
+            }
         }
     }
 }

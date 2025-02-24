@@ -1,6 +1,4 @@
 ﻿using PunchPal.Core.Models;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
@@ -15,7 +13,7 @@ namespace PunchPal.Core.ViewModels
     {
         public enum DataSourceType
         {
-            Authenticate, UserInfo, PunchTime, Attendance
+            Authenticate, UserInfo, PunchTime, Attendance, Calendar
         }
 
         public DataSourceItem(DataSourceType dataSourceType, DataSourceRequestType requestType = DataSourceRequestType.Post)
@@ -56,6 +54,17 @@ namespace PunchPal.Core.ViewModels
                     OnAddRequestMapping(nameof(AttendanceRecord.EndTime));
                     OnAddRequestMapping(nameof(AttendanceRecord.AttendanceTime));
                     OnAddRequestMapping(nameof(AttendanceRecord.Remark));
+                    break;
+                case DataSourceType.Calendar:
+                    OnAddRequestMapping(nameof(CalendarRecord.Date));
+                    OnAddRequestMapping(nameof(CalendarRecord.Festival));
+                    OnAddRequestMapping(nameof(CalendarRecord.LunarMonth));
+                    OnAddRequestMapping(nameof(CalendarRecord.LunarDate));
+                    OnAddRequestMapping(nameof(CalendarRecord.LunarYear));
+                    OnAddRequestMapping(nameof(CalendarRecord.SolarTerm));
+                    OnAddRequestMapping(nameof(CalendarRecord.IsHoliday));
+                    OnAddRequestMapping(nameof(CalendarRecord.IsWorkday));
+                    OnAddRequestMapping(nameof(CalendarRecord.Remark));
                     break;
             }
         }
@@ -107,6 +116,8 @@ namespace PunchPal.Core.ViewModels
                         return "打卡时间";
                     case DataSourceType.Attendance:
                         return "考勤";
+                    case DataSourceType.Calendar:
+                        return "日历";
                     default:
                         return string.Empty;
                 }

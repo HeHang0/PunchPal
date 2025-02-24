@@ -72,5 +72,11 @@ namespace PunchPal.Core.Properties {
                 return ((byte[])(obj));
             }
         }
+        internal static byte[] CalendarsText {
+            get {
+                object obj = ResourceManager.GetObject("calendars", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }

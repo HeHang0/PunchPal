@@ -99,6 +99,18 @@ namespace PunchPal.Core.Services
             }
         }
 
+        public static List<string> RecordUsers(PunchDbContext context)
+        {
+            try
+            {
+                return context.PunchRecords.Select(m => m.UserId).GroupBy(m => m).Select(m => m.Key).ToList();
+            }
+            catch (Exception)
+            {
+                return new List<string>();
+            }
+        }
+
         static UserService()
         {
             Instance = new UserService();
@@ -106,6 +118,25 @@ namespace PunchPal.Core.Services
             {
                 if (context.Users.Any())
                 {
+                    return;
+                }
+                if (!context.PunchRecords.Any())
+                {
+                    OldDataService.ImportFromOldDatabase(context);
+                }
+                var existsUsers = RecordUsers(context);
+                if (existsUsers.Any())
+                {
+                    foreach (var id in existsUsers)
+                    {
+                        context.Users.AddOrUpdate(new User
+                        {
+                            UserId = id,
+                            Name = "用户" + id,
+                            Remark = "初始用户"
+                        });
+                    }
+                    context.SaveChanges();
                     return;
                 }
                 var userId = Guid.NewGuid().ToString("N").Substring(0, 8);

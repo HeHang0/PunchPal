@@ -1,6 +1,5 @@
 ﻿using Microsoft.Win32;
 using PicaPico;
-using PunchPal.Core.Events;
 using PunchPal.Core.Models;
 using PunchPal.Core.Services;
 using PunchPal.Core.ViewModels;
@@ -12,6 +11,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
@@ -20,6 +20,7 @@ using Wpf.Ui;
 using Wpf.Ui.Controls;
 using Wpf.Ui.Interop;
 using ControlAppearance = Wpf.Ui.Controls.ControlAppearance;
+using EventManager = PunchPal.Core.Events.EventManager;
 using MainModel = PunchPal.WPF.ViewModels.MainModel;
 
 namespace PunchPal.WPF
@@ -37,15 +38,16 @@ namespace PunchPal.WPF
             DataContext = _mainModel;
             Loaded += MainWindow_Loaded;
             Closing += MainWindow_Closing;
-            _mainModel.ConfirmDialog += OnConfirmDialog;
             _mainModel.Tips += OnTips;
             _mainModel.AddRecord += OnAddRecord;
             _mainModel.WorkingHours.TextCoping += OnTextCoping;
             _mainModel.Setting.Personalize.PropertyChanged += OnPersonalizeChanged;
-            _mainModel.Setting.Personalize.FileSelecting += OnFileSelecting;
             _mainModel.Setting.WorkingTimeRange.Edited += OnWorkingTimeRangeEdited;
             _mainModel.ShowWindow += OnShowWindow;
             _mainModel.Setting.Common.PropertyChanged += Common_PropertyChanged;
+            EventManager.RegisterConfirmDialog(OnConfirmDialog);
+            EventManager.RegisterFileDialog(OnFileSelecting);
+            EventManager.RegisterSaveDialog(OnSaveDialog);
             InitWindowBackdropType();
         }
 
@@ -134,7 +136,7 @@ namespace PunchPal.WPF
             _mainModel.Loading = false;
         }
 
-        private void OnFileSelecting(object sender, SelectFileEventArgs e)
+        private string[] OnFileSelecting(EventManager.FileDialogOption e)
         {
             var openFileDialog = new OpenFileDialog()
             {
@@ -143,10 +145,33 @@ namespace PunchPal.WPF
             };
             if (openFileDialog.ShowDialog() != true)
             {
-                return;
+                return new string[] { };
             }
-            e.FileName = openFileDialog.FileName;
-            e.FileNames = openFileDialog.FileNames;
+            if (e.Multiselect)
+            {
+                return openFileDialog.FileNames ?? new string[] { };
+            }
+            else
+            {
+                return new string[] { openFileDialog.FileName };
+            }
+        }
+
+        private string OnSaveDialog(EventManager.SaveDialogOption e)
+        {
+            var saveFileDialog = new SaveFileDialog()
+            {
+                Title = e.Title,
+                Filter = e.Filter,
+                DefaultExt = e.DefaultExt,
+                FileName = e.FileName,
+                AddExtension = e.AddExtension
+            };
+            if (saveFileDialog.ShowDialog() != true)
+            {
+                return string.Empty;
+            }
+            return saveFileDialog.FileName;
         }
 
         private void OnShowWindow(object sender, EventArgs e)
@@ -336,7 +361,7 @@ namespace PunchPal.WPF
             );
         }
 
-        private void OnConfirmDialog(object sender, ConfirmDialogEventArgs e)
+        private async Task<bool> OnConfirmDialog(EventManager.ConfirmDialogOption e)
         {
             var contentDialog = new ContentDialog()
             {
@@ -348,11 +373,8 @@ namespace PunchPal.WPF
                 MinHeight = 0,
                 DialogHost = DialogPresenter,
             };
-            var resultTask = contentDialog.ShowAsync();
-            e.Result = resultTask.ContinueWith(t =>
-            {
-                return t.Result == ContentDialogResult.Primary;
-            });
+            var result = await contentDialog.ShowAsync();
+            return result == ContentDialogResult.Primary;
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -367,6 +389,12 @@ namespace PunchPal.WPF
         private void ToWorkTimeEdit(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             _mainModel.Setting.CurrentSettingPage = SettingsModel.PageType.WorkingTimeRange;
+            PunchNavigationView.Navigate("设置");
+        }
+
+        private void UpdateDataSource(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            _mainModel.Setting.CurrentSettingPage = SettingsModel.PageType.DataSource;
             PunchNavigationView.Navigate("设置");
         }
 
@@ -528,19 +556,14 @@ namespace PunchPal.WPF
 
         private async void Restart()
         {
-            var option = new ConfirmDialogEventArgs()
+            var option = new EventManager.ConfirmDialogOption()
             {
                 Title = "提示",
                 Message = "设置已更改，是否重启应用？",
                 Appearance = Core.Models.ControlAppearance.Caution
             };
             _ = _mainModel.Setting.SaveReal();
-            OnConfirmDialog(null, option);
-            if (option.Result == null)
-            {
-                return;
-            }
-            var result = await option.Result;
+            var result = await OnConfirmDialog(option);
             if (!result)
             {
                 return;

@@ -1,5 +1,4 @@
 ﻿using PunchPal.Core.ViewModels;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -28,7 +27,7 @@ namespace PunchPal.WPF.Pages
 
         private void SettingsModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if(DataContext is SettingsModel settingsModel &&
+            if (DataContext is SettingsModel settingsModel &&
                 e.PropertyName == nameof(SettingsModel.CurrentSettingTitle) &&
                 PunchNavigationView.SelectedItem?.Content?.ToString() != settingsModel.CurrentSettingTitle)
             {
