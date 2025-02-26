@@ -23,6 +23,7 @@ namespace PunchPal.Core.ViewModels
         public DataSourceItem PunchTime { get; set; }
         public DataSourceItem Attendance { get; set; }
         public DataSourceItem Calendar { get; set; }
+        public DataSourceItem WorkTime { get; set; }
 
         public ICommand ImportDataSource => new ActionCommand(OnImportDataSource);
         public ICommand ExportDataSource => new ActionCommand(OnExportDataSource);
@@ -87,11 +88,12 @@ namespace PunchPal.Core.ViewModels
             }
             if (items.Count > 0 || force)
             {
-                _dataSource.Authenticate = items.FirstOrDefault(m => m.Type == DataSourceItem.DataSourceType.Authenticate) ?? new DataSourceItem(DataSourceItem.DataSourceType.Authenticate, DataSourceRequestType.Browser);
-                _dataSource.UserInfo = items.FirstOrDefault(m => m.Type == DataSourceItem.DataSourceType.UserInfo) ?? new DataSourceItem(DataSourceItem.DataSourceType.UserInfo, DataSourceRequestType.Get);
+                _dataSource.Authenticate = items.FirstOrDefault(m => m.Type == DataSourceItem.DataSourceType.Authenticate) ?? new DataSourceItem(DataSourceItem.DataSourceType.Authenticate, DataSourceItem.RequestType.Browser);
+                _dataSource.UserInfo = items.FirstOrDefault(m => m.Type == DataSourceItem.DataSourceType.UserInfo) ?? new DataSourceItem(DataSourceItem.DataSourceType.UserInfo, DataSourceItem.RequestType.Get);
                 _dataSource.PunchTime = items.FirstOrDefault(m => m.Type == DataSourceItem.DataSourceType.PunchTime) ?? new DataSourceItem(DataSourceItem.DataSourceType.PunchTime);
                 _dataSource.Attendance = items.FirstOrDefault(m => m.Type == DataSourceItem.DataSourceType.Attendance) ?? new DataSourceItem(DataSourceItem.DataSourceType.Attendance);
                 _dataSource.Calendar = items.FirstOrDefault(m => m.Type == DataSourceItem.DataSourceType.Calendar) ?? new DataSourceItem(DataSourceItem.DataSourceType.Calendar);
+                _dataSource.WorkTime = items.FirstOrDefault(m => m.Type == DataSourceItem.DataSourceType.WorkTime) ?? new DataSourceItem(DataSourceItem.DataSourceType.WorkTime);
                 _dataSource.ResetItems();
             }
         }
@@ -108,6 +110,7 @@ namespace PunchPal.Core.ViewModels
             Items.Add(PunchTime);
             Items.Add(Attendance);
             Items.Add(Calendar);
+            Items.Add(WorkTime);
             foreach (var item in Items)
             {
                 item.ResetMappings();

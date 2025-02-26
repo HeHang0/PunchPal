@@ -8,7 +8,7 @@ namespace PunchPal.Core.Models
         public string Message { get; set; }
         public ControlAppearance Appearance { get; set; }
         public TimeSpan Duration { get; set; }
-        public TipsOption(string title, string message, ControlAppearance appearance, TimeSpan? duration = null)
+        public TipsOption(string title, string message, ControlAppearance appearance= ControlAppearance.Info, TimeSpan? duration = null)
         {
             Title = title;
             Message = message;

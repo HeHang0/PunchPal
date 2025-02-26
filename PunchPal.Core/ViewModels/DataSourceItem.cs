@@ -1,22 +1,29 @@
-﻿using PunchPal.Core.Models;
+﻿using Newtonsoft.Json;
+using PunchPal.Core.Apis;
+using PunchPal.Core.Events;
+using PunchPal.Core.Models;
+using PunchPal.Tools;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace PunchPal.Core.ViewModels
 {
-    public enum DataSourceRequestType
-    {
-        Get, Post, Put, Browser
-    }
     public class DataSourceItem : NotifyPropertyBase
     {
+        public enum RequestType
+        {
+            Get, Post, Put, Browser
+        }
         public enum DataSourceType
         {
-            Authenticate, UserInfo, PunchTime, Attendance, Calendar
+            Authenticate, UserInfo, PunchTime, Attendance, Calendar, WorkTime
         }
 
-        public DataSourceItem(DataSourceType dataSourceType, DataSourceRequestType requestType = DataSourceRequestType.Post)
+        public DataSourceItem(DataSourceType dataSourceType, RequestType requestType = RequestType.Post)
         {
             Type = dataSourceType;
             RequestMethod = requestType;
@@ -66,6 +73,15 @@ namespace PunchPal.Core.ViewModels
                     OnAddRequestMapping(nameof(CalendarRecord.IsWorkday));
                     OnAddRequestMapping(nameof(CalendarRecord.Remark));
                     break;
+                case DataSourceType.WorkTime:
+                    OnAddRequestMapping(nameof(WorkingTimeRange.Date));
+                    OnAddRequestMapping(nameof(WorkingTimeRange.Type));
+                    OnAddRequestMapping(nameof(WorkingTimeRange.StartHour));
+                    OnAddRequestMapping(nameof(WorkingTimeRange.StartMinute));
+                    OnAddRequestMapping(nameof(WorkingTimeRange.EndHour));
+                    OnAddRequestMapping(nameof(WorkingTimeRange.EndMinute));
+                    OnAddRequestMapping(nameof(WorkingTimeRange.UserId));
+                    break;
             }
         }
 
@@ -101,7 +117,9 @@ namespace PunchPal.Core.ViewModels
                     OnPropertyChanged();
                 }
             }
+            public bool IsReadOnly { get; set; } = true;
         }
+        [JsonIgnore]
         public string Name
         {
             get
@@ -118,6 +136,8 @@ namespace PunchPal.Core.ViewModels
                         return "考勤";
                     case DataSourceType.Calendar:
                         return "日历";
+                    case DataSourceType.WorkTime:
+                        return "工作时间";
                     default:
                         return string.Empty;
                 }
@@ -135,6 +155,7 @@ namespace PunchPal.Core.ViewModels
             }
         }
         private bool _isExpanded = true;
+        [JsonIgnore]
         public bool IsExpanded
         {
             get => _isExpanded;
@@ -144,14 +165,15 @@ namespace PunchPal.Core.ViewModels
                 OnPropertyChanged();
             }
         }
-        private DataSourceRequestType _requestMethod = DataSourceRequestType.Get;
-        public DataSourceRequestType RequestMethod
+        private RequestType _requestMethod = RequestType.Get;
+        public RequestType RequestMethod
         {
             get => _requestMethod;
             set
             {
                 _requestMethod = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(IsBrowser));
             }
         }
         private string _requestBody = string.Empty;
@@ -174,15 +196,36 @@ namespace PunchPal.Core.ViewModels
                 OnPropertyChanged();
             }
         }
+
+        private static readonly List<KeyValuePair<RequestType, string>> RequestTypesOrigin = new List<KeyValuePair<RequestType, string>>
+        {
+            new KeyValuePair<RequestType, string>(RequestType.Get, "Get"),
+            new KeyValuePair<RequestType, string>(RequestType.Post, "Post"),
+            new KeyValuePair<RequestType, string>(RequestType.Put, "Put"),
+            new KeyValuePair<RequestType, string>(RequestType.Browser, "Browser")
+        };
+
+        [JsonIgnore]
+        public List<KeyValuePair<RequestType, string>> RequestTypes => RequestTypesOrigin;
+
+        public bool IsBrowser => RequestMethod == RequestType.Browser;
         public bool CanAddMapping => Type == DataSourceType.Authenticate;
         public bool RequestMappingVisible => CanAddMapping || RequestMappings.Any();
         public ObservableCollection<RequestMapping> RequestHeaders { get; set; } = new ObservableCollection<RequestMapping>();
         public ObservableCollection<RequestMapping> RequestFilters { get; set; } = new ObservableCollection<RequestMapping>();
         public ObservableCollection<RequestMapping> RequestMappings { get; set; } = new ObservableCollection<RequestMapping>();
+        public ObservableCollection<RequestMapping> BrowserMappings { get; set; } = new ObservableCollection<RequestMapping>() { new RequestMapping { Scripts="关闭"  } };
 
+        [JsonIgnore]
         public ICommand AddRequestHeader => new ActionCommand(OnAddRequestHeader);
+        [JsonIgnore]
         public ICommand AddRequestFilter => new ActionCommand(OnAddRequestFilter);
+        [JsonIgnore]
         public ICommand AddRequestMapping => new ActionCommand(OnAddRequestMapping);
+        [JsonIgnore]
+        public ICommand AddBrowserMappings => new ActionCommand(OnAddBrowserMappings);
+        [JsonIgnore]
+        public ICommand TestRequest => new ActionCommand(OnTestRequest);
 
         private void OnAddRequestHeader()
         {
@@ -213,7 +256,69 @@ namespace PunchPal.Core.ViewModels
             {
                 return;
             }
-            RequestMappings.Add(new RequestMapping { Key = name });
+            RequestMappings.Add(new RequestMapping { Key = name, IsReadOnly = false });
+        }
+
+        public void OnAddBrowserMappings()
+        {
+            if (BrowserMappings.Any(m => string.IsNullOrEmpty(m.Key) && string.IsNullOrEmpty(m.Value) && m.Scripts == "跳转"))
+            {
+                return;
+            }
+            BrowserMappings.Add(new RequestMapping { Scripts="跳转"  });
+        }
+
+        public void OnTestRequest()
+        {
+            var now = DateTime.Now;
+            var preData = new Dictionary<string, string>();
+            preData["YEAR"] = now.Year.ToString();
+            preData["MONTH"] = now.Month.ToString();
+            var start = new DateTime(now.Year, now.Month, 1);
+            var end = start.AddMonths(1).AddDays(-1);
+            preData["DAYSTART"] = start.ToDateString();
+            preData["DAYEND"] = end.ToDateString();
+            _ = RunRequest(preData);
+        }
+
+        public async Task RunRequest(Dictionary<string, string> preData = null, Dictionary<string, string> headers = null)
+        {
+            var url = ReplaceValue(RequestUrl, preData);
+            if (RequestMethod == RequestType.Browser)
+            {
+                var navigations = new Dictionary<string, string>();
+                var closeMappings = BrowserMappings.FirstOrDefault(m => m.Scripts == "关闭");
+                var closeUrl = closeMappings?.Key ?? closeMappings?.Value ?? string.Empty;
+                foreach (var item in BrowserMappings)
+                {
+                    if (item.Scripts == "跳转")
+                    {
+                        navigations[item.Key] = item.Value;
+                    }
+                }
+                var result = await new PuppeteerBrowser().Run(url, closeUrl, navigations, false);
+                EventManager.ShowTips(new TipsOption("提示", $"{JsonConvert.SerializeObject(result)}"));
+                return;
+            }
+            var body = ReplaceValue(RequestBody, preData);
+            if(headers == null)
+            {
+                headers = new Dictionary<string, string>();
+            }
+            foreach (var item in RequestHeaders)
+            {
+                headers[item.Key] = ReplaceValue(item.Value, preData);
+            }
+            EventManager.ShowTips(new TipsOption("提示", $"{url}\n{body}\n{JsonConvert.SerializeObject(headers)}"));
+        }
+
+        private string ReplaceValue(string text, Dictionary<string, string> preData)
+        {
+            foreach (var item in preData)
+            {
+                text = text.Replace($"{{{item.Key}}}", item.Value);
+            }
+            return text;
         }
     }
 }

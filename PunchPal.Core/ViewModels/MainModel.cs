@@ -9,7 +9,6 @@ namespace PunchPal.Core.ViewModels
 {
     public class MainModel : NotifyPropertyBase
     {
-        public event EventHandler<TipsOption> Tips;
         public event EventHandler AddRecord;
         public event EventHandler ShowWindow;
 

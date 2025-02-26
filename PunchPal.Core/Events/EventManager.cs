@@ -63,5 +63,18 @@ namespace PunchPal.Core.Events
             return _saveDialog?.Invoke(option);
         }
         #endregion
+
+        #region SaveDialog
+        private static Action<TipsOption> _tips = null;
+        public static void RegisterTips(Action<TipsOption> tips)
+        {
+            _tips = tips;
+        }
+
+        public static void ShowTips(TipsOption option = null)
+        {
+            _tips?.Invoke(option);
+        }
+        #endregion
     }
 }

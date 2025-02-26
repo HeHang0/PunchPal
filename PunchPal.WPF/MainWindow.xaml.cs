@@ -38,7 +38,6 @@ namespace PunchPal.WPF
             DataContext = _mainModel;
             Loaded += MainWindow_Loaded;
             Closing += MainWindow_Closing;
-            _mainModel.Tips += OnTips;
             _mainModel.AddRecord += OnAddRecord;
             _mainModel.WorkingHours.TextCoping += OnTextCoping;
             _mainModel.Setting.Personalize.PropertyChanged += OnPersonalizeChanged;
@@ -48,6 +47,7 @@ namespace PunchPal.WPF
             EventManager.RegisterConfirmDialog(OnConfirmDialog);
             EventManager.RegisterFileDialog(OnFileSelecting);
             EventManager.RegisterSaveDialog(OnSaveDialog);
+            EventManager.RegisterTips(ShowTips);
             InitWindowBackdropType();
         }
 
@@ -332,14 +332,13 @@ namespace PunchPal.WPF
             return openFileDialog.FileName;
         }
 
-        private void OnTips(object sender, TipsOption option)
-        {
-            ShowTips(option);
-        }
-
         private SnackbarService _snackbarService;
 
         private void ShowTips(TipsOption option)
+        {
+            Dispatcher.Invoke(() => RunShowTips(option));
+        }
+        private void RunShowTips(TipsOption option)
         {
             if (SnackbarPresenter == null)
             {
