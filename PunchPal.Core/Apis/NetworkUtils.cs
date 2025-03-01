@@ -15,13 +15,11 @@ namespace PunchPal.Core.Apis
             return Request(url, method: "GET");
         }
 
-        public static async Task<string> Request(string url, string data = "", string method = "POST",
-            bool acceptJson = false, Dictionary<string, string> headers = null)
+        public static async Task<string> Request(string url, string data = "", string method = "POST", Dictionary<string, string> headers = null)
         {
-#pragma warning disable SYSLIB0014
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-#pragma warning restore SYSLIB0014
             request.Method = method;
+            data = data?.Trim() ?? string.Empty;
             var body = Encoding.UTF8.GetBytes(data);
             request.ContentLength = body.Length;
             var settings = SettingsModel.Load();
@@ -47,50 +45,51 @@ namespace PunchPal.Core.Apis
                 request.Proxy = null;
             }
 
-            data = data?.Trim() ?? string.Empty;
-            if (!string.IsNullOrWhiteSpace(data))
-            {
-                if ((data.StartsWith("{") && data.EndsWith("}")) || (data.StartsWith("[") && data.EndsWith("]")))
-                {
-                    request.ContentType = "application/json";
-                }
-                else
-                {
-                    request.ContentType = "application/x-www-form-urlencoded; charset=UTF-8";
-                }
-            }
-
-            if (acceptJson)
-            {
-                request.Accept = "application/json";
-            }
-
             if (headers != null)
             {
                 foreach (var header in headers)
                 {
-                    request.Headers.Add(header.Key, header.Value);
-                }
-            }
-
-            if (body.Length > 0)
-            {
-                using (var stream = request.GetRequestStream())
-                {
-                    stream.Write(body, 0, body.Length);
-                }
-            }
-
-            using (var response = (HttpWebResponse)(await request.GetResponseAsync()))
-            {
-                using (var stream = response.GetResponseStream())
-                {
-                    using (var reader = new StreamReader(stream))
+                    switch (header.Key.ToLower())
                     {
-                        return await reader.ReadToEndAsync();
+                        case "accept":
+                            request.Accept = header.Value;
+                            break;
+                        case "content-type":
+                            request.ContentType = header.Value;
+                            break;
+                        default:
+                            request.Headers.Add(header.Key, header.Value);
+                            break;
                     }
                 }
             }
+
+            try
+            {
+
+                if (body.Length > 0)
+                {
+                    using (var stream = request.GetRequestStream())
+                    {
+                        stream.Write(body, 0, body.Length);
+                    }
+                }
+                using (var response = (HttpWebResponse)(await request.GetResponseAsync()))
+                {
+                    using (var stream = response.GetResponseStream())
+                    {
+                        using (var reader = new StreamReader(stream))
+                        {
+                            return await reader.ReadToEndAsync();
+                        }
+                    }
+                }
+            }
+            catch (System.Exception)
+            {
+                return string.Empty;
+            }
+
         }
     }
 }

@@ -15,149 +15,165 @@
             <DataTemplate>
                 <StackPanel HorizontalAlignment="Stretch">
                     <Label FontWeight="Bold" Margin="0,0,0,8" Content="{Binding Name}" />
-                    <ui:CardExpander Margin="0,0,0,12" ContentPadding="0" Width="Auto" HorizontalAlignment="Stretch"
-                     IsExpanded="{Binding IsExpanded}">
-                        <ui:CardExpander.Header>
-                            <Grid HorizontalAlignment="Stretch">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <ui:TextBox Height="30" HorizontalAlignment="Stretch" Text="{Binding RequestUrl}" Padding="5 0"/>
-                                <ComboBox ItemsSource="{Binding RequestTypes}" SelectedValue="{Binding RequestMethod}"
-                                          DisplayMemberPath="Value" SelectedValuePath="Key" Padding="10 5 0 5"
-                                          Width="Auto" Height="46" Grid.Column="1" Margin="10 0 10 0">
-                                </ComboBox>
-                            </Grid>
-                        </ui:CardExpander.Header>
-                        <StackPanel Margin="15 10">
-                            <Label Margin="0,0,0,8" Content="页面操作"
-                                   Visibility="{Binding IsBrowser, Converter={StaticResource BooleanToVisibility}}"/>
-                            <ListBox ItemsSource="{Binding BrowserMappings}"
-                                     Visibility="{Binding IsBrowser, Converter={StaticResource BooleanToVisibility}}">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid Margin="0 0 0 6">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="5" />
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="5" />
-                                                <ColumnDefinition Width="*" />
-                                            </Grid.ColumnDefinitions>
-                                            <Label Content="当" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <ui:TextBox Grid.Column="1" Height="30" Text="{Binding Key}" Padding="5 0"/>
-                                            <Label Grid.Column="3" Content="{Binding Scripts}" VerticalAlignment="Center"/>
-                                            <ui:TextBox Grid.Column="5" Height="30" Text="{Binding Value}" Padding="5 0"/>
-                                        </Grid>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-                            <ui:Button Content="添加" HorizontalAlignment="Stretch" Command="{Binding AddBrowserMappings}"
-                                        Visibility="{Binding IsBrowser, Converter={StaticResource BooleanToVisibility}}"/>
-                            <Label Margin="0,0,0,8" Content="请求头"
-                                   Visibility="{Binding IsBrowser, Converter={StaticResource BooleanToNotVisibility}}"/>
-                            <ListBox ItemsSource="{Binding RequestHeaders}"
-                                     Visibility="{Binding IsBrowser, Converter={StaticResource BooleanToNotVisibility}}">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid Margin="0 0 0 6">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="10" />
-                                                <ColumnDefinition Width="*" />
-                                            </Grid.ColumnDefinitions>
-                                            <ui:TextBox Height="30" Text="{Binding Key}" Padding="5 0"/>
-                                            <ui:TextBox Grid.Column="2" Height="30" Text="{Binding Value}" Padding="5 0"/>
-                                        </Grid>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-                            <ui:Button Content="添加" HorizontalAlignment="Stretch" Command="{Binding AddRequestHeader}"
-                                        Visibility="{Binding IsBrowser, Converter={StaticResource BooleanToNotVisibility}}"/>
-                            <Label Margin="0,12,0,8" Content="请求体"
-                                    Visibility="{Binding IsBrowser, Converter={StaticResource BooleanToNotVisibility}}"/>
-                            <ui:TextBox MaxLines="5" AcceptsReturn="True" VerticalContentAlignment="Top" Padding="5"
-                                        Text="{Binding RequestBody}"
-                                         Visibility="{Binding IsBrowser, Converter={StaticResource BooleanToNotVisibility}}"/>
-                            <Label Margin="0,12,0,8" Content="响应" />
-                            <Grid Margin="0 0 0 12">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="50" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <Label Content="取值：" VerticalAlignment="Center" HorizontalContentAlignment="Right"/>
-                                <ui:TextBox Grid.Column="1" Height="30" Padding="5 0" Text="{Binding ResponseValue}"/>
-                            </Grid>
-                            <Grid Margin="0 0 0 12" Visibility="{Binding IsBrowser, Converter={StaticResource BooleanToNotVisibility}}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="50" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <Label Content="过滤：" Margin="0 5 0 0" HorizontalContentAlignment="Right"/>
-                                <StackPanel Grid.Column="1">
-                                    <ListBox ItemsSource="{Binding RequestFilters}" >
-                                        <ListBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <Grid Margin="0 0 0 6">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*" />
-                                                        <ColumnDefinition Width="Auto" />
-                                                        <ColumnDefinition Width="*" />
-                                                    </Grid.ColumnDefinitions>
-                                                    <ui:TextBox Height="30" Text="{Binding Key}" Padding="5 0"/>
-                                                    <ComboBox SelectedValue="{Binding Scripts}" Width="80" Height="30" Grid.Column="1" Margin="10 0 10 0">
-                                                        <ComboBoxItem Content="=" />
-                                                        <ComboBoxItem Content="&lt;" />
-                                                        <ComboBoxItem Content="&lt;" />
-                                                    </ComboBox>
-                                                    <ui:TextBox Grid.Column="2" Height="30" Text="{Binding Value}" Padding="5 0"/>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ListBox.ItemTemplate>
-                                    </ListBox>
-                                    <ui:Button Content="添加" HorizontalAlignment="Stretch" Command="{Binding AddRequestFilter}"/>
-                                </StackPanel>
-                            </Grid>
-                            <Grid Visibility="{Binding RequestMappingVisible, Converter={StaticResource BooleanToVisibility}}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="50" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <Label Content="映射：" Margin="0 5 0 0" HorizontalContentAlignment="Right"/>
-                                <StackPanel Grid.Column="1">
-                                    <ListBox ItemsSource="{Binding RequestMappings}" >
-                                        <ListBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <Grid Margin="0 0 0 6">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*" />
-                                                        <ColumnDefinition Width="6" />
-                                                        <ColumnDefinition Width="*" />
-                                                        <ColumnDefinition Width="6" />
-                                                        <ColumnDefinition Width="*" />
-                                                    </Grid.ColumnDefinitions>
-                                                    <ui:TextBox Height="30" Text="{Binding Key}" Padding="5 0" IsReadOnly="{Binding IsReadOnly}"/>
-                                                    <ui:TextBox Grid.Column="2" Height="30" Text="{Binding Value}" Padding="5 0"/>
-                                                    <ui:TextBox Grid.Column="4" Height="30" Text="{Binding Scripts}" Padding="5 0"/>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ListBox.ItemTemplate>
-                                    </ListBox>
-                                    <ui:Button Content="添加" HorizontalAlignment="Stretch" Command="{Binding AddRequestMapping}"
-                                               Visibility="{Binding CanAddMapping, Converter={StaticResource BooleanToVisibility}}"/>
-                                </StackPanel>
-                            </Grid>
-                            <Grid Margin="0 12 0 0" Visibility="{Binding RequestMappingVisible, Converter={StaticResource BooleanToVisibility}}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="50" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <ui:Button Grid.Column="1" Content="测试" HorizontalAlignment="Stretch" Command="{Binding TestRequest}" />
-                            </Grid>
-                        </StackPanel>
-                    </ui:CardExpander>
+                    <Grid>
+                        <ui:CardExpander Margin="0,0,0,12" ContentPadding="0" Width="Auto" HorizontalAlignment="Stretch"
+IsExpanded="{Binding IsExpanded}">
+                            <ui:CardExpander.Header>
+                                <Grid HorizontalAlignment="Stretch">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <ui:TextBox Height="30" Text="{Binding RequestUrl}" Padding="5 0"/>
+                                    <ComboBox ItemsSource="{Binding RequestTypes}" SelectedValue="{Binding RequestMethod}"
+                     DisplayMemberPath="Value" SelectedValuePath="Key" Padding="10 5 0 5"
+                     Width="Auto" Height="46" Grid.Column="1" Margin="10 0 10 0">
+                                    </ComboBox>
+                                </Grid>
+                            </ui:CardExpander.Header>
+                            <StackPanel Margin="15 10">
+                                <Label Margin="0,0,0,8" Content="页面操作"
+              Visibility="{Binding IsBrowser, Converter={StaticResource BooleanToVisibility}}"/>
+                                <ListBox ItemsSource="{Binding BrowserMappings}"
+                Visibility="{Binding IsBrowser, Converter={StaticResource BooleanToVisibility}}"
+                        ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                        ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0 0 0 6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="5" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="5" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <Label Content="当" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                                <ui:TextBox Grid.Column="1" Height="30" Text="{Binding Key}" Padding="5 0"/>
+                                                <Label Grid.Column="3" Content="{Binding Scripts}" VerticalAlignment="Center"/>
+                                                <ui:TextBox Grid.Column="5" Height="30" Text="{Binding Value}" Padding="5 0"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                                <ui:Button Content="添加" HorizontalAlignment="Stretch" Command="{Binding AddBrowserMappings}"
+                   Visibility="{Binding IsBrowser, Converter={StaticResource BooleanToVisibility}}"/>
+                                <Label Margin="0,0,0,8" Content="请求头"
+              Visibility="{Binding IsBrowser, Converter={StaticResource BooleanToNotVisibility}}"/>
+                                <ListBox ItemsSource="{Binding RequestHeaders}"
+                Visibility="{Binding IsBrowser, Converter={StaticResource BooleanToNotVisibility}}"
+                ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0 0 0 6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="10" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <ui:TextBox Height="30" Text="{Binding Key}" Padding="5 0"/>
+                                                <ui:TextBox Grid.Column="2" Height="30" Text="{Binding Value}" Padding="5 0"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                                <ui:Button Content="添加" HorizontalAlignment="Stretch" Command="{Binding AddRequestHeader}"
+                   Visibility="{Binding IsBrowser, Converter={StaticResource BooleanToNotVisibility}}"/>
+                                <Label Margin="0,12,0,8" Content="请求体"
+               Visibility="{Binding IsBrowser, Converter={StaticResource BooleanToNotVisibility}}"/>
+                                <ui:TextBox MaxLines="5" AcceptsReturn="True" VerticalContentAlignment="Top" Padding="5"
+                   Text="{Binding RequestBody}"
+                    Visibility="{Binding IsBrowser, Converter={StaticResource BooleanToNotVisibility}}"/>
+                                <Label Margin="0,12,0,8" Content="响应" />
+                                <Grid Margin="0 0 0 12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="50" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="取值：" VerticalAlignment="Center" HorizontalContentAlignment="Right"/>
+                                    <ui:TextBox Grid.Column="1" Height="30" Padding="5 0" Text="{Binding ResponseValue}"/>
+                                </Grid>
+                                <Grid Margin="0 0 0 12" Visibility="{Binding IsBrowser, Converter={StaticResource BooleanToNotVisibility}}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="50" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="过滤：" Margin="0 5 0 0" HorizontalContentAlignment="Right"/>
+                                    <StackPanel Grid.Column="1">
+                                        <ListBox ItemsSource="{Binding RequestFilters}"
+                        ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                        ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid Margin="0 0 0 6">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <ui:TextBox Height="30" Text="{Binding Key}" Padding="5 0"/>
+                                                        <ComboBox SelectedValue="{Binding Scripts}" Width="80" Height="30" Grid.Column="1" Margin="10 0 10 0">
+                                                            <ComboBoxItem Content="=" />
+                                                            <ComboBoxItem Content="!=" />
+                                                            <ComboBoxItem Content="&lt;" />
+                                                            <ComboBoxItem Content="&lt;" />
+                                                        </ComboBox>
+                                                        <ui:TextBox Grid.Column="2" Height="30" Text="{Binding Value}" Padding="5 0"/>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                        <ui:Button Content="添加" HorizontalAlignment="Stretch" Command="{Binding AddRequestFilter}"/>
+                                    </StackPanel>
+                                </Grid>
+                                <Grid Visibility="{Binding RequestMappingVisible, Converter={StaticResource BooleanToVisibility}}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="50" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="映射：" Margin="0 5 0 0" HorizontalContentAlignment="Right"/>
+                                    <StackPanel Grid.Column="1">
+                                        <ListBox ItemsSource="{Binding RequestMappings}"
+                        ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                        ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid Margin="0 0 0 6" HorizontalAlignment="Stretch">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="6" />
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="6" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <ui:TextBox Height="30" Text="{Binding Key}" Padding="5 0" IsReadOnly="{Binding IsReadOnly}"/>
+                                                        <ui:TextBox Grid.Column="2" Height="30" Text="{Binding Value}" Padding="5 0"/>
+                                                        <ui:TextBox HorizontalAlignment="Stretch" Grid.Column="4" Height="30" Text="{Binding Scripts}" Padding="5 0"/>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                        <ui:Button Content="添加" HorizontalAlignment="Stretch" Command="{Binding AddRequestMapping}"
+                          Visibility="{Binding CanAddMapping, Converter={StaticResource BooleanToVisibility}}"/>
+                                    </StackPanel>
+                                </Grid>
+                                <Grid Margin="0 12 0 0" Visibility="{Binding RequestMappingVisible, Converter={StaticResource BooleanToVisibility}}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="50" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <ui:Button Grid.Column="1" Content="测试" HorizontalAlignment="Stretch" Command="{Binding TestRequest}" />
+                                </Grid>
+                            </StackPanel>
+                        </ui:CardExpander>
+                        <Border Grid.Row="2" Opacity="0.5" CornerRadius="8" Margin="15 0"
+                            Background="{DynamicResource LoadingScreenBackground}"
+                            Visibility="{Binding Loading, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
+                            <ui:LoadingScreen HorizontalAlignment="Center" VerticalAlignment="Center"></ui:LoadingScreen>
+                        </Border>
+                    </Grid>
                 </StackPanel>
             </DataTemplate>
         </ListBox.ItemTemplate>

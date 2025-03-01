@@ -84,6 +84,18 @@
                     <TextBlock Text="{Binding HolidayAverageText}" Foreground="{DynamicResource WindowForeground}"/>
                     <TextBlock Text=" 小时/天" Foreground="{DynamicResource WindowForeground}"/>
                 </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0 5 0 0"
+                            Visibility="{Binding AdequateDaysVisible, Converter={StaticResource BooleanToVisibility}}">
+                    <TextBlock Text="当" Foreground="{DynamicResource WindowForeground}"/>
+                    <TextBlock Text="月" Foreground="{DynamicResource WindowForeground}"
+                               Visibility="{Binding IsMonthSelected, Converter={StaticResource BooleanToVisibility}}"/>
+                    <TextBlock Text="周" Foreground="{DynamicResource WindowForeground}"
+                               Visibility="{Binding IsWeeklySelected, Converter={StaticResource BooleanToVisibility}}"/>
+                    <TextBlock Text="工时不满" Foreground="{DynamicResource WindowForeground}"/>
+                    <TextBlock Text="{Binding StandardHours}" Foreground="Green"/>
+                    <TextBlock Text="小时天数：" Foreground="{DynamicResource WindowForeground}"/>
+                    <TextBlock Text="{Binding AdequateDays}" Foreground="{DynamicResource WindowForeground}"/>
+                </StackPanel>
             </StackPanel>
             <Border Grid.Row="1" Background="{DynamicResource ToggleButtonBackground}"
                     CornerRadius="4" VerticalAlignment="Top" Margin="0 20 0 0" Padding="10 7 10 7">

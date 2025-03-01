@@ -23,7 +23,7 @@ namespace PunchPal.Core.ViewModels
                 _isWeeklySelected = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(IsMonthSelected));
-                InitData();
+                _ = InitData();
             }
         }
         public bool IsMonthSelected
@@ -38,7 +38,22 @@ namespace PunchPal.Core.ViewModels
                 _isWeeklySelected = !value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(IsWeeklySelected));
-                InitData();
+                _ = InitData();
+            }
+        }
+        public int StandardHours => SettingsModel.Load().Data.EveryDayWorkHour;
+
+        public bool AdequateDaysVisible => _adequateDays > 0;
+        public int _adequateDays = 0;
+        public int AdequateDays
+        {
+            get => _adequateDays;
+            set
+            {
+                _adequateDays = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(StandardHours));
+                OnPropertyChanged(nameof(AdequateDaysVisible));
             }
         }
 
@@ -89,6 +104,7 @@ namespace PunchPal.Core.ViewModels
             _monthMinute = workingHours.Where(m => !m.IsToday && !m.IsHoliday).Select(m => m.TotalMinutes - dayHours * 60).Sum();
             var currentWorkHours = workingHours.Where(m => !m.IsToday && m.WorkingDate >= startUnix && m.WorkingDate <= endUnix).ToList();
             var workDayHours = currentWorkHours.Where(m => !m.IsHoliday).ToList();
+            AdequateDays = workDayHours.Count(m => m.TotalMinutes < dayHours * 60);
             var standardMinute = workDayHours.Sum(m => m.StandardMinutes);
             var overtimeMinute = workDayHours.Sum(m => m.WorkOvertimeMinutes);
             _standardAverage = workDayHours.Count == 0 ? 0 : standardMinute / workDayHours.Count;
@@ -158,6 +174,7 @@ namespace PunchPal.Core.ViewModels
             OnPropertyChanged(nameof(MonthMinuteColor));
             OnPropertyChanged(nameof(MonthHourUnit));
             OnPropertyChanged(nameof(MonthHourText));
+            await Task.CompletedTask;
         }
 
         private static (DateTime start, DateTime end) GetTimeRange(DateTime dateTime, bool isMonth)

@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.Scripting;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using PunchPal.Core.Apis;
 using PunchPal.Core.Events;
 using PunchPal.Core.Models;
@@ -7,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -71,6 +75,7 @@ namespace PunchPal.Core.ViewModels
                     OnAddRequestMapping(nameof(CalendarRecord.SolarTerm));
                     OnAddRequestMapping(nameof(CalendarRecord.IsHoliday));
                     OnAddRequestMapping(nameof(CalendarRecord.IsWorkday));
+                    OnAddRequestMapping(nameof(CalendarRecord.IsCustomWeekend));
                     OnAddRequestMapping(nameof(CalendarRecord.Remark));
                     break;
                 case DataSourceType.WorkTime:
@@ -118,6 +123,17 @@ namespace PunchPal.Core.ViewModels
                 }
             }
             public bool IsReadOnly { get; set; } = true;
+        }
+        private bool _loading = false;
+        [JsonIgnore]
+        public bool Loading
+        {
+            get => _loading;
+            set
+            {
+                _loading = value;
+                OnPropertyChanged();
+            }
         }
         [JsonIgnore]
         public string Name
@@ -214,7 +230,7 @@ namespace PunchPal.Core.ViewModels
         public ObservableCollection<RequestMapping> RequestHeaders { get; set; } = new ObservableCollection<RequestMapping>();
         public ObservableCollection<RequestMapping> RequestFilters { get; set; } = new ObservableCollection<RequestMapping>();
         public ObservableCollection<RequestMapping> RequestMappings { get; set; } = new ObservableCollection<RequestMapping>();
-        public ObservableCollection<RequestMapping> BrowserMappings { get; set; } = new ObservableCollection<RequestMapping>() { new RequestMapping { Scripts="关闭"  } };
+        public ObservableCollection<RequestMapping> BrowserMappings { get; set; } = new ObservableCollection<RequestMapping>() { new RequestMapping { Scripts = "关闭" } };
 
         [JsonIgnore]
         public ICommand AddRequestHeader => new ActionCommand(OnAddRequestHeader);
@@ -265,23 +281,42 @@ namespace PunchPal.Core.ViewModels
             {
                 return;
             }
-            BrowserMappings.Add(new RequestMapping { Scripts="跳转"  });
+            BrowserMappings.Add(new RequestMapping { Scripts = "跳转" });
         }
 
         public void OnTestRequest()
         {
+            OnTestRequestA();
+        }
+        public async void OnTestRequestA()
+        {
             var now = DateTime.Now;
-            var preData = new Dictionary<string, string>();
-            preData["YEAR"] = now.Year.ToString();
-            preData["MONTH"] = now.Month.ToString();
+            var preData = new Dictionary<string, string>
+            {
+                ["YEAR"] = now.Year.ToString(),
+                ["MONTH"] = now.Month.ToString()
+            };
             var start = new DateTime(now.Year, now.Month, 1);
             var end = start.AddMonths(1).AddDays(-1);
             preData["DAYSTART"] = start.ToDateString();
             preData["DAYEND"] = end.ToDateString();
-            _ = RunRequest(preData);
+            var result = await RunRequest(preData);
+            EventManager.ShowTips(new TipsOption("提示", $"{JsonConvert.SerializeObject(result)}"));
         }
 
-        public async Task RunRequest(Dictionary<string, string> preData = null, Dictionary<string, string> headers = null)
+        public async Task<object> RunRequest(Dictionary<string, string> preData = null, Dictionary<string, string> headers = null)
+        {
+            object result = null;
+            Loading = true;
+            await Task.Run(async () =>
+            {
+                result = await RunRequestAsync(preData, headers);
+            });
+            Loading = false;
+            return result;
+        }
+
+        public async Task<object> RunRequestAsync(Dictionary<string, string> preData = null, Dictionary<string, string> headers = null)
         {
             var url = ReplaceValue(RequestUrl, preData);
             if (RequestMethod == RequestType.Browser)
@@ -297,11 +332,10 @@ namespace PunchPal.Core.ViewModels
                     }
                 }
                 var result = await new PuppeteerBrowser().Run(url, closeUrl, navigations, false);
-                EventManager.ShowTips(new TipsOption("提示", $"{JsonConvert.SerializeObject(result)}"));
-                return;
+                return result;
             }
             var body = ReplaceValue(RequestBody, preData);
-            if(headers == null)
+            if (headers == null)
             {
                 headers = new Dictionary<string, string>();
             }
@@ -309,7 +343,210 @@ namespace PunchPal.Core.ViewModels
             {
                 headers[item.Key] = ReplaceValue(item.Value, preData);
             }
-            EventManager.ShowTips(new TipsOption("提示", $"{url}\n{body}\n{JsonConvert.SerializeObject(headers)}"));
+            var text = await NetworkUtils.Request(url, body, RequestMethod.ToString(), headers);
+            try
+            {
+                return await ParseJsonData(JsonTools.ParsePath(ResponseValue), RequestFilters, text);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private async Task<object> ParseJsonData(List<object> list, IList<RequestMapping> requestFilters, string text)
+        {
+            var data = JObject.Parse(text);
+            JToken jToken = null;
+            JObject jo = null;
+            JArray ja = null;
+            foreach (var item in list)
+            {
+                if (item?.GetType() == typeof(string))
+                {
+                    jToken = data[item.ToString()];
+                }
+                else if (item?.GetType() == typeof(int))
+                {
+                    jToken = data[(int)item];
+                }
+            }
+            if (jToken is JObject)
+            {
+                jo = (JObject)jToken;
+            }
+            else if (jToken is JArray)
+            {
+                ja = (JArray)jToken;
+            }
+            switch (Type)
+            {
+                case DataSourceType.UserInfo:
+                    var user = new User();
+                    user.Name = await ParseJsonItem(jo, RequestMappings.FirstOrDefault(m => m.Key == nameof(User.Name)), user.Name);
+                    user.Avator = await ParseJsonItem(jo, RequestMappings.FirstOrDefault(m => m.Key == nameof(User.Avator)), user.Avator);
+                    user.UserId = await ParseJsonItem(jo, RequestMappings.FirstOrDefault(m => m.Key == nameof(User.UserId)), user.UserId);
+                    user.Remark = await ParseJsonItem(jo, RequestMappings.FirstOrDefault(m => m.Key == nameof(User.Remark)), user.Remark);
+                    return user;
+                case DataSourceType.PunchTime:
+                    var punchList = new List<PunchRecord>();
+                    for (var i = 0; i < ja.Count; i++)
+                    {
+                        var punch = new PunchRecord();
+                        punch.PunchTime = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(PunchRecord.PunchTime)), punch.PunchTime);
+                        punch.PunchType = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(PunchRecord.PunchType)), punch.PunchType);
+                        punch.Remark = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(PunchRecord.Remark)), punch.Remark);
+                        punchList.Add(punch);
+                    }
+                    return punchList;
+                case DataSourceType.Attendance:
+                    var attendanceList = new List<AttendanceRecord>();
+                    for (var i = 0; i < ja.Count; i++)
+                    {
+                        var attendance = new AttendanceRecord();
+                        attendance.AttendanceId = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(AttendanceRecord.AttendanceId)), attendance.AttendanceId);
+                        attendance.AttendanceTypeId = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(AttendanceRecord.AttendanceTypeId)), attendance.AttendanceTypeId);
+                        attendance.StartTime = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(AttendanceRecord.StartTime)), attendance.StartTime);
+                        attendance.EndTime = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(AttendanceRecord.EndTime)), attendance.EndTime);
+                        attendance.AttendanceTime = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(AttendanceRecord.AttendanceTime)), attendance.AttendanceTime);
+                        attendance.Remark = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(AttendanceRecord.Remark)), attendance.Remark);
+                        attendanceList.Add(attendance);
+                    }
+                    return attendanceList;
+                case DataSourceType.Calendar:
+                    var calendarList = new List<CalendarRecord>();
+                    for (var i = 0; i < ja.Count; i++)
+                    {
+                        var calendar = new CalendarRecord();
+                        calendar.Date = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(CalendarRecord.Date)), calendar.Date);
+                        calendar.Festival = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(CalendarRecord.Festival)), calendar.Festival);
+                        calendar.LunarMonth = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(CalendarRecord.LunarMonth)), calendar.LunarMonth);
+                        calendar.LunarDate = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(CalendarRecord.LunarDate)), calendar.LunarDate);
+                        calendar.LunarYear = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(CalendarRecord.LunarYear)), calendar.LunarYear);
+                        calendar.SolarTerm = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(CalendarRecord.SolarTerm)), calendar.SolarTerm);
+                        calendar.IsHoliday = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(CalendarRecord.IsHoliday)), calendar.IsHoliday);
+                        calendar.IsWorkday = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(CalendarRecord.IsWorkday)), calendar.IsWorkday);
+                        calendar.IsCustomWeekend = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(CalendarRecord.IsCustomWeekend)), calendar.IsCustomWeekend);
+                        calendar.Remark = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(CalendarRecord.Remark)), calendar.Remark);
+                        calendar.Type = CalendarType.DataSource;
+                        calendarList.Add(calendar);
+                    }
+                    ResetWeekendCalendar(calendarList);
+                    return calendarList;
+                case DataSourceType.WorkTime:
+                    var workTimeList = new List<WorkingTimeRange>();
+                    for (int i = 0; i < ja.Count; i++)
+                    {
+                        var workTime = new WorkingTimeRange();
+                        workTime.Date = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(WorkingTimeRange.Date)), workTime.Date);
+                        workTime.Type = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(WorkingTimeRange.Type)), workTime.Type);
+                        workTime.StartHour = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(WorkingTimeRange.StartHour)), workTime.StartHour);
+                        workTime.StartMinute = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(WorkingTimeRange.StartMinute)), workTime.StartMinute);
+                        workTime.EndHour = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(WorkingTimeRange.EndHour)), workTime.EndHour);
+                        workTime.EndMinute = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(WorkingTimeRange.EndMinute)), workTime.EndMinute);
+                        workTime.UserId = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(WorkingTimeRange.UserId)), workTime.UserId);
+                        workTimeList.Add(workTime);
+                    }
+                    return workTimeList;
+            }
+            return null;
+        }
+
+        private void ResetWeekendCalendar(List<CalendarRecord> calendarList)
+        {
+            var weekends = calendarList.Where(m => m.IsCustomWeekend).ToList();
+            if (weekends.Count <= 0)
+            {
+                return;
+            }
+            var weekendSet = new HashSet<long>(weekends.Select(m => m.Date));
+            var dateSet = new HashSet<long>(calendarList.Select(m => m.Date));
+            var minDate = weekends.Min(m => m.Date).Unix2DateTime();
+            var maxDate = weekends.Max(m => m.Date).Unix2DateTime();
+            for (; minDate <= maxDate; minDate = minDate.AddDays(1))
+            {
+                var day = minDate.DayOfWeek;
+                if (day != DayOfWeek.Saturday && day != DayOfWeek.Sunday)
+                {
+                    continue;
+                }
+                var timestamp = minDate.TimestampUnix();
+                if (dateSet.Contains(timestamp) || weekendSet.Contains(timestamp))
+                {
+                    continue;
+                }
+                calendarList.Add(new CalendarRecord
+                {
+                    Date = minDate.TimestampUnix(),
+                    IsWorkday = true,
+                    Type = CalendarType.DataSource
+                });
+            }
+            for (var i = 0; i < calendarList.Count; i++)
+            {
+                if (calendarList[i].IsCustomWeekend)
+                {
+                    calendarList.RemoveAt(i);
+                    i--;
+                }
+            }
+            calendarList.Sort((x, y) => x.Date.CompareTo(y.Date));
+        }
+
+        private static readonly Assembly DateTimeToolsAssembly = typeof(DateTimeTools).Assembly;
+        private static readonly Assembly DateTimeAssembly = typeof(DateTime).Assembly;
+        private static readonly ScriptOptions RoyalScriptOptions = ScriptOptions.Default
+                        .AddReferences(DateTimeToolsAssembly, DateTimeAssembly)
+                        .WithImports("System", "PunchPal.Tools");
+
+        private async Task<T> ParseJsonItem<T>(JObject data, RequestMapping mapping, T defaultValue)
+        {
+            try
+            {
+                if (mapping == null)
+                {
+                    return defaultValue;
+                }
+                var value = string.IsNullOrWhiteSpace(mapping.Value) ? string.Empty : data[mapping.Value]?.ToString() ?? string.Empty;
+                if (!string.IsNullOrWhiteSpace(mapping.Scripts))
+                {
+                    Assembly currentAssembly = Assembly.GetAssembly(typeof(DateTimeTools));
+
+                    value = (await CSharpScript.EvaluateAsync<object>(
+                        mapping.Scripts.Replace("{VALUE}", value),
+                        RoyalScriptOptions)).ToString();
+                }
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    return defaultValue;
+                }
+                var text = value;
+                if (typeof(T) == typeof(string))
+                {
+                    return (T)(object)text;
+                }
+                else if (typeof(T) == typeof(bool))
+                {
+                    return (T)(object)(text.ToLower() == "true");
+                }
+                else if (typeof(T) == typeof(long))
+                {
+                    return (T)(object)long.Parse(text);
+                }
+                else if (typeof(T) == typeof(int))
+                {
+                    return (T)(object)int.Parse(text);
+                }
+                else if (typeof(T) == typeof(WorkingTimeRangeType))
+                {
+                    return (T)(object)int.Parse(text);
+                }
+            }
+            catch (Exception)
+            {
+                // ignore
+            }
+            return defaultValue;
         }
 
         private string ReplaceValue(string text, Dictionary<string, string> preData)

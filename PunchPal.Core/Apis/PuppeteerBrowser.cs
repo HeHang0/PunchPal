@@ -82,7 +82,7 @@ namespace PunchPal.Core.Apis
             await newPage.CloseAsync();
             await newPage.DisposeAsync();
             var pages = (await browser.PagesAsync()).ToList();
-            if(pages.Count > 0)
+            if (pages.Count > 0)
             {
                 _ = pages[0].GoToAsync(newUrl);
             }

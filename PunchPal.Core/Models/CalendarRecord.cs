@@ -16,6 +16,8 @@ namespace PunchPal.Core.Models
         public string SolarTerm { get; set; }
         public bool IsHoliday { get; set; }
         public bool IsWorkday { get; set; }
+        [NotMapped]
+        public bool IsCustomWeekend { get; set; }
         public string Remark { get; set; }
         public CalendarType Type { get; set; } = CalendarType.Baidu;
         [NotMapped]
