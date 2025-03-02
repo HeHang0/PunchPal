@@ -51,6 +51,20 @@ namespace PunchPal.Tools
             }
         }
 
+        public static string CalculateTextMD5(string text)
+        {
+            using (MD5 md5 = MD5.Create())
+            {
+                byte[] hash = md5.ComputeHash(Encoding.UTF8.GetBytes(text));
+                StringBuilder result = new StringBuilder(hash.Length * 2);
+                for (int i = 0; i < hash.Length; i++)
+                {
+                    result.Append(hash[i].ToString("X2"));
+                }
+                return result.ToString();
+            }
+        }
+
         public static double FileSize(string filePath)
         {
             var f = new FileInfo(filePath);

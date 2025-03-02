@@ -39,7 +39,7 @@ namespace PunchPal.Core.ViewModels
 
         private void OnCheckUpdate()
         {
-            if(IsUpdateChecking)
+            if (IsUpdateChecking)
             {
                 return;
             }

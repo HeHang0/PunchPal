@@ -129,6 +129,8 @@ namespace PunchPal.Core.ViewModels
             };
             public string[] CompareItems => CompareItemsOrigin;
         }
+        [JsonIgnore]
+        private readonly HashSet<string> requestCacheSet = new HashSet<string>();
         private bool _loading = false;
         [JsonIgnore]
         public bool Loading
@@ -371,10 +373,20 @@ namespace PunchPal.Core.ViewModels
             {
                 headers[item.Key] = ReplaceValue(item.Value, preData);
             }
+            var indexText = url + body + RequestMethod.ToString() + JsonConvert.SerializeObject(headers);
+            if (Type == DataSourceType.Calendar && requestCacheSet.Contains(FileTools.CalculateTextMD5(indexText)))
+            {
+                return (null, string.Empty);
+            }
             var (text, cookie) = await NetworkUtils.Request(url, body, RequestMethod.ToString(), headers);
             try
             {
-                return (await ParseJsonData(JsonTools.ParsePath(ResponseValue), text), cookie);
+                var result = (await ParseJsonData(JsonTools.ParsePath(ResponseValue), text), cookie);
+                if (Type == DataSourceType.Calendar)
+                {
+                    requestCacheSet.Add(FileTools.CalculateTextMD5(indexText));
+                }
+                return result;
             }
             catch (Exception)
             {
