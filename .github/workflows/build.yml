@@ -1,0 +1,39 @@
+name: Deploy binary to Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: false
+
+jobs:
+  build-on-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build
+        run: |
+          powershell
+          echo "<Weavers><Costura/></Weavers>" > FodyWeavers.xml
+          msbuild PunchPal.sln -t:"Restore;Build" /p:Configuration=Release /p:Platform="Any CPU"
+          copy PunchPal.WPF\bin\Release\net462\PunchPal.WPF.exe PunchPal.exe
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            PunchPal.exe

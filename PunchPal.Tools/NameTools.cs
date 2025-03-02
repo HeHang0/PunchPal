@@ -24,8 +24,7 @@ namespace PunchPal.Tools
                 }
                 try
                 {
-                    var assembly = Assembly.GetExecutingAssembly();
-                    var fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+                    var fileVersionInfo = FileVersionInfo.GetVersionInfo(Process.GetCurrentProcess().MainModule.FileName);
                     var versionArray = fileVersionInfo.FileVersion.Split('.');
                     _appVersion = "v" + string.Join(".", versionArray.Take(versionArray.Length >= 4 && !string.IsNullOrWhiteSpace(versionArray[3]) && versionArray[3] != "0" ? 4 : 3));
                 }
