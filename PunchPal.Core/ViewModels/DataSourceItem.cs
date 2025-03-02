@@ -326,7 +326,7 @@ namespace PunchPal.Core.ViewModels
             preData["DAYSTART"] = start.ToDateString();
             preData["DAYEND"] = end.ToDateString();
             var result = await RunRequest(preData);
-            EventManager.ShowTips(new TipsOption("提示", $"{JsonConvert.SerializeObject(result.Item2)}"));
+            EventManager.ShowTips(new TipsOption("提示", $"{JsonConvert.SerializeObject(result.Item1)}"));
         }
 
         public async Task<(object, string)> RunRequest(Dictionary<string, string> preData = null, Dictionary<string, string> headers = null)
@@ -594,11 +594,11 @@ namespace PunchPal.Core.ViewModels
             calendarList.Sort((x, y) => x.Date.CompareTo(y.Date));
         }
 
-        private static readonly Assembly DateTimeToolsAssembly = typeof(DateTimeTools).Assembly;
         private static readonly Assembly DateTimeAssembly = typeof(DateTime).Assembly;
         private static readonly ScriptOptions RoyalScriptOptions = ScriptOptions.Default
-                        .AddReferences(DateTimeToolsAssembly, DateTimeAssembly)
-                        .WithImports("System", "PunchPal.Tools");
+                        .AddReferences(DateTimeAssembly)
+                        .WithImports("System");
+        private static readonly string RoyalScript = "public static int TimestampUnix(this DateTime dateTime)\r\n        {\r\n            return (int)dateTime.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;\r\n        }\n";
 
         private async Task<T> ParseJsonItem<T>(JObject data, RequestMapping mapping, T defaultValue)
         {
@@ -611,10 +611,8 @@ namespace PunchPal.Core.ViewModels
                 var value = string.IsNullOrWhiteSpace(mapping.Value) ? string.Empty : data[mapping.Value]?.ToString() ?? string.Empty;
                 if (!string.IsNullOrWhiteSpace(mapping.Scripts))
                 {
-                    Assembly currentAssembly = Assembly.GetAssembly(typeof(DateTimeTools));
-
                     value = (await CSharpScript.EvaluateAsync<object>(
-                        mapping.Scripts.Replace("{VALUE}", value),
+                        RoyalScript + mapping.Scripts.Replace("{VALUE}", value),
                         RoyalScriptOptions)).ToString();
                 }
                 if (string.IsNullOrWhiteSpace(value))

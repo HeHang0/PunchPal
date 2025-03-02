@@ -1,4 +1,5 @@
 ﻿using PunchPal.Tools;
+using PunchPal.WPF.Tools;
 using System;
 using System.Diagnostics;
 using System.IO.Pipes;
@@ -18,6 +19,7 @@ namespace PunchPal.WPF
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+            LibraryLoader.Inject();
             if (e.Args.Length > 0 && e.Args[0] == "--restarted")
             {
                 Task.Delay(TimeSpan.FromSeconds(1)).Wait();

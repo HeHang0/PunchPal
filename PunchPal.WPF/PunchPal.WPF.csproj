@@ -20,6 +20,8 @@
     <LangVersion>7.3</LangVersion>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <ApplicationIcon>logo.ico</ApplicationIcon>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -59,5 +61,9 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
+    <Exec Command="rd /s /q Resources\skia&#xD;&#xA;mkdir Resources\skia&#xD;&#xA;copy %25USERPROFILE%25\.nuget\packages\skiasharp.nativeassets.win32\2.88.9\runtimes\win-x64\native\libSkiaSharp.dll Resources\skia\libSkiaSharp.dll;&#xD;&#xA;copy %25USERPROFILE%25\.nuget\packages\harfbuzzsharp.nativeassets.win32\7.3.0.3\runtimes\win-x64\native\libHarfBuzzSharp.dll Resources\skia\libHarfBuzzSharp.dll;&#xD;&#xA;" />
+  </Target>
 
 </Project>

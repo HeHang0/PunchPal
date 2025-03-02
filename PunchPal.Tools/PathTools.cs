@@ -40,5 +40,41 @@ namespace PunchPal.Tools
                 return sqlitePath;
             }
         }
+
+        private static string _skiaSharpPath = null;
+        public static string SkiaSharpPath
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(_skiaSharpPath))
+                {
+                    return _skiaSharpPath;
+                }
+                var skiaPath = Path.Combine(AppDataPath, "skia");
+                if (!Directory.Exists(skiaPath)) Directory.CreateDirectory(skiaPath);
+                skiaPath = Path.Combine(skiaPath, "x64");
+                if (!Directory.Exists(skiaPath)) Directory.CreateDirectory(skiaPath);
+                _skiaSharpPath = Path.Combine(skiaPath, "libSkiaSharp.dll");
+                return _skiaSharpPath;
+            }
+        }
+
+        private static string _harfBuzzSharpPath = null;
+        public static string HarfBuzzSharpPath
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(_harfBuzzSharpPath))
+                {
+                    return _harfBuzzSharpPath;
+                }
+                var skiaPath = Path.Combine(AppDataPath, "skia");
+                if (!Directory.Exists(skiaPath)) Directory.CreateDirectory(skiaPath);
+                skiaPath = Path.Combine(skiaPath, "x64");
+                if (!Directory.Exists(skiaPath)) Directory.CreateDirectory(skiaPath);
+                _harfBuzzSharpPath = Path.Combine(skiaPath, "libHarfBuzzSharp.dll");
+                return _harfBuzzSharpPath;
+            }
+        }
     }
 }

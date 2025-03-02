@@ -18,6 +18,10 @@ namespace PunchPal.Core.Apis
 
         public static async Task<(string, string)> Request(string url, string data = "", string method = "POST", Dictionary<string, string> headers = null)
         {
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                return (string.Empty, string.Empty);
+            }
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = method;
             data = data?.Trim() ?? string.Empty;

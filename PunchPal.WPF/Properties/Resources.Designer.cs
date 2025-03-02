@@ -86,5 +86,19 @@ namespace PunchPal.WPF.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+
+        internal static byte[] HarfBuzzSharp {
+            get {
+                object obj = ResourceManager.GetObject("HarfBuzzSharp", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+
+        internal static byte[] SkiaSharp {
+            get {
+                object obj = ResourceManager.GetObject("SkiaSharp", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }
