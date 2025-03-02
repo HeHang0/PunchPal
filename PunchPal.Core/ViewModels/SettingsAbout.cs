@@ -1,16 +1,19 @@
-﻿using PunchPal.Tools;
+﻿using AutoUpdate.Core;
+using PunchPal.Core.Apis;
+using PunchPal.Tools;
 using System;
 using System.Diagnostics;
 using System.Net;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Input;
 
 namespace PunchPal.Core.ViewModels
 {
     public class SettingsAbout : NotifyPropertyBase
     {
+        private readonly SynchronizationContext uiContext = SynchronizationContext.Current;
         private readonly bool _canUpdate = false;
-        private readonly string _newVersion = string.Empty;
+        private string _newVersion = string.Empty;
         private bool _isUpdateChecking = false;
         public bool CanUpdate => _canUpdate;
         public string CheckUpdateText => _isUpdateChecking ? "" : (_canUpdate ? $"更新({_newVersion})" : "检查更新");
@@ -34,11 +37,48 @@ namespace PunchPal.Core.ViewModels
 
         public ICommand EmailWithMe => new ActionCommand(OnEmailWithMe);
 
-        private async void OnCheckUpdate()
+        private void OnCheckUpdate()
+        {
+            if(IsUpdateChecking)
+            {
+                return;
+            }
+            if (CanUpdate)
+            {
+                UpdateNewVersion();
+                return;
+            }
+            RunCheckUpdate();
+        }
+
+        private async void RunCheckUpdate()
         {
             IsUpdateChecking = true;
-            await Task.Delay(TimeSpan.FromSeconds(1));
-            IsUpdateChecking = false;
+            var (ok, version) = await Update.GithubChecker.CheckUpdate();
+            if (ok)
+            {
+                _newVersion = version;
+            }
+            uiContext.Post(_ =>
+            {
+                IsUpdateChecking = false;
+            }, null);
+        }
+
+        private void UpdateNewVersion()
+        {
+            CancellationTokenSource cts = new CancellationTokenSource();
+            IsUpdateChecking = true;
+            Update.AutoUpdate?.Update(new SingleInstaller(), cts.Token, new Progress<int>(p =>
+            {
+                if (p == 100)
+                {
+                    uiContext.Post(_ =>
+                    {
+                        IsUpdateChecking = false;
+                    }, null);
+                }
+            }));
         }
 
         private void OnEmailWithMe()
