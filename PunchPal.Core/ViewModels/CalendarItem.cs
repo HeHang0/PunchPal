@@ -140,11 +140,11 @@ namespace PunchPal.Core.ViewModels
                 var solarTermEmpty = string.IsNullOrWhiteSpace(record.SolarTerm);
                 if (!solarTermEmpty && record.SolarTerm != record.Festival && !_textList.Contains(record.SolarTerm))
                 {
-                    _textList.Add(record.SolarTerm);
+                    _textList.Add(record.SolarTerm.Trim());
                 }
                 if (lunarSolarTermVisible && !festivalEmpty && !_textList.Contains(record.Festival))
                 {
-                    _textList.Add(record.Festival);
+                    _textList.Add(record.Festival.Trim());
                 }
                 if (_textList.Count == 0 && record.LunarDate.Length > 0 && record.LunarMonth.Length > 0)
                 {

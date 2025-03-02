@@ -79,23 +79,44 @@ namespace PunchPal.Core.Services
             }
         }
 
-        public async Task<int> Add(IList<User> entities)
+        public async Task<int> Add(IEnumerable<User> entities)
         {
             try
             {
                 using (var context = new PunchDbContext())
                 {
+                    var count = 0;
                     foreach (var entity in entities)
                     {
                         context.Users.AddOrUpdate(entity);
+                        count++;
                     }
                     await context.SaveChangesAsync();
+                    return count;
                 }
-                return entities.Count;
             }
             catch (Exception)
             {
                 return 0;
+            }
+        }
+
+        public async Task<List<User>> List(Expression<Func<User, bool>> predicate = null)
+        {
+            try
+            {
+                using (var context = new PunchDbContext())
+                {
+                    if (predicate == null)
+                    {
+                        return await context.Users.ToListAsync();
+                    }
+                    return await context.Users.Where(predicate).ToListAsync();
+                }
+            }
+            catch (Exception)
+            {
+                return new List<User>();
             }
         }
 

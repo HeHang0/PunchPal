@@ -10,12 +10,13 @@ namespace PunchPal.Core.Apis
 {
     public class NetworkUtils
     {
-        public static Task<string> Get(string url)
+        public static async Task<string> Get(string url)
         {
-            return Request(url, method: "GET");
+            var (text, _) = await Request(url, method: "GET");
+            return text;
         }
 
-        public static async Task<string> Request(string url, string data = "", string method = "POST", Dictionary<string, string> headers = null)
+        public static async Task<(string, string)> Request(string url, string data = "", string method = "POST", Dictionary<string, string> headers = null)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = method;
@@ -76,18 +77,23 @@ namespace PunchPal.Core.Apis
                 }
                 using (var response = (HttpWebResponse)(await request.GetResponseAsync()))
                 {
+                    var cookies = new List<string>();
+                    foreach (Cookie item in response.Cookies)
+                    {
+                        cookies.Add($"{item.Name}={item.Value}");
+                    }
                     using (var stream = response.GetResponseStream())
                     {
                         using (var reader = new StreamReader(stream))
                         {
-                            return await reader.ReadToEndAsync();
+                            return (await reader.ReadToEndAsync(), string.Join("; ", cookies));
                         }
                     }
                 }
             }
             catch (System.Exception)
             {
-                return string.Empty;
+                return (string.Empty, string.Empty);
             }
 
         }

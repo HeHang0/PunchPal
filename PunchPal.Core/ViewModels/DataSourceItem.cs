@@ -123,6 +123,11 @@ namespace PunchPal.Core.ViewModels
                 }
             }
             public bool IsReadOnly { get; set; } = true;
+            private static readonly string[] CompareItemsOrigin = new string[]
+            {
+                "==", "!=", ">", "<", ">=", "<="
+            };
+            public string[] CompareItems => CompareItemsOrigin;
         }
         private bool _loading = false;
         [JsonIgnore]
@@ -241,6 +246,13 @@ namespace PunchPal.Core.ViewModels
         [JsonIgnore]
         public ICommand AddBrowserMappings => new ActionCommand(OnAddBrowserMappings);
         [JsonIgnore]
+        public ICommand RemoveFilter => new RelayCommand<RequestMapping>(OnRemoveFilter);
+        [JsonIgnore]
+        public ICommand RemoveHeader => new RelayCommand<RequestMapping>(OnRemoveHeader);
+        [JsonIgnore]
+        public ICommand RemoveMapping => new RelayCommand<RequestMapping>(OnRemoveMapping);
+
+        [JsonIgnore]
         public ICommand TestRequest => new ActionCommand(OnTestRequest);
 
         private void OnAddRequestHeader()
@@ -258,7 +270,7 @@ namespace PunchPal.Core.ViewModels
             {
                 return;
             }
-            RequestFilters.Add(new RequestMapping());
+            RequestFilters.Add(new RequestMapping() { Scripts = "==" });
         }
 
         public void OnAddRequestMapping()
@@ -284,11 +296,22 @@ namespace PunchPal.Core.ViewModels
             BrowserMappings.Add(new RequestMapping { Scripts = "跳转" });
         }
 
-        public void OnTestRequest()
+        private void OnRemoveFilter(RequestMapping mapping)
         {
-            OnTestRequestA();
+            RequestFilters.Remove(mapping);
         }
-        public async void OnTestRequestA()
+
+        private void OnRemoveHeader(RequestMapping mapping)
+        {
+            RequestHeaders.Remove(mapping);
+        }
+
+        private void OnRemoveMapping(RequestMapping mapping)
+        {
+            RequestMappings.Remove(mapping);
+        }
+
+        public async void OnTestRequest()
         {
             var now = DateTime.Now;
             var preData = new Dictionary<string, string>
@@ -301,12 +324,12 @@ namespace PunchPal.Core.ViewModels
             preData["DAYSTART"] = start.ToDateString();
             preData["DAYEND"] = end.ToDateString();
             var result = await RunRequest(preData);
-            EventManager.ShowTips(new TipsOption("提示", $"{JsonConvert.SerializeObject(result)}"));
+            EventManager.ShowTips(new TipsOption("提示", $"{JsonConvert.SerializeObject(result.Item2)}"));
         }
 
-        public async Task<object> RunRequest(Dictionary<string, string> preData = null, Dictionary<string, string> headers = null)
+        public async Task<(object, string)> RunRequest(Dictionary<string, string> preData = null, Dictionary<string, string> headers = null)
         {
-            object result = null;
+            (object, string) result = (null, string.Empty);
             Loading = true;
             await Task.Run(async () =>
             {
@@ -316,7 +339,7 @@ namespace PunchPal.Core.ViewModels
             return result;
         }
 
-        public async Task<object> RunRequestAsync(Dictionary<string, string> preData = null, Dictionary<string, string> headers = null)
+        public async Task<(object, string)> RunRequestAsync(Dictionary<string, string> preData = null, Dictionary<string, string> headers = null)
         {
             var url = ReplaceValue(RequestUrl, preData);
             if (RequestMethod == RequestType.Browser)
@@ -332,7 +355,12 @@ namespace PunchPal.Core.ViewModels
                     }
                 }
                 var result = await new PuppeteerBrowser().Run(url, closeUrl, navigations, false);
-                return result;
+                var cookies = new List<string>();
+                foreach (var item in result)
+                {
+                    cookies.Add($"{item.Key}={item.Value}");
+                }
+                return (null, string.Join("; ", cookies));
             }
             var body = ReplaceValue(RequestBody, preData);
             if (headers == null)
@@ -343,32 +371,31 @@ namespace PunchPal.Core.ViewModels
             {
                 headers[item.Key] = ReplaceValue(item.Value, preData);
             }
-            var text = await NetworkUtils.Request(url, body, RequestMethod.ToString(), headers);
+            var (text, cookie) = await NetworkUtils.Request(url, body, RequestMethod.ToString(), headers);
             try
             {
-                return await ParseJsonData(JsonTools.ParsePath(ResponseValue), RequestFilters, text);
+                return (await ParseJsonData(JsonTools.ParsePath(ResponseValue), text), cookie);
             }
             catch (Exception)
             {
-                return null;
+                return (null, string.Empty);
             }
         }
 
-        private async Task<object> ParseJsonData(List<object> list, IList<RequestMapping> requestFilters, string text)
+        private async Task<object> ParseJsonData(List<object> list, string text)
         {
-            var data = JObject.Parse(text);
-            JToken jToken = null;
+            var jToken = JToken.Parse(text);
             JObject jo = null;
             JArray ja = null;
             foreach (var item in list)
             {
                 if (item?.GetType() == typeof(string))
                 {
-                    jToken = data[item.ToString()];
+                    jToken = jToken[item.ToString()];
                 }
                 else if (item?.GetType() == typeof(int))
                 {
-                    jToken = data[(int)item];
+                    jToken = jToken[(int)item];
                 }
             }
             if (jToken is JObject)
@@ -378,9 +405,24 @@ namespace PunchPal.Core.ViewModels
             else if (jToken is JArray)
             {
                 ja = (JArray)jToken;
+                for (var i = 0; i < ja.Count; i++)
+                {
+                    if (!CheckJTokenFilter(ja[i]))
+                    {
+                        ja.RemoveAt(i);
+                        i--;
+                    }
+                }
             }
             switch (Type)
             {
+                case DataSourceType.Authenticate:
+                    var auth = new Dictionary<string, string>();
+                    foreach (var item in RequestMappings)
+                    {
+                        auth[item.Key] = await ParseJsonItem(jo, item, string.Empty);
+                    }
+                    return auth;
                 case DataSourceType.UserInfo:
                     var user = new User();
                     user.Name = await ParseJsonItem(jo, RequestMappings.FirstOrDefault(m => m.Key == nameof(User.Name)), user.Name);
@@ -408,7 +450,8 @@ namespace PunchPal.Core.ViewModels
                         attendance.AttendanceTypeId = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(AttendanceRecord.AttendanceTypeId)), attendance.AttendanceTypeId);
                         attendance.StartTime = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(AttendanceRecord.StartTime)), attendance.StartTime);
                         attendance.EndTime = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(AttendanceRecord.EndTime)), attendance.EndTime);
-                        attendance.AttendanceTime = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(AttendanceRecord.AttendanceTime)), attendance.AttendanceTime);
+                        attendance.AttendanceTime = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(AttendanceRecord.AttendanceTime)),
+                            attendance.StartTime > 0 ? attendance.StartTime.Unix2DateTime().Date.TimestampUnix() : attendance.EndTime.Unix2DateTime().Date.TimestampUnix());
                         attendance.Remark = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(AttendanceRecord.Remark)), attendance.Remark);
                         attendanceList.Add(attendance);
                     }
@@ -450,6 +493,52 @@ namespace PunchPal.Core.ViewModels
                     return workTimeList;
             }
             return null;
+        }
+
+        private bool CheckJTokenFilter(JToken jToken)
+        {
+            foreach (var item in RequestFilters)
+            {
+                if (!(jToken is JObject jObject))
+                {
+                    continue;
+                }
+                if (string.IsNullOrWhiteSpace(item.Key))
+                {
+                    continue;
+                }
+                var value = jObject.GetValue(item.Key)?.ToString();
+                if (item.Scripts == "==")
+                {
+                    if (item.Value != value) return false;
+                    continue;
+                }
+                else if (item.Scripts == "!=")
+                {
+                    if (item.Value == value) return false;
+                    continue;
+                }
+                int.TryParse(item.Value, out int localInt);
+                int.TryParse(value, out int remoteInt);
+                switch (item.Scripts)
+                {
+                    case "<":
+                        if (localInt >= remoteInt) return false;
+                        break;
+                    case ">":
+                        if (localInt <= remoteInt) return false;
+                        break;
+                    case ">=":
+                        if (localInt < remoteInt) return false;
+                        break;
+                    case "<=":
+                        if (localInt > remoteInt) return false;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return true;
         }
 
         private void ResetWeekendCalendar(List<CalendarRecord> calendarList)

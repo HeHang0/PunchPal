@@ -92,6 +92,9 @@ namespace PunchPal.Core.Services
                 new KeyValuePair<string, string>("GL", "公假"),
                 new KeyValuePair<string, string>("RL", "探亲假"),
                 new KeyValuePair<string, string>("TL", "调休假"),
+                new KeyValuePair<string, string>("MCL", "婚检假"),
+                new KeyValuePair<string, string>("MNL", "产检假"),
+                new KeyValuePair<string, string>("PEL", "体检假"),
 
                 // 节假日和法定假期
                 new KeyValuePair<string, string>("PH", "法定假期"),
@@ -129,14 +132,17 @@ namespace PunchPal.Core.Services
                 { "GL", 20 },
                 { "RL", 21 },
                 { "TL", 22 },
+                { "MCL", 23 },
+                { "MNL", 24 },
+                { "PEL", 25 },
 
                 // 节假日和法定假期
-                { "PH", 23 },
-                { "SH", 24 },
-                { "BD", 25 },
-                { "RD", 26 },
-                { "WD", 27 },
-                { "OD", 28 }
+                { "PH", 26 },
+                { "SH", 27 },
+                { "BD", 28 },
+                { "RD", 29 },
+                { "WD", 30 },
+                { "OD", 31 }
         };
     }
 }

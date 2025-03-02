@@ -37,21 +37,29 @@ namespace PunchPal.Core.Apis
                         try
                         {
                             var cDate = (long)record["timestamp"] + 8 * DateTimeTools.HourSeconds;
-                            var festivalList = (record["festivalList"]?.ToString() ?? string.Empty).Split(',');
-                            var termList = (record["term"]?.ToString() ?? string.Empty).Split(' ');
-
+                            var festivalSet = new HashSet<string>((record["festivalList"]?.ToString() ?? string.Empty).Trim().Split(','));
+                            var termSet = new HashSet<string>((record["term"]?.ToString() ?? string.Empty).Trim().Split(' '));
+                            var festivalList = festivalSet.Where(m => !termSet.Contains(m)).ToList();
+                            for (var i = 0; i < festivalList.Count; i++)
+                            {
+                                if (festivalList[i].EndsWith("九天"))
+                                {
+                                    termSet.Add(festivalList[i]);
+                                    festivalList.RemoveAt(i);
+                                    i--;
+                                }
+                            }
                             var calendarRecord = new CalendarRecord
                             {
                                 Date = cDate,
-                                Festival = string.Join(" ", festivalList.Where(m => !termList.Contains(m))),
+                                Festival = string.Join(" ", festivalList).Trim(),
                                 LunarMonth = record["lMonth"]?.ToString() ?? string.Empty,
                                 LunarDate = record["lDate"]?.ToString() ?? string.Empty,
                                 LunarYear = record["gzYear"]?.ToString() ?? string.Empty,
-                                SolarTerm = string.Join(" ", termList),
+                                SolarTerm = string.Join(" ", termSet).Trim(),
                                 IsHoliday = record["status"]?.ToString() == "1",
                                 IsWorkday = record["status"]?.ToString() == "2"
                             };
-
                             calendarRecords.Add(calendarRecord);
                         }
                         catch (Exception)

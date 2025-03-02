@@ -38,19 +38,21 @@ namespace PunchPal.Core.Services
             }
         }
 
-        public async Task<int> Add(IList<PunchRecord> entities)
+        public async Task<int> Add(IEnumerable<PunchRecord> entities)
         {
             try
             {
                 using (var context = new PunchDbContext())
                 {
+                    var count = 0;
                     foreach (var entity in entities)
                     {
                         context.PunchRecords.AddOrUpdate(entity);
+                        count++;
                     }
                     await context.SaveChangesAsync();
+                    return count;
                 }
-                return entities.Count;
             }
             catch (Exception)
             {

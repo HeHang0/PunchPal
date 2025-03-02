@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
 using PunchPal.Core.Events;
+using PunchPal.Core.Models;
+using PunchPal.Core.Services;
 using PunchPal.Tools;
 using System;
 using System.Collections.Generic;
@@ -28,6 +30,106 @@ namespace PunchPal.Core.ViewModels
         public ICommand ImportDataSource => new ActionCommand(OnImportDataSource);
         public ICommand ExportDataSource => new ActionCommand(OnExportDataSource);
         public ICommand SaveDataSource => new ActionCommand(OnSaveDataSource);
+
+        public async Task SyncData()
+        {
+            var now = DateTime.Now;
+            var preData = new Dictionary<string, string>
+            {
+                ["YEAR"] = now.Year.ToString(),
+                ["MONTH"] = now.Month.ToString()
+            };
+            var start = new DateTime(now.Year, now.Month, 1);
+            var end = start.AddMonths(1).AddDays(-1);
+            preData["DAYSTART"] = start.ToDateString();
+            preData["DAYEND"] = end.ToDateString();
+            var headers = new Dictionary<string, string>
+            {
+                ["Cookie"] = ""
+            };
+            User user = await CheckAuth(preData, headers);
+            await UpdateUser(user);
+            var (punch, _) = await PunchTime.RunRequest(preData, headers);
+            if (punch is List<PunchRecord> punchRecords)
+            {
+                punchRecords.ForEach(m => m.UserId = user.UserId);
+                await PunchRecordService.Instance.Add(punchRecords);
+            }
+            var (attendance, _) = await Attendance.RunRequest(preData, headers);
+            if (attendance is List<AttendanceRecord> attendanceRecords)
+            {
+                attendanceRecords.ForEach(m => m.UserId = user.UserId);
+                await AttendanceRecordService.Instance.Add(attendanceRecords);
+            }
+            var (calendar, _) = await Calendar.RunRequest(preData, headers);
+            if (calendar is List<CalendarRecord> calendarRecords)
+            {
+                await CalendarService.Instance.Add(calendarRecords);
+            }
+        }
+
+        private async Task<User> UpdateUser(User user)
+        {
+            var users = await UserService.Instance.List();
+            if (user == null)
+            {
+                return users.FirstOrDefault();
+            }
+            if (users.Count == 1 && (users[0].Remark?.Contains("初始") ?? false))
+            {
+                await UserService.Instance.Add(user);
+                if (!string.IsNullOrWhiteSpace(user.UserId))
+                {
+                    await UpdateTable(nameof(PunchRecord), nameof(PunchRecord.UserId), user.UserId);
+                    await UpdateTable(nameof(AttendanceRecord), nameof(AttendanceRecord.UserId), user.UserId);
+                    await UpdateTable(nameof(WorkingTimeRange), nameof(WorkingTimeRange.UserId), user.UserId);
+                }
+                await UserService.Instance.Remove(users[0]);
+                SettingsModel.Load().Common.CurrentUser = user;
+            }
+
+            return user;
+        }
+
+        public async Task<bool> UpdateTable(string table, string key, string value)
+        {
+            try
+            {
+                using (var context = new PunchDbContext())
+                {
+                    await context.Database.ExecuteSqlCommandAsync($"UPDATE {table} SET {key} = {value}");
+                }
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        private async Task<User> CheckAuth(Dictionary<string, string> preData, Dictionary<string, string> headers)
+        {
+            var (user, _) = await UserInfo.RunRequest(preData);
+            if (user == null)
+            {
+                var (auth, cookieAuth) = await Authenticate.RunRequest(preData);
+                if (auth == null && string.IsNullOrWhiteSpace(cookieAuth))
+                {
+                    return null;
+                }
+                headers["Cookie"] = cookieAuth;
+                if (auth is Dictionary<string, string> authMap)
+                {
+                    foreach (var item in authMap)
+                    {
+                        preData[item.Key] = item.Value;
+                    }
+                }
+                var (user1, _) = await UserInfo.RunRequest(preData);
+                user = user1;
+            }
+            return user as User;
+        }
 
         private void OnImportDataSource()
         {
@@ -81,7 +183,7 @@ namespace PunchPal.Core.ViewModels
             List<DataSourceItem> items = new List<DataSourceItem>();
             try
             {
-                items = JsonConvert.DeserializeObject<List<DataSourceItem>>(File.ReadAllText(PathTools.DataSourcePath));
+                items = JsonConvert.DeserializeObject<List<DataSourceItem>>(File.ReadAllText(filePath));
             }
             catch (Exception)
             {
@@ -110,7 +212,7 @@ namespace PunchPal.Core.ViewModels
             Items.Add(PunchTime);
             Items.Add(Attendance);
             Items.Add(Calendar);
-            Items.Add(WorkTime);
+            //Items.Add(WorkTime);
             foreach (var item in Items)
             {
                 item.ResetMappings();

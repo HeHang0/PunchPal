@@ -64,7 +64,7 @@ namespace PunchPal.Core.Events
         }
         #endregion
 
-        #region SaveDialog
+        #region Tips
         private static Action<TipsOption> _tips = null;
         public static void RegisterTips(Action<TipsOption> tips)
         {
@@ -74,6 +74,29 @@ namespace PunchPal.Core.Events
         public static void ShowTips(TipsOption option = null)
         {
             _tips?.Invoke(option);
+        }
+        #endregion
+
+        #region Notification
+        public class NotificationOption
+        {
+            public string Message { get; set; }
+            public bool LongDuration { get; set; }
+            public NotificationOption(string message, bool longDuration = false)
+            {
+                Message = message;
+                LongDuration = longDuration;
+            }
+        }
+        private static Action<NotificationOption> _notification = null;
+        public static void RegisterNotification(Action<NotificationOption> notification)
+        {
+            _notification = notification;
+        }
+
+        public static void ShowNotification(NotificationOption option = null)
+        {
+            _notification?.Invoke(option);
         }
         #endregion
     }

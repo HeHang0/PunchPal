@@ -47,6 +47,7 @@ namespace PunchPal.WPF
             EventManager.RegisterConfirmDialog(OnConfirmDialog);
             EventManager.RegisterFileDialog(OnFileSelecting);
             EventManager.RegisterSaveDialog(OnSaveDialog);
+            EventManager.RegisterNotification(OnNotification);
             EventManager.RegisterTips(ShowTips);
             InitWindowBackdropType();
         }
@@ -120,7 +121,8 @@ namespace PunchPal.WPF
                             StartMinute = content.StartTime.Minute,
                             EndHour = content.EndTime.Hour,
                             EndMinute = content.EndTime.Minute,
-                            UserId = _mainModel.Setting.Common.CurrentUser?.UserId
+                            UserId = _mainModel.Setting.Common.CurrentUser?.UserId,
+                            Edited = true
                         };
                         _mainModel.Loading = true;
                         await WorkingTimeRangeService.Instance.Add(record);
@@ -155,6 +157,11 @@ namespace PunchPal.WPF
             {
                 return new string[] { openFileDialog.FileName };
             }
+        }
+
+        private void OnNotification(EventManager.NotificationOption e)
+        {
+            ShowToast(e.Message, e.LongDuration);
         }
 
         private string OnSaveDialog(EventManager.SaveDialogOption e)
@@ -383,6 +390,9 @@ namespace PunchPal.WPF
             LockScreenTools.Register(new WindowInteropHelper(this).Handle, OnLockScreen);
             HotKeyTools.SetCallback(this, OnHotKey);
             Common_PropertyChanged(null, new PropertyChangedEventArgs(nameof(SettingsCommon.ShortcutText)));
+#if NETFRAMEWORK
+            Microsoft.Toolkit.Uwp.Notifications.ToastNotificationManagerCompat.OnActivated += OnToastActivated;
+#endif
         }
 
         private void ToWorkTimeEdit(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -393,8 +403,7 @@ namespace PunchPal.WPF
 
         private void UpdateDataSource(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            _mainModel.Setting.CurrentSettingPage = SettingsModel.PageType.DataSource;
-            PunchNavigationView.Navigate("设置");
+            _mainModel.RunSyncData();
         }
 
         private void OnHotKey()
@@ -409,7 +418,6 @@ namespace PunchPal.WPF
             }
         }
 
-        private bool _todayNotifyStartPunch;
         private async void OnLockScreen(bool locked)
         {
             var settings = SettingsModel.Load();
@@ -425,10 +433,10 @@ namespace PunchPal.WPF
                 _mainModel.InitItems();
             }
 
-            if (!locked && settings.Common.IsNotifyStartPunch && !_todayNotifyStartPunch)
+            if (!locked && settings.Common.IsNotifyStartPunch && !_mainModel.TodayNotifyStartPunch)
             {
-                _todayNotifyStartPunch = true;
-                NotifyStartPunch();
+                _mainModel.TodayNotifyStartPunch = true;
+                _mainModel.NotifyStartPunch();
                 return;
             }
 
@@ -446,25 +454,7 @@ namespace PunchPal.WPF
                 return;
             }
 
-            NotifyEndPunch();
-        }
-
-        private async void NotifyEndPunch()
-        {
-            var record = PunchRecordService.Instance.TodayFirst(SettingsModel.Load().Data.DayStartHour);
-            if (record != null)
-            {
-                ShowToast("记得下班打卡哦！！！", true);
-            }
-        }
-
-        private async void NotifyStartPunch()
-        {
-            var record = await PunchRecordService.Instance.TodayFirst(SettingsModel.Load().Data.DayStartHour);
-            if (record == null)
-            {
-                ShowToast("记得上班打卡哦！！！", true);
-            }
+            _mainModel.NotifyEndPunch();
         }
 
         private void InitWindowBackdropType()
@@ -638,7 +628,7 @@ namespace PunchPal.WPF
         }
 
 #if NETFRAMEWORK
-        private void OnToastActivated(Microsoft.Toolkit.Uwp.Notifications.ToastNotificationActivatedEventArgsCompat e)
+        private void OnToastActivated(Microsoft.Toolkit.Uwp.Notifications.ToastNotificationActivatedEventArgsCompat _)
         {
             ShowWindow();
         }

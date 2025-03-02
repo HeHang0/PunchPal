@@ -72,9 +72,14 @@ IsExpanded="{Binding IsExpanded}">
                                                     <ColumnDefinition Width="*" />
                                                     <ColumnDefinition Width="10" />
                                                     <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
                                                 </Grid.ColumnDefinitions>
                                                 <ui:TextBox Height="30" Text="{Binding Key}" Padding="5 0"/>
                                                 <ui:TextBox Grid.Column="2" Height="30" Text="{Binding Value}" Padding="5 0"/>
+                                                <ui:Button Grid.Column="3" Height="30" Margin="10 0 0 0" CommandParameter="{Binding}" Appearance="Danger"
+                                                           Command="{Binding DataContext.RemoveHeader, RelativeSource={RelativeSource AncestorType=ListBox}}">
+                                                    <ui:SymbolIcon Symbol="Delete20" />
+                                                </ui:Button>
                                             </Grid>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
@@ -112,15 +117,16 @@ IsExpanded="{Binding IsExpanded}">
                                                             <ColumnDefinition Width="*" />
                                                             <ColumnDefinition Width="Auto" />
                                                             <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
                                                         </Grid.ColumnDefinitions>
                                                         <ui:TextBox Height="30" Text="{Binding Key}" Padding="5 0"/>
-                                                        <ComboBox SelectedValue="{Binding Scripts}" Width="80" Height="30" Grid.Column="1" Margin="10 0 10 0">
-                                                            <ComboBoxItem Content="=" />
-                                                            <ComboBoxItem Content="!=" />
-                                                            <ComboBoxItem Content="&lt;" />
-                                                            <ComboBoxItem Content="&lt;" />
-                                                        </ComboBox>
+                                                        <ComboBox ItemsSource="{Binding CompareItems}" SelectedValue="{Binding Scripts}"
+                                                                  Width="80" Height="36" Grid.Column="1" Margin="10 0 10 0"  Padding="10 5 0 5"/>
                                                         <ui:TextBox Grid.Column="2" Height="30" Text="{Binding Value}" Padding="5 0"/>
+                                                        <ui:Button Grid.Column="3" Height="30" Margin="10 0 0 0" CommandParameter="{Binding}" Appearance="Danger"
+                                                                   Command="{Binding DataContext.RemoveFilter, RelativeSource={RelativeSource AncestorType=ListBox}}">
+                                                            <ui:SymbolIcon Symbol="Delete20" />
+                                                        </ui:Button>
                                                     </Grid>
                                                 </DataTemplate>
                                             </ListBox.ItemTemplate>
@@ -147,10 +153,17 @@ IsExpanded="{Binding IsExpanded}">
                                                             <ColumnDefinition Width="*" />
                                                             <ColumnDefinition Width="6" />
                                                             <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
                                                         </Grid.ColumnDefinitions>
                                                         <ui:TextBox Height="30" Text="{Binding Key}" Padding="5 0" IsReadOnly="{Binding IsReadOnly}"/>
                                                         <ui:TextBox Grid.Column="2" Height="30" Text="{Binding Value}" Padding="5 0"/>
-                                                        <ui:TextBox HorizontalAlignment="Stretch" Grid.Column="4" Height="30" Text="{Binding Scripts}" Padding="5 0"/>
+                                                        <ui:TextBox HorizontalAlignment="Stretch" Grid.Column="4" Height="30" Text="{Binding Scripts}"
+                                                                    Padding="5 0" AcceptsReturn="True" MaxLines="3" />
+                                                        <ui:Button Grid.Column="5" Height="30" Margin="10 0 0 0" CommandParameter="{Binding}" Appearance="Danger"
+                                                                   Visibility="{Binding DataContext.CanAddMapping, RelativeSource={RelativeSource AncestorType=ListBox}, Converter={StaticResource BooleanToVisibility}}"
+                                                                   Command="{Binding DataContext.RemoveMapping, RelativeSource={RelativeSource AncestorType=ListBox}}">
+                                                            <ui:SymbolIcon Symbol="Delete20" />
+                                                        </ui:Button>
                                                     </Grid>
                                                 </DataTemplate>
                                             </ListBox.ItemTemplate>

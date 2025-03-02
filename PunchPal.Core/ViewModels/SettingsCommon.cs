@@ -190,7 +190,7 @@ namespace PunchPal.Core.ViewModels
                     return string.Empty;
                 }
 
-                return ModifierKeysString(ShortcutModifierKeys) + "+" + Enum.GetName(typeof(Key), ShortcutKey);
+                return ModifierKeysString() + "+" + Enum.GetName(typeof(Key), ShortcutKey);
             }
         }
 
@@ -204,7 +204,7 @@ namespace PunchPal.Core.ViewModels
             OnPropertyChanged(nameof(ShortcutText));
         }
 
-        private string ModifierKeysString(ModifierKeys keys)
+        private string ModifierKeysString()
         {
             var result = new List<string>();
             if ((uint)(ShortcutModifierKeys & ModifierKeys.Control) > 0)

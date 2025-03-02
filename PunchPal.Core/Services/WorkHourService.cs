@@ -18,19 +18,19 @@ namespace PunchPal.Core.Services
             Instance = new WorkHourService();
         }
 
-        public async Task<List<WorkingHours>> List(int dayStartHour, Expression<Func<PunchRecord, bool>> predicate)
+        public async Task<List<WorkingHours>> List(int dayStartHour, Expression<Func<PunchRecord, bool>> predicate, IEnumerable<CalendarRecord> calendars)
         {
             var records = await PunchRecordService.Instance.List(predicate);
-            return await List(dayStartHour, records);
+            return await List(dayStartHour, records, calendars);
         }
-        public async Task<List<WorkingHours>> List(int dayStartHour, IList<PunchRecord> punchRecords)
+        public async Task<List<WorkingHours>> List(int dayStartHour, IEnumerable<PunchRecord> punchRecords, IEnumerable<CalendarRecord> calendars)
         {
             var result = new List<WorkingHours>();
-            if (punchRecords == null || punchRecords.Count == 0)
+            if (punchRecords == null || punchRecords.Count() == 0)
             {
                 return result;
             }
-            var lastRecord = punchRecords[0];
+            var lastRecord = punchRecords.FirstOrDefault();
             var lastDate = lastRecord.PunchDateTime;
             var monthStartDay = new DateTime(lastDate.Year, lastDate.Month, 1);
             var monthEndDay = monthStartDay.AddMonths(1).AddDays(-1);
@@ -39,7 +39,6 @@ namespace PunchPal.Core.Services
             var endUnix = monthEndDay.TimestampUnix();
             var workingTimeRanges = await WorkingTimeRangeService.Instance.Items(startUnix, endUnix);
             var attendanceRecords = await AttendanceRecordService.Instance.List(m => m.StartTime >= startUnix && m.StartTime < endUnix && AttendanceTypeService.AskForLeaveIds.Contains(m.AttendanceTypeId));
-            var calendars = await CalendarService.Instance.ListOrSync(m => m.Date >= startUnix && m.Date < endUnix, monthStartDay);
             for (var i = 1; i <= monthEndDay.Day; i++)
             {
                 if (monthEndDay.Year == now.Year && monthEndDay.Month == now.Month && i > now.Day)

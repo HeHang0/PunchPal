@@ -1,9 +1,13 @@
-﻿using PunchPal.Core.Models;
+﻿using PunchPal.Core.Events;
+using PunchPal.Core.Models;
 using PunchPal.Core.Services;
 using PunchPal.Tools;
 using System;
 using System.ComponentModel;
+using System.Linq;
+using System.Threading;
 using System.Windows.Input;
+using Timer = System.Threading.Timer;
 
 namespace PunchPal.Core.ViewModels
 {
@@ -11,6 +15,9 @@ namespace PunchPal.Core.ViewModels
     {
         public event EventHandler AddRecord;
         public event EventHandler ShowWindow;
+        private readonly SynchronizationContext uiContext = SynchronizationContext.Current;
+        private Timer _timer;
+        private bool _isTimerRunning;
 
         public enum PageType
         {
@@ -27,6 +34,84 @@ namespace PunchPal.Core.ViewModels
         {
             InitAutoAddRecord();
             Setting.Calendar.PropertyChanged += OnPropertyChanged;
+            InitTimer();
+        }
+
+        private void InitTimer()
+        {
+            _timer = new Timer(OnTimer, null, 0, 60 * 1000);
+        }
+
+        private void OnTimer(object state)
+        {
+
+            var now = DateTime.Now;
+            if (Setting.Common.IsNotifyEndPunch)
+            {
+                if (Setting.Common.EndPunchHour == now.Hour && Setting.Common.EndPunchMinute == now.Minute)
+                {
+                    NotifyEndPunch();
+                }
+            }
+
+            if (Setting.Common.IsNotifyStartPunch)
+            {
+                if (now.Hour == Setting.Common.StartPunchHour && now.Minute == Setting.Common.StartPunchMinute)
+                {
+                    NotifyStartPunch();
+                }
+            }
+
+            if (Setting.Data.DayStartHour == now.Hour && now.Minute == 0)
+            {
+                uiContext.Post(_ =>
+                {
+                    TodayNotifyStartPunch = false;
+                }, null);
+            }
+
+            if (!_isTimerRunning && Setting.Data.IsRefreshData &&
+                Setting.Data.RefreshDataHour == now.Hour &&
+                Setting.Data.RefreshDataMinute == now.Minute)
+            {
+                RunSyncData();
+            }
+        }
+
+        public async void RunSyncData()
+        {
+            _isTimerRunning = true;
+            uiContext.Post(_ =>
+            {
+                DataSourceLoading = true;
+            }, null);
+            await Setting.DataSource.SyncData();
+            _isTimerRunning = false;
+            uiContext.Post(_ =>
+            {
+                DataSourceLoading = false;
+                InitItems();
+            }, null);
+        }
+
+        public bool TodayNotifyStartPunch { get; set; } = false;
+
+        public async void NotifyEndPunch()
+        {
+            var record = await PunchRecordService.Instance.TodayFirst(SettingsModel.Load().Data.DayStartHour);
+            if (record != null)
+            {
+                EventManager.ShowNotification(new EventManager.NotificationOption("记得下班打卡哦！！！", true));
+            }
+        }
+
+        public async void NotifyStartPunch()
+        {
+            var record = await PunchRecordService.Instance.TodayFirst(SettingsModel.Load().Data.DayStartHour);
+            if (record == null)
+            {
+                EventManager.ShowNotification(new EventManager.NotificationOption("记得上班打卡哦！！！", true));
+            }
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -87,6 +172,17 @@ namespace PunchPal.Core.ViewModels
         public bool IsSettings => CurrentPage == PageType.Settings;
         public bool CanAddRecord => IsPunchRecord || IsAttendanceRecord;
         public bool CanYearMonth => !IsSettings;
+
+        private bool _dataSourceLoading = false;
+        public bool DataSourceLoading
+        {
+            get => _dataSourceLoading;
+            set
+            {
+                _dataSourceLoading = value;
+                OnPropertyChanged();
+            }
+        }
 
         private DateTime _date = DateTime.Now;
         public DateTime Date
@@ -165,11 +261,10 @@ namespace PunchPal.Core.ViewModels
         public async void InitItems()
         {
             Loading = true;
-            var start = DateTime.Now.TimestampUnix();
             await PunchRecord.InitItems(Date);
             await AttendanceRecord.InitItems(Date);
-            await WorkingHours.InitItems(PunchRecord.Items);
             await Calendar.InitItems(Date, WorkingHours.Items);
+            await WorkingHours.InitItems(PunchRecord.Items, Calendar.Items.Where(m => m.CalendarData != null).Select(m => m.CalendarData).ToList());
             await Overview.InitItems(Date, WorkingHours.Items);
             Loading = false;
         }

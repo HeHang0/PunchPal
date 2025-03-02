@@ -7,7 +7,7 @@ namespace PunchPal.Core.Models
 {
     public class CalendarRecord
     {
-        [Key] public long Date { get; set; }
+        [Key, Column(Order = 0)] public long Date { get; set; }
         [NotMapped] public DateTime DateTime => Date.Unix2DateTime();
         public string Festival { get; set; }
         public string LunarMonth { get; set; }
@@ -19,7 +19,7 @@ namespace PunchPal.Core.Models
         [NotMapped]
         public bool IsCustomWeekend { get; set; }
         public string Remark { get; set; }
-        public CalendarType Type { get; set; } = CalendarType.Baidu;
+        [Key, Column(Order = 1)] public CalendarType Type { get; set; } = CalendarType.Baidu;
         [NotMapped]
         public bool IsWeekend
         {

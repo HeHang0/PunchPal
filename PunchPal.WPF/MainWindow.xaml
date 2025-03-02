@@ -18,7 +18,7 @@
         WindowBackdropType="{Binding WindowBackdropType}"
         WindowCornerPreference="Round" ResizeMode="CanResize"
         WindowStartupLocation="CenterScreen" Title="{Binding Title}"
-        MinHeight="475" MinWidth="750" Height="500" Width="800">
+        MinHeight="475" MinWidth="750" Height="520" Width="800">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -54,22 +54,27 @@
                 <SolidColorBrush x:Key="HyperlinkButtonBackgroundPressed" Color="Transparent" />
                 <SolidColorBrush x:Key="HyperlinkButtonBackgroundDisabled" Color="Transparent" />
             </Grid.Resources>
-            <ui:HyperlinkButton Grid.Column="0" Background="Transparent" Padding="0"
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <ui:ProgressRing IsIndeterminate="True" Progress="70" Width="10" Height="10"
+                                 Margin="0 0 10 0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                 Visibility="{Binding DataSourceLoading, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}"/>
+                <ui:HyperlinkButton Background="Transparent" Padding="0"
                                 MouseDoubleClick="UpdateDataSource" ToolTip="双击更新数据"
                                 Visibility="{Binding IsSettings, Converter={StaticResource BooleanToNotVisibility}}">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Foreground="{DynamicResource WindowForeground}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Foreground="{DynamicResource WindowForeground}">
                     <Run Text="{Binding Overview.MonthHourUnit, Mode=OneWay}" />
                     <Run Text="{Binding Overview.MonthHourText, Mode=OneWay}" Foreground="{Binding Overview.MonthMinuteColor, Converter={StaticResource DrawBrushToMediaBrush}}"/>
                     <Run Text="小时，" />
-                    </TextBlock>
-                    <TextBlock Foreground="{DynamicResource WindowForeground}">
+                        </TextBlock>
+                        <TextBlock Foreground="{DynamicResource WindowForeground}">
                     <Run Text="日均工时：" />
                     <Run Text="{Binding Overview.DayAverageText, Mode=OneWay}" Foreground="{Binding Overview.DayAverageColor, Converter={StaticResource DrawBrushToMediaBrush}}"/>
                     <Run Text="小时" />
-                    </TextBlock>
-                </StackPanel>
-            </ui:HyperlinkButton>
+                        </TextBlock>
+                    </StackPanel>
+                </ui:HyperlinkButton>
+            </StackPanel>
             <StackPanel Grid.Column="2" Orientation="Horizontal">
                 <TextBlock Opacity="0" Text="　"/>
                 <!--<TextBlock Opacity="0.6" FontSize="13" Foreground="{DynamicResource WindowForeground}"

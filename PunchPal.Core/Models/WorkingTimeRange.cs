@@ -15,6 +15,7 @@ namespace PunchPal.Core.Models
         public int EndHour { get; set; }
         public int EndMinute { get; set; }
         public string UserId { get; set; }
+        public bool Edited { get; set; } = false;
         [NotMapped]
         public DateTime DateTime
         {

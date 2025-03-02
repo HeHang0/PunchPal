@@ -14,6 +14,21 @@
             <ui:CardControl.Header>
                 <StackPanel Orientation="Horizontal">
                     <ui:SymbolIcon Margin="0 0 10 0" Symbol="Clock24" />
+                    <ui:TextBlock FontTypography="Body" Text="定时同步" />
+                    <ui:SymbolIcon Margin="10 0 0 0" Symbol="Info12" ToolTip="从数据源同步数据" Cursor="Hand" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <StackPanel Orientation="Horizontal">
+                <ComboBox ItemsSource="{Binding HoursList}" SelectedValue="{Binding RefreshDataHour}" Style="{StaticResource TimeComboBoxStyle}"/>
+                <Label Content=":" Margin="5 0" Padding="0" VerticalAlignment="Center" />
+                <ComboBox ItemsSource="{Binding MinutesList}" SelectedValue="{Binding RefreshDataMinute}" Style="{StaticResource TimeComboBoxStyle}"/>
+                <ui:ToggleSwitch Margin="10 0 0 0" IsChecked="{Binding IsRefreshData}" />
+            </StackPanel>
+        </ui:CardControl>
+        <ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="Clock24" />
                     <ui:TextBlock FontTypography="Body" Text="每日标准工时(小时)" />
                 </StackPanel>
             </ui:CardControl.Header>

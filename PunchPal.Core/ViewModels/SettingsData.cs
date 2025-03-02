@@ -1,4 +1,5 @@
 ﻿using PunchPal.Tools;
+using System;
 using System.Collections.Generic;
 
 namespace PunchPal.Core.ViewModels
@@ -6,8 +7,42 @@ namespace PunchPal.Core.ViewModels
     public class SettingsData : NotifyPropertyBase
     {
         public static List<int> HoursList => DateTimeTools.HoursList;
+        public static List<int> MinutesList => DateTimeTools.MinutesList;
 
         public static List<int> HoursTotalList => DateTimeTools.HourTotalList;
+
+        private int _refreshDataHour = DateTime.Now.Hour;
+        public int RefreshDataHour
+        {
+            get => _refreshDataHour;
+            set
+            {
+                _refreshDataHour = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private int _refreshDataMinute = DateTime.Now.Minute;
+        public int RefreshDataMinute
+        {
+            get => _refreshDataMinute;
+            set
+            {
+                _refreshDataMinute = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _isRefreshData = true;
+        public bool IsRefreshData
+        {
+            get => _isRefreshData;
+            set
+            {
+                _isRefreshData = value;
+                OnPropertyChanged();
+            }
+        }
 
         private int _everyDayWorkHour = 8;
         public int EveryDayWorkHour
