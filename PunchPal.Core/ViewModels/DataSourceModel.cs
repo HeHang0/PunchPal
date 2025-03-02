@@ -154,7 +154,7 @@ namespace PunchPal.Core.ViewModels
                 FileName = "DataSource.json",
                 AddExtension = true
             });
-            if (string.IsNullOrWhiteSpace(fileName))
+            if (!string.IsNullOrWhiteSpace(fileName))
             {
                 try
                 {
@@ -190,7 +190,7 @@ namespace PunchPal.Core.ViewModels
             }
             if (items.Count > 0 || force)
             {
-                _dataSource.Authenticate = items.FirstOrDefault(m => m.Type == DataSourceItem.DataSourceType.Authenticate) ?? new DataSourceItem(DataSourceItem.DataSourceType.Authenticate, DataSourceItem.RequestType.Browser);
+                _dataSource.Authenticate = items.FirstOrDefault(m => m.Type == DataSourceItem.DataSourceType.Authenticate) ?? new DataSourceItem(DataSourceItem.DataSourceType.Authenticate, DataSourceItem.RequestType.Get);
                 _dataSource.UserInfo = items.FirstOrDefault(m => m.Type == DataSourceItem.DataSourceType.UserInfo) ?? new DataSourceItem(DataSourceItem.DataSourceType.UserInfo, DataSourceItem.RequestType.Get);
                 _dataSource.PunchTime = items.FirstOrDefault(m => m.Type == DataSourceItem.DataSourceType.PunchTime) ?? new DataSourceItem(DataSourceItem.DataSourceType.PunchTime);
                 _dataSource.Attendance = items.FirstOrDefault(m => m.Type == DataSourceItem.DataSourceType.Attendance) ?? new DataSourceItem(DataSourceItem.DataSourceType.Attendance);

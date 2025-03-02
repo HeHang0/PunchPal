@@ -332,6 +332,10 @@ namespace PunchPal.Core.ViewModels
         public async Task<(object, string)> RunRequest(Dictionary<string, string> preData = null, Dictionary<string, string> headers = null)
         {
             (object, string) result = (null, string.Empty);
+            if(string.IsNullOrWhiteSpace(RequestUrl))
+            {
+                return result;
+            }
             Loading = true;
             await Task.Run(async () =>
             {
@@ -358,9 +362,12 @@ namespace PunchPal.Core.ViewModels
                 }
                 var result = await new PuppeteerBrowser().Run(url, closeUrl, navigations, false);
                 var cookies = new List<string>();
-                foreach (var item in result)
+                if(result != null)
                 {
-                    cookies.Add($"{item.Key}={item.Value}");
+                    foreach (var item in result)
+                    {
+                        cookies.Add($"{item.Key}={item.Value}");
+                    }
                 }
                 return (null, string.Join("; ", cookies));
             }

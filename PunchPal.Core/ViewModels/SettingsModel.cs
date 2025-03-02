@@ -78,7 +78,7 @@ namespace PunchPal.Core.ViewModels
         [JsonIgnore]
         public bool DataSourceOperateVisible => _currentSettingPage == PageType.DataSource;
 
-        private bool _isPaneOpen = false;
+        private bool _isPaneOpen = true;
         public bool IsPaneOpen
         {
             get => _isPaneOpen;
