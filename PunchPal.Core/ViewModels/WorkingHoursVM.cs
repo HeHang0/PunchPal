@@ -14,7 +14,7 @@ namespace PunchPal.Core.ViewModels
     {
         public event EventHandler<string> TextCoping;
 
-        public async Task InitItems(DateTime dateTime, IEnumerable<CalendarRecord> calendars)
+        public async Task InitItems(DateTime dateTime)
         {
             Items.Clear();
             var settings = SettingsModel.Load();
@@ -23,15 +23,15 @@ namespace PunchPal.Core.ViewModels
             var dateStartValue = dateStart.TimestampUnix();
             var dateEndValue = dateEnd.TimestampUnix();
             var userId = settings.Common.CurrentUser?.UserId ?? "";
-            var result = await WorkHourService.Instance.List(settings.Data.DayStartHour, m => m.UserId == userId && m.PunchTime >= dateStartValue && m.PunchTime < dateEndValue, calendars);
+            var result = await WorkHourService.Instance.List(settings.Data.DayStartHour, m => m.UserId == userId && m.PunchTime >= dateStartValue && m.PunchTime < dateEndValue);
             result.ForEach(m => Items.Add(m));
         }
 
-        public async Task InitItems(IEnumerable<PunchRecord> punchRecords, IEnumerable<CalendarRecord> calendars)
+        public async Task InitItems(IEnumerable<PunchRecord> punchRecords)
         {
             Items.Clear();
             var settings = SettingsModel.Load();
-            var result = await WorkHourService.Instance.List(settings.Data.DayStartHour, punchRecords, calendars);
+            var result = await WorkHourService.Instance.List(settings.Data.DayStartHour, punchRecords);
             result.ForEach(m => Items.Add(m));
         }
 

@@ -18,12 +18,12 @@ namespace PunchPal.Core.Services
             Instance = new WorkHourService();
         }
 
-        public async Task<List<WorkingHours>> List(int dayStartHour, Expression<Func<PunchRecord, bool>> predicate, IEnumerable<CalendarRecord> calendars)
+        public async Task<List<WorkingHours>> List(int dayStartHour, Expression<Func<PunchRecord, bool>> predicate)
         {
             var records = await PunchRecordService.Instance.List(predicate);
-            return await List(dayStartHour, records, calendars);
+            return await List(dayStartHour, records);
         }
-        public async Task<List<WorkingHours>> List(int dayStartHour, IEnumerable<PunchRecord> punchRecords, IEnumerable<CalendarRecord> calendars)
+        public async Task<List<WorkingHours>> List(int dayStartHour, IEnumerable<PunchRecord> punchRecords)
         {
             var result = new List<WorkingHours>();
             if (punchRecords == null || punchRecords.Count() == 0)
@@ -39,6 +39,7 @@ namespace PunchPal.Core.Services
             var endUnix = monthEndDay.TimestampUnix();
             var workingTimeRanges = await WorkingTimeRangeService.Instance.Items(startUnix, endUnix);
             var attendanceRecords = await AttendanceRecordService.Instance.List(m => m.StartTime >= startUnix && m.StartTime < endUnix && AttendanceTypeService.AskForLeaveIds.Contains(m.AttendanceTypeId));
+            var calendars = await CalendarService.Instance.ListAll(m => m.Date >= startUnix && m.Date < endUnix);
             for (var i = 1; i <= monthEndDay.Day; i++)
             {
                 if (monthEndDay.Year == now.Year && monthEndDay.Month == now.Month && i > now.Day)

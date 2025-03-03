@@ -263,8 +263,8 @@ namespace PunchPal.Core.ViewModels
             Loading = true;
             await PunchRecord.InitItems(Date);
             await AttendanceRecord.InitItems(Date);
+            await WorkingHours.InitItems(PunchRecord.Items);
             await Calendar.InitItems(Date, WorkingHours.Items);
-            await WorkingHours.InitItems(PunchRecord.Items, Calendar.Items.Where(m => m.CalendarData != null).Select(m => m.CalendarData).ToList());
             await Overview.InitItems(Date, WorkingHours.Items);
             Loading = false;
         }

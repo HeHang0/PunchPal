@@ -39,6 +39,33 @@ namespace PunchPal.Core.Services
             }
         }
 
+        public async Task<bool> Any(Expression<Func<CalendarRecord, bool>> predicate)
+        {
+            try
+            {
+                using (var context = new PunchDbContext())
+                {
+                    return await context.CalendarRecords.AnyAsync(predicate);
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task Sync(DateTime date)
+        {
+            var startValue = date.TimestampUnix();
+            var endValue = date.AddMonths(1).TimestampUnix();
+            var result = await Any(m => m.Date >= startValue && m.Date < endValue);
+            if (!result)
+            {
+                var syncResult = await SyncCalendar(date);
+            }
+            return;
+        }
+
         public async Task<List<CalendarRecord>> ListOrSync(Expression<Func<CalendarRecord, bool>> predicate, DateTime date)
         {
             var startValue = date.TimestampUnix();
@@ -65,6 +92,57 @@ namespace PunchPal.Core.Services
             {
                 return new List<CalendarRecord>();
             }
+        }
+
+        public static Dictionary<string, CalendarRecord> GetCalendarMap(IEnumerable<CalendarRecord> records)
+        {
+            Dictionary<string, CalendarRecord> recordMap = new Dictionary<string, CalendarRecord>();
+            foreach (var item in records)
+            {
+                recordMap[item.Date.Unix2DateTime().ToDateString()] = item;
+            }
+            return recordMap;
+        }
+
+        public async Task<List<CalendarRecord>> ListAll(Expression<Func<CalendarRecord, bool>> predicate)
+        {
+            var result = new List<CalendarRecord>();
+            try
+            {
+                using (var context = new PunchDbContext())
+                {
+                    result = await context.CalendarRecords.Where(predicate).ToListAsync();
+                }
+            }
+            catch (Exception)
+            {
+                return new List<CalendarRecord>();
+            }
+            var calendars = result.Where(m => m.Type == CalendarType.Baidu).ToList();
+            var otherCalendars = result.Where(m => m.Type != CalendarType.Baidu);
+            var calendarMap = GetCalendarMap(calendars);
+            var otherCalendarMap = GetCalendarMap(otherCalendars);
+            foreach (var item in calendars)
+            {
+                var date = item.DateTime.ToDateString();
+                var otherCalendarData = otherCalendarMap.ContainsKey(date) ? otherCalendarMap[date] : null;
+                if (otherCalendarData != null)
+                {
+                    item.IsHoliday = otherCalendarData.IsHoliday;
+                    item.IsWorkday = otherCalendarData.IsWorkday;
+                    var festivals = new List<string>();
+                    if (!string.IsNullOrWhiteSpace(otherCalendarData.Festival))
+                    {
+                        festivals.Add(otherCalendarData.Festival);
+                    }
+                    if (!string.IsNullOrWhiteSpace(item.Festival))
+                    {
+                        festivals.Add(item.Festival);
+                    }
+                    item.Festival = string.Join(" ", festivals);
+                }
+            }
+            return calendars;
         }
 
         public async Task<List<CalendarRecord>> SyncCalendar(DateTime date)

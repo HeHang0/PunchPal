@@ -74,36 +74,14 @@ namespace PunchPal.Core.ViewModels
             }
             var startValue = result.FirstOrDefault()?.Date.TimestampUnix() ?? 0;
             var endValue = result.LastOrDefault()?.Date.AddDays(1).TimestampUnix() ?? 0;
-            var calendars = await CalendarService.Instance.ListOrSync(m => m.Type == CalendarType.Baidu && m.Date >= startValue && m.Date < endValue, firstDay);
-            var otherCalendars = await CalendarService.Instance.List(m => m.Type != CalendarType.Baidu && m.Date >= startValue && m.Date < endValue);
-            var calendarMap = GetCalendarMap(calendars);
-            var otherCalendarMap = GetCalendarMap(otherCalendars);
+            await CalendarService.Instance.Sync(firstDay);
+            var calendars = await CalendarService.Instance.ListAll(m => m.Date >= startValue && m.Date < endValue);
+            var calendarMap = CalendarService.GetCalendarMap(calendars);
             foreach (var item in result)
             {
                 var date = item.Date.ToDateString();
                 item.WorkItem = recordMap.ContainsKey(date) ? recordMap[date] : null;
-                var calendarData = calendarMap.ContainsKey(date) ? calendarMap[date] : null;
-                var othenCalendarData = otherCalendarMap.ContainsKey(date) ? otherCalendarMap[date] : null;
-                if (calendarData == null)
-                {
-                    calendarData = othenCalendarData;
-                }
-                else if (othenCalendarData != null)
-                {
-                    calendarData.IsHoliday = othenCalendarData.IsHoliday;
-                    calendarData.IsWorkday = othenCalendarData.IsWorkday;
-                    var festivals = new List<string>();
-                    if (!string.IsNullOrWhiteSpace(othenCalendarData.Festival))
-                    {
-                        festivals.Add(othenCalendarData.Festival);
-                    }
-                    if (!string.IsNullOrWhiteSpace(calendarData.Festival))
-                    {
-                        festivals.Add(calendarData.Festival);
-                    }
-                    calendarData.Festival = string.Join(" ", festivals);
-                }
-                item.CalendarData = calendarData;
+                item.CalendarData = calendarMap.ContainsKey(date) ? calendarMap[date] : null;
             }
             await UpdateHolidayCountdown();
 
@@ -145,16 +123,6 @@ namespace PunchPal.Core.ViewModels
             foreach (var item in records)
             {
                 recordMap[item.WorkingDateTimeText] = item;
-            }
-            return recordMap;
-        }
-
-        private Dictionary<string, CalendarRecord> GetCalendarMap(IList<CalendarRecord> records)
-        {
-            Dictionary<string, CalendarRecord> recordMap = new Dictionary<string, CalendarRecord>();
-            foreach (var item in records)
-            {
-                recordMap[item.Date.Unix2DateTime().ToDateString()] = item;
             }
             return recordMap;
         }
