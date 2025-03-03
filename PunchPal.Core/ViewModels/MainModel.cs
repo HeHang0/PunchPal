@@ -85,7 +85,7 @@ namespace PunchPal.Core.ViewModels
             {
                 DataSourceLoading = true;
             }, null);
-            await Setting.DataSource.SyncData();
+            await Setting.DataSource.SyncData(Date);
             _isTimerRunning = false;
             uiContext.Post(_ =>
             {

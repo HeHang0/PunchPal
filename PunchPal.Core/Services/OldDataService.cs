@@ -48,12 +48,12 @@ namespace PunchPal.Core.Services
             {
                 connection.Open(); // 打开数据库连接
 
-                string recordTable = findTableName(connection);
+                string recordTable = FindTableName(connection);
                 if (string.IsNullOrWhiteSpace(recordTable))
                 {
                     return;
                 }
-                var (timeCol, remarkCol, userIdCol) = findColumnName(connection, recordTable);
+                var (timeCol, remarkCol, userIdCol) = FindColumnName(connection, recordTable);
                 if (string.IsNullOrWhiteSpace(timeCol) || string.IsNullOrWhiteSpace(remarkCol) || string.IsNullOrWhiteSpace(userIdCol))
                 {
                     return;
@@ -95,7 +95,7 @@ namespace PunchPal.Core.Services
             }
         }
 
-        private static string findTableName(SQLiteConnection connection)
+        private static string FindTableName(SQLiteConnection connection)
         {
             string query = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';"; // 排除系统表
             string recordTable = null;
@@ -106,7 +106,8 @@ namespace PunchPal.Core.Services
                     while (reader.Read())
                     {
                         var tableName = reader.GetString(0);
-                        if (tableName.ToLower().Contains("record"))
+                        var tableNameLower = reader.GetString(0).ToLower();
+                        if (tableNameLower.Contains("punch") || tableNameLower.Contains("record"))
                         {
                             recordTable = tableName;
                             break;
@@ -117,11 +118,11 @@ namespace PunchPal.Core.Services
             return recordTable;
         }
 
-        private static (string timeCol, string remarkCol, string userId) findColumnName(SQLiteConnection connection, string tableName)
+        private static (string timeCol, string remarkCol, string userId) FindColumnName(SQLiteConnection connection, string tableName)
         {
             // **1. 获取表结构**
             string pragmaQuery = $"PRAGMA table_info({tableName});";
-            string timeColumn = null, addressColumn = null, userColumn = null;
+            string timeColumn = null, remarkColumn = null, userColumn = null;
 
             using (SQLiteCommand command = new SQLiteCommand(pragmaQuery, connection))
             {
@@ -133,22 +134,22 @@ namespace PunchPal.Core.Services
                         string columnNameLower = columnName.ToLower();
                         string columnType = reader.GetString(2).ToUpper();
 
-                        if (columnType == "INTEGER" && columnNameLower.Contains("time"))
+                        if (columnType == "INTEGER" && (columnNameLower.Contains("time") || columnNameLower.Contains("date")))
                         {
                             timeColumn = columnName;
                         }
-                        else if ((columnType == "VARCHAR" || columnType == "NVARCHAR" || columnType == "TEXT") && columnNameLower.Contains("address"))
+                        else if ((columnType == "VARCHAR" || columnType == "NVARCHAR" || columnType == "TEXT") && (columnNameLower.Contains("remark") || columnNameLower.Contains("desc") || columnNameLower.Contains("address")))
                         {
-                            addressColumn = columnName;
+                            remarkColumn = columnName;
                         }
-                        else if ((columnType == "VARCHAR" || columnType == "NVARCHAR" || columnType == "TEXT") && columnNameLower.Contains("number"))
+                        else if ((columnType == "VARCHAR" || columnType == "NVARCHAR" || columnType == "TEXT") && (columnNameLower.Contains("user") || columnNameLower.Contains("id") || columnNameLower.Contains("number")))
                         {
                             userColumn = columnName;
                         }
                     }
                 }
             }
-            return (timeColumn, addressColumn, userColumn);
+            return (timeColumn, remarkColumn, userColumn);
         }
     }
 }

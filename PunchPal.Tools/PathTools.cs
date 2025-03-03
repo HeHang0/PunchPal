@@ -31,6 +31,8 @@ namespace PunchPal.Tools
 
         public static string Update => Path.Combine(AppDataPath, "update");
 
+        public static string CookiePath => Path.Combine(AppDataPath, "cookie");
+
         public static string SqlitePath
         {
             get

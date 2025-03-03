@@ -30,20 +30,12 @@ namespace PunchPal.WPF
     /// </summary>
     public partial class MainWindow : FluentWindow
     {
-        private readonly MainModel _mainModel;
+        private MainModel _mainModel;
         public MainWindow()
         {
             InitializeComponent();
-            _mainModel = new MainModel();
-            DataContext = _mainModel;
             Loaded += MainWindow_Loaded;
             Closing += MainWindow_Closing;
-            _mainModel.AddRecord += OnAddRecord;
-            _mainModel.WorkingHours.TextCoping += OnTextCoping;
-            _mainModel.Setting.Personalize.PropertyChanged += OnPersonalizeChanged;
-            _mainModel.Setting.WorkingTimeRange.Edited += OnWorkingTimeRangeEdited;
-            _mainModel.ShowWindow += OnShowWindow;
-            _mainModel.Setting.Common.PropertyChanged += Common_PropertyChanged;
             EventManager.RegisterConfirmDialog(OnConfirmDialog);
             EventManager.RegisterFileDialog(OnFileSelecting);
             EventManager.RegisterSaveDialog(OnSaveDialog);
@@ -383,8 +375,20 @@ namespace PunchPal.WPF
             return result == ContentDialogResult.Primary;
         }
 
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            await Task.Run(() =>
+            {
+                SettingsModel.Load();
+            });
+            _mainModel = new MainModel();
+            DataContext = _mainModel;
+            _mainModel.AddRecord += OnAddRecord;
+            _mainModel.WorkingHours.TextCoping += OnTextCoping;
+            _mainModel.Setting.Personalize.PropertyChanged += OnPersonalizeChanged;
+            _mainModel.Setting.WorkingTimeRange.Edited += OnWorkingTimeRangeEdited;
+            _mainModel.ShowWindow += OnShowWindow;
+            _mainModel.Setting.Common.PropertyChanged += Common_PropertyChanged;
             PunchNavigationView.Navigate("记录");
             ShowWindow();
             LockScreenTools.Register(new WindowInteropHelper(this).Handle, OnLockScreen);
@@ -393,6 +397,7 @@ namespace PunchPal.WPF
 #if NETFRAMEWORK
             Microsoft.Toolkit.Uwp.Notifications.ToastNotificationManagerCompat.OnActivated += OnToastActivated;
 #endif
+            LoadingBorder.Opacity = 0.5;
         }
 
         private void ToWorkTimeEdit(object sender, System.Windows.Input.MouseButtonEventArgs e)

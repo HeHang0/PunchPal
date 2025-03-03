@@ -25,7 +25,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <TextBox x:Name="FocusHelper" Width="0" Height="0" Style="{x:Null}" Opacity="0" IsReadOnly="True"/>
+        <Grid x:Name="FocusHelper" Width="0" Height="0" Style="{x:Null}" Opacity="0" Focusable="True" />
         <Image Grid.Row="0" Grid.RowSpan="3" Stretch="UniformToFill" StretchDirection="Both"
                VerticalAlignment="Center" HorizontalAlignment="Center"
                Source="{Binding Setting.Personalize.BackgroundImage}"
@@ -77,8 +77,6 @@
             </StackPanel>
             <StackPanel Grid.Column="2" Orientation="Horizontal">
                 <TextBlock Opacity="0" Text="　"/>
-                <!--<TextBlock Opacity="0.6" FontSize="13" Foreground="{DynamicResource WindowForeground}"
-                           Text="{Binding Setting.WorkingTimeRange.Text}"/>-->
                 <ui:HyperlinkButton Background="Transparent" Padding="0" MouseDoubleClick="ToWorkTimeEdit"
                                     ToolTip="双击编辑工作时间">
                     <TextBlock Opacity="0.6" FontSize="13" Foreground="{DynamicResource WindowForeground}"
@@ -174,7 +172,7 @@
         </ui:NavigationView>
         <Border Grid.Row="2" Height="4" Background="{DynamicResource TextFillColorPrimaryBrush}"
                 VerticalAlignment="Top" Margin="20 36 20 0" Opacity="0.05" CornerRadius="3"/>
-        <Border Grid.Row="2" Opacity="0.5" CornerRadius="8" Margin="15 0"
+        <Border x:Name="LoadingBorder" Grid.Row="1" Grid.RowSpan="2" Opacity="1" CornerRadius="8" Margin="15 0"
                 Background="{DynamicResource LoadingScreenBackground}"
                 Visibility="{Binding Loading, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
             <ui:LoadingScreen HorizontalAlignment="Center" VerticalAlignment="Center"></ui:LoadingScreen>

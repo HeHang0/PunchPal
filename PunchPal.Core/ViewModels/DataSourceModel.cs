@@ -31,24 +31,35 @@ namespace PunchPal.Core.ViewModels
         public ICommand ExportDataSource => new ActionCommand(OnExportDataSource);
         public ICommand SaveDataSource => new ActionCommand(OnSaveDataSource);
 
-        public async Task SyncData()
+        public async Task SyncData(DateTime date)
         {
-            var now = DateTime.Now;
             var preData = new Dictionary<string, string>
             {
-                ["YEAR"] = now.Year.ToString(),
-                ["MONTH"] = now.Month.ToString()
+                ["YEAR"] = date.Year.ToString(),
+                ["MONTH"] = date.Month.ToString()
             };
-            var start = new DateTime(now.Year, now.Month, 1);
+            var start = new DateTime(date.Year, date.Month, 1);
             var end = start.AddMonths(1).AddDays(-1);
             preData["DAYSTART"] = start.ToDateString();
             preData["DAYEND"] = end.ToDateString();
+            preData["TIMESTART"] = start.ToDateTimeString();
+            preData["TIMEEND"] = end.AddHours(23).AddMinutes(59).AddSeconds(59).ToDateTimeString();
             var headers = new Dictionary<string, string>
             {
                 ["Cookie"] = ""
             };
+            if (File.Exists(PathTools.CookiePath))
+            {
+                headers["Cookie"] = File.ReadAllText(PathTools.CookiePath);
+            }
             User user = await CheckAuth(preData, headers);
-            await UpdateUser(user);
+            user = await UpdateUser(user);
+            if (user == null)
+            {
+                return;
+            }
+            SettingsModel.Load().Common.CurrentUser = user;
+            File.WriteAllText(PathTools.CookiePath, headers["Cookie"] ?? string.Empty);
             var (punch, _) = await PunchTime.RunRequest(preData, headers);
             if (punch is List<PunchRecord> punchRecords)
             {
@@ -85,7 +96,6 @@ namespace PunchPal.Core.ViewModels
                     await UpdateTable(nameof(WorkingTimeRange), nameof(WorkingTimeRange.UserId), user.UserId);
                 }
                 await UserService.Instance.Remove(users[0]);
-                SettingsModel.Load().Common.CurrentUser = user;
             }
 
             return user;

@@ -332,7 +332,7 @@ namespace PunchPal.Core.ViewModels
         public async Task<(object, string)> RunRequest(Dictionary<string, string> preData = null, Dictionary<string, string> headers = null)
         {
             (object, string) result = (null, string.Empty);
-            if(string.IsNullOrWhiteSpace(RequestUrl))
+            if (string.IsNullOrWhiteSpace(RequestUrl))
             {
                 return result;
             }
@@ -350,19 +350,23 @@ namespace PunchPal.Core.ViewModels
             var url = ReplaceValue(RequestUrl, preData);
             if (RequestMethod == RequestType.Browser)
             {
-                var navigations = new Dictionary<string, string>();
+                var navigation = new Dictionary<string, string>();
                 var closeMappings = BrowserMappings.FirstOrDefault(m => m.Scripts == "关闭");
                 var closeUrl = closeMappings?.Key ?? closeMappings?.Value ?? string.Empty;
                 foreach (var item in BrowserMappings)
                 {
                     if (item.Scripts == "跳转")
                     {
-                        navigations[item.Key] = item.Value;
+                        navigation[item.Key] = item.Value;
                     }
                 }
-                var result = await new PuppeteerBrowser().Run(url, closeUrl, navigations, false);
+                var result = await new PuppeteerBrowser().Run(url, closeUrl, navigation, true);
+                if (result == null)
+                {
+                    result = await new PuppeteerBrowser().Run(url, closeUrl, navigation, false);
+                }
                 var cookies = new List<string>();
-                if(result != null)
+                if (result != null)
                 {
                     foreach (var item in result)
                     {
