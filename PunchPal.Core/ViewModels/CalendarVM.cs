@@ -14,7 +14,6 @@ namespace PunchPal.Core.ViewModels
         public ObservableCollection<CalendarItem> Items { get; } = new ObservableCollection<CalendarItem>();
 
         private readonly string[] _calendarHeaders = { "日", "一", "二", "三", "四", "五", "六" };
-        //private readonly string[] _calendarSunHeaders = { "日", "一", "二", "三", "四", "五", "六" };
         public string[] CalendarHeaders
         {
             get
@@ -39,7 +38,6 @@ namespace PunchPal.Core.ViewModels
 
         public async Task InitItems(DateTime dateTime, IList<WorkingHours> hours)
         {
-            Items.Clear();
             var result = new List<CalendarItem>();
             var weekStart = SettingsModel.Load().Calendar.WeekStart;
             var weekStartIndex = (int)weekStart;
@@ -74,8 +72,12 @@ namespace PunchPal.Core.ViewModels
             }
             var startValue = result.FirstOrDefault()?.Date.TimestampUnix() ?? 0;
             var endValue = result.LastOrDefault()?.Date.AddDays(1).TimestampUnix() ?? 0;
-            await CalendarService.Instance.Sync(firstDay);
-            var calendars = await CalendarService.Instance.ListAll(m => m.Date >= startValue && m.Date < endValue);
+            List<CalendarRecord> calendars = null;
+            await Task.Run(async () =>
+            {
+                await CalendarService.Instance.Sync(firstDay);
+                calendars = await CalendarService.Instance.ListAll(m => m.Date >= startValue && m.Date < endValue);
+            });
             var calendarMap = CalendarService.GetCalendarMap(calendars);
             foreach (var item in result)
             {
@@ -86,6 +88,7 @@ namespace PunchPal.Core.ViewModels
             await UpdateHolidayCountdown();
 
             var row = 0;
+            Items.Clear();
             foreach (var item in result)
             {
                 if (item.Date.DayOfWeek == weekStart)

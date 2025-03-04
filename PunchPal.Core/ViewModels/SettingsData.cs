@@ -22,7 +22,7 @@ namespace PunchPal.Core.ViewModels
             }
         }
 
-        private int _refreshDataMinute = DateTime.Now.Minute;
+        private int _refreshDataMinute = DateTime.Now.Minute - 1 >= 0 ? (DateTime.Now.Minute - 1) : 59;
         public int RefreshDataMinute
         {
             get => _refreshDataMinute;
