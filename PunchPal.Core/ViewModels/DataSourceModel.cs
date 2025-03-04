@@ -30,8 +30,46 @@ namespace PunchPal.Core.ViewModels
         public ICommand ImportDataSource => new ActionCommand(OnImportDataSource);
         public ICommand ExportDataSource => new ActionCommand(OnExportDataSource);
         public ICommand SaveDataSource => new ActionCommand(OnSaveDataSource);
+        public ICommand TestRequest => new RelayCommand<DataSourceItem>(OnTestRequest);
 
-        public async Task SyncData(DateTime date)
+        public async void OnTestRequest(DataSourceItem item)
+        {
+            var headers = new Dictionary<string, string>
+            {
+                ["Cookie"] = ""
+            };
+            if (File.Exists(PathTools.CookiePath))
+            {
+                headers["Cookie"] = File.ReadAllText(PathTools.CookiePath);
+            }
+            var result = await item.RunRequest(GetPreData(DateTime.Now), headers, true);
+            if (item.Type == DataSourceItem.DataSourceType.Authenticate && !string.IsNullOrWhiteSpace(headers["Cookie"]))
+            {
+                File.WriteAllText(PathTools.CookiePath, headers["Cookie"]);
+            }
+            if (item.Type == DataSourceItem.DataSourceType.Authenticate && item.RequestMethod == DataSourceItem.RequestType.Browser)
+            {
+                EventManager.ShowTips(new TipsOption("提示", $"{JsonConvert.SerializeObject(result.Item2)}"));
+            }
+            else if (result.Item1 != null)
+            {
+                if (result.Item1 is IEnumerable<dynamic> items)
+                {
+                    result.Item1 = items.Take(1);
+                }
+                EventManager.ShowTips(new TipsOption("提示", $"{JsonConvert.SerializeObject(result.Item1)}"));
+            }
+            else if (item.Type == DataSourceItem.DataSourceType.Authenticate)
+            {
+                EventManager.ShowTips(new TipsOption("提示", "请求失败"));
+            }
+            else
+            {
+                EventManager.ShowTips(new TipsOption("提示", "未获取到数据，请先执行一次认证信息"));
+            }
+        }
+
+        private Dictionary<string, string> GetPreData(DateTime date)
         {
             var preData = new Dictionary<string, string>
             {
@@ -44,6 +82,12 @@ namespace PunchPal.Core.ViewModels
             preData["DAYEND"] = end.ToDateString();
             preData["TIMESTART"] = start.ToDateTimeString();
             preData["TIMEEND"] = end.AddHours(23).AddMinutes(59).AddSeconds(59).ToDateTimeString();
+            return preData;
+        }
+
+        public async Task<bool> SyncData(DateTime date)
+        {
+            var preData = GetPreData(date);
             var headers = new Dictionary<string, string>
             {
                 ["Cookie"] = ""
@@ -56,27 +100,35 @@ namespace PunchPal.Core.ViewModels
             user = await UpdateUser(user);
             if (user == null)
             {
-                return;
+                return false;
             }
             SettingsModel.Load().Common.CurrentUser = user;
-            File.WriteAllText(PathTools.CookiePath, headers["Cookie"] ?? string.Empty);
+            if (!string.IsNullOrWhiteSpace(headers["Cookie"]))
+            {
+                File.WriteAllText(PathTools.CookiePath, headers["Cookie"]);
+            }
+            var ok = false;
             var (punch, _) = await PunchTime.RunRequest(preData, headers);
             if (punch is List<PunchRecord> punchRecords)
             {
                 punchRecords.ForEach(m => m.UserId = user.UserId);
                 await PunchRecordService.Instance.Add(punchRecords);
+                ok = true;
             }
             var (attendance, _) = await Attendance.RunRequest(preData, headers);
             if (attendance is List<AttendanceRecord> attendanceRecords)
             {
                 attendanceRecords.ForEach(m => m.UserId = user.UserId);
                 await AttendanceRecordService.Instance.Add(attendanceRecords);
+                ok = true;
             }
             var (calendar, _) = await Calendar.RunRequest(preData, headers);
             if (calendar is List<CalendarRecord> calendarRecords)
             {
                 await CalendarService.Instance.Add(calendarRecords);
+                ok = true;
             }
+            return ok;
         }
 
         private async Task<User> UpdateUser(User user)

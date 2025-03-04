@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis.Scripting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PunchPal.Core.Apis;
-using PunchPal.Core.Events;
 using PunchPal.Core.Models;
 using PunchPal.Tools;
 using System;
@@ -254,9 +253,6 @@ namespace PunchPal.Core.ViewModels
         [JsonIgnore]
         public ICommand RemoveMapping => new RelayCommand<RequestMapping>(OnRemoveMapping);
 
-        [JsonIgnore]
-        public ICommand TestRequest => new ActionCommand(OnTestRequest);
-
         private void OnAddRequestHeader()
         {
             if (RequestHeaders.Any(m => string.IsNullOrEmpty(m.Key) && string.IsNullOrEmpty(m.Value)))
@@ -313,23 +309,7 @@ namespace PunchPal.Core.ViewModels
             RequestMappings.Remove(mapping);
         }
 
-        public async void OnTestRequest()
-        {
-            var now = DateTime.Now;
-            var preData = new Dictionary<string, string>
-            {
-                ["YEAR"] = now.Year.ToString(),
-                ["MONTH"] = now.Month.ToString()
-            };
-            var start = new DateTime(now.Year, now.Month, 1);
-            var end = start.AddMonths(1).AddDays(-1);
-            preData["DAYSTART"] = start.ToDateString();
-            preData["DAYEND"] = end.ToDateString();
-            var result = await RunRequest(preData);
-            EventManager.ShowTips(new TipsOption("提示", $"{JsonConvert.SerializeObject(result.Item1)}"));
-        }
-
-        public async Task<(object, string)> RunRequest(Dictionary<string, string> preData = null, Dictionary<string, string> headers = null)
+        public async Task<(object, string)> RunRequest(Dictionary<string, string> preData = null, Dictionary<string, string> headers = null, bool test = false)
         {
             (object, string) result = (null, string.Empty);
             if (string.IsNullOrWhiteSpace(RequestUrl))
@@ -339,13 +319,13 @@ namespace PunchPal.Core.ViewModels
             Loading = true;
             await Task.Run(async () =>
             {
-                result = await RunRequestAsync(preData, headers);
+                result = await RunRequestAsync(preData, headers, test);
             });
             Loading = false;
             return result;
         }
 
-        public async Task<(object, string)> RunRequestAsync(Dictionary<string, string> preData = null, Dictionary<string, string> headers = null)
+        public async Task<(object, string)> RunRequestAsync(Dictionary<string, string> preData = null, Dictionary<string, string> headers = null, bool test = false)
         {
             var url = ReplaceValue(RequestUrl, preData);
             if (RequestMethod == RequestType.Browser)
@@ -385,7 +365,7 @@ namespace PunchPal.Core.ViewModels
                 headers[item.Key] = ReplaceValue(item.Value, preData);
             }
             var indexText = url + body + RequestMethod.ToString() + JsonConvert.SerializeObject(headers);
-            if (Type == DataSourceType.Calendar && requestCacheSet.Contains(FileTools.CalculateTextMD5(indexText)))
+            if (!test && Type == DataSourceType.Calendar && requestCacheSet.Contains(FileTools.CalculateTextMD5(indexText)))
             {
                 return (null, string.Empty);
             }
@@ -393,7 +373,7 @@ namespace PunchPal.Core.ViewModels
             try
             {
                 var result = (await ParseJsonData(JsonTools.ParsePath(ResponseValue), text), cookie);
-                if (Type == DataSourceType.Calendar)
+                if (!test && Type == DataSourceType.Calendar)
                 {
                     requestCacheSet.Add(FileTools.CalculateTextMD5(indexText));
                 }

@@ -4,7 +4,6 @@ using PunchPal.Core.Services;
 using PunchPal.Tools;
 using System;
 using System.ComponentModel;
-using System.Linq;
 using System.Threading;
 using System.Windows.Input;
 using Timer = System.Threading.Timer;
@@ -44,7 +43,6 @@ namespace PunchPal.Core.ViewModels
 
         private void OnTimer(object state)
         {
-
             var now = DateTime.Now;
             if (Setting.Common.IsNotifyEndPunch)
             {
@@ -85,12 +83,12 @@ namespace PunchPal.Core.ViewModels
             {
                 DataSourceLoading = true;
             }, null);
-            await Setting.DataSource.SyncData(Date);
+            var ok = await Setting.DataSource.SyncData(Date);
             _isTimerRunning = false;
             uiContext.Post(_ =>
             {
                 DataSourceLoading = false;
-                InitItems();
+                if (ok) InitItems();
             }, null);
         }
 

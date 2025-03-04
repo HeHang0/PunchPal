@@ -177,7 +177,8 @@ IsExpanded="{Binding IsExpanded}">
                                         <ColumnDefinition Width="50" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
-                                    <ui:Button Grid.Column="1" Content="测试" HorizontalAlignment="Stretch" Command="{Binding TestRequest}" />
+                                    <ui:Button Grid.Column="1" Content="测试" HorizontalAlignment="Stretch" CommandParameter="{Binding}"
+                                               Command="{Binding DataContext.TestRequest, RelativeSource={RelativeSource AncestorType=ListBox}}"/>
                                 </Grid>
                             </StackPanel>
                         </ui:CardExpander>
