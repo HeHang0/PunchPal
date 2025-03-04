@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -464,7 +465,7 @@ namespace PunchPal.WPF
 
         private void InitWindowBackdropType()
         {
-            if (!OSVersionTools.IsAcrylicCustom || _mainModel.WindowBackdropType != WindowBackdropType.Acrylic) return;
+            if (!OSVersionTools.IsAcrylicCustom || !(File.Exists(PathTools.SettingPath) && File.ReadAllText(PathTools.SettingPath).Contains("WindowEffectType\":3"))) return;
             AcrylicHelper.Apply(this, DragHelper);
         }
 

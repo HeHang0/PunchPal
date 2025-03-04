@@ -64,12 +64,12 @@
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Foreground="{DynamicResource WindowForeground}">
                     <Run Text="{Binding Overview.MonthHourUnit, Mode=OneWay}" />
-                    <Run Text="{Binding Overview.MonthHourText, Mode=OneWay}" Foreground="{Binding Overview.MonthMinuteColor, Converter={StaticResource DrawBrushToMediaBrush}}"/>
+                    <Run Text="{Binding Overview.MonthHourText, Mode=OneWay}" FontWeight="Bold" Foreground="{Binding Overview.MonthMinuteColor, Converter={StaticResource DrawBrushToMediaBrush}}"/>
                     <Run Text="小时，" />
                         </TextBlock>
                         <TextBlock Foreground="{DynamicResource WindowForeground}">
-                    <Run Text="日均工时：" />
-                    <Run Text="{Binding Overview.DayAverageText, Mode=OneWay}" Foreground="{Binding Overview.DayAverageColor, Converter={StaticResource DrawBrushToMediaBrush}}"/>
+                    <Run Text="日均" />
+                    <Run Text="{Binding Overview.DayAverageText, Mode=OneWay}" FontWeight="Bold" Foreground="{Binding Overview.DayAverageColor, Converter={StaticResource DrawBrushToMediaBrush}}"/>
                     <Run Text="小时" />
                         </TextBlock>
                     </StackPanel>
@@ -135,14 +135,15 @@
                         <ui:Button Width="20" Height="20" Padding="0" Cursor="Hand" ToolTip="上个月"
                                    Appearance="Secondary" Background="Transparent" Focusable="False"
                                    BorderBrush="Transparent" Content="" Command="{Binding LastMonthCommand}"
-                                   Foreground="{DynamicResource NavigationViewItemForeground}">
+                                   Foreground="{DynamicResource NavigationViewItemForeground}"  VerticalAlignment="Center">
                             <ui:Button.Icon>
                                 <ui:SymbolIcon Filled="True" FontSize="26" Symbol="CaretLeft20" />
                             </ui:Button.Icon>
                         </ui:Button>
                         <Label Content="{Binding MonthText}" FontSize="14"
                                Foreground="{DynamicResource NavigationViewItemForeground}"
-                               Margin="0" Padding="0" VerticalAlignment="Center" >
+                               Margin="0" Padding="0" VerticalAlignment="Center"
+                               ToolTip="双击刷新数据，右击返回当前月">
                             <b:Interaction.Triggers>
                                 <b:EventTrigger EventName="MouseDoubleClick">
                                     <b:InvokeCommandAction Command="{Binding RefreshCommand}"/>
@@ -152,7 +153,7 @@
                                 </b:EventTrigger>
                             </b:Interaction.Triggers>
                         </Label>
-                        <ui:Button Width="20" Height="20" Padding="0" Cursor="Hand"
+                        <ui:Button Width="20" Height="20" Padding="0" Cursor="Hand" VerticalAlignment="Center"
                                    Appearance="Secondary" Background="Transparent"
                                    BorderBrush="Transparent" Content="" ToolTip="下个月"
                                    Command="{Binding NextMonthCommand}" Focusable="False"

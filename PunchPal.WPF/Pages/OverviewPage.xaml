@@ -58,12 +58,12 @@
             <StackPanel>
                 <TextBlock FontSize="22" Foreground="{DynamicResource WindowForeground}">
                     <Run Text="{Binding MonthHourUnit, Mode=OneWay}" />
-                    <Run Text="{Binding MonthHourText, Mode=OneWay}" Foreground="{Binding MonthMinuteColor, Converter={StaticResource DrawBrushToMediaBrush}}"/>
+                    <Run Text="{Binding MonthHourText, Mode=OneWay}" FontWeight="Bold" Foreground="{Binding MonthMinuteColor, Converter={StaticResource DrawBrushToMediaBrush}}"/>
                     <Run Text="小时" />
                 </TextBlock>
                 <TextBlock FontSize="22" Foreground="{DynamicResource WindowForeground}">
                     <Run Text="日均" />
-                    <Run Text="{Binding DayAverageText, Mode=OneWay}" Foreground="{Binding DayAverageColor, Converter={StaticResource DrawBrushToMediaBrush}}"/>
+                    <Run Text="{Binding DayAverageText, Mode=OneWay}" FontWeight="Bold" Foreground="{Binding DayAverageColor, Converter={StaticResource DrawBrushToMediaBrush}}"/>
                     <Run Text="小时" />
                 </TextBlock>
                 <TextBlock Text="{Binding DayAverageRateText}" FontSize="14" Foreground="{DynamicResource WindowForeground}"
@@ -92,7 +92,7 @@
                     <TextBlock Text="周" Foreground="{DynamicResource WindowForeground}"
                                Visibility="{Binding IsWeeklySelected, Converter={StaticResource BooleanToVisibility}}"/>
                     <TextBlock Text="工时不满" Foreground="{DynamicResource WindowForeground}"/>
-                    <TextBlock Text="{Binding StandardHours}" Foreground="Green"/>
+                    <TextBlock Text="{Binding StandardHours}" Margin="5 0" FontWeight="Bold" Foreground="Green"/>
                     <TextBlock Text="小时天数：" Foreground="{DynamicResource WindowForeground}"/>
                     <TextBlock Text="{Binding AdequateDays}" Foreground="{DynamicResource WindowForeground}"/>
                 </StackPanel>
