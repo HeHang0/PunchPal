@@ -1,6 +1,9 @@
-﻿using PunchPal.Core.Models;
+﻿using Newtonsoft.Json;
+using PunchPal.Core.Models;
 using PunchPal.Core.Services;
+using PunchPal.Tools;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -11,10 +14,40 @@ namespace PunchPal.Core.ViewModels
     {
         public event EventHandler<WorkingTimeRange> Edited;
 
+        [JsonIgnore]
         public ObservableCollection<WorkingTimeRange> Items { get; private set; } = new ObservableCollection<WorkingTimeRange>();
 
+        [JsonIgnore]
         public WorkingTimeRange SelectedItem { get; set; }
 
+        private int _flexibleWorkingMinute = 0;
+        public int FlexibleWorkingMinute
+        {
+            get => _flexibleWorkingMinute;
+            set
+            {
+                _flexibleWorkingMinute = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private int _faultToleranceMinute = 0;
+        public int FaultToleranceMinute
+        {
+            get => _faultToleranceMinute;
+            set
+            {
+                _faultToleranceMinute = value;
+                OnPropertyChanged();
+            }
+        }
+
+        [JsonIgnore]
+        public List<int> FaultToleranceMinuteList => DateTimeTools.MinutesList;
+
+        private WorkingTimeRangeItems _currentItems = null;
+        [JsonIgnore]
+        public WorkingTimeRangeItems CurrentItems => _currentItems;
         public async Task InitRanges()
         {
             Items.Clear();
@@ -23,11 +56,12 @@ namespace PunchPal.Core.ViewModels
             {
                 Items.Add(item);
             }
-            var currentItems = await WorkingTimeRangeService.Instance.CurrentItems();
-            Text = currentItems.Text;
+            _currentItems = await WorkingTimeRangeService.Instance.CurrentItems();
+            Text = _currentItems.Text;
         }
 
-        public string _text = string.Empty;
+        private string _text = string.Empty;
+        [JsonIgnore]
         public string Text
         {
             get => _text;
@@ -38,8 +72,9 @@ namespace PunchPal.Core.ViewModels
             }
         }
 
+        [JsonIgnore]
         public ICommand AddCommand => new ActionCommand(OnAdd);
-
+        [JsonIgnore]
         public ICommand EditCommand => new ActionCommand(OnEdit);
 
         private void OnEdit()

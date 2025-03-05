@@ -21,7 +21,7 @@ namespace PunchPal.Core.ViewModels
         public SettingsPersonalize Personalize { get; set; } = new SettingsPersonalize();
         [JsonIgnore] public SettingsAbout About { get; set; } = new SettingsAbout();
         [JsonIgnore] public DataSourceModel DataSource { get; set; } = DataSourceModel.Load();
-        [JsonIgnore] public SettingsWorkingTimeRange WorkingTimeRange { get; set; } = new SettingsWorkingTimeRange();
+        public SettingsWorkingTimeRange WorkingTimeRange { get; set; } = new SettingsWorkingTimeRange();
 
         public enum PageType
         {
@@ -115,6 +115,7 @@ namespace PunchPal.Core.ViewModels
             _settings.Data.PropertyChanged += OnChildPropertyChanged;
             _settings.Network.PropertyChanged += OnChildPropertyChanged;
             _settings.Personalize.PropertyChanged += OnChildPropertyChanged;
+            _settings.WorkingTimeRange.PropertyChanged += OnChildPropertyChanged;
             if (_settings.Common.CurrentUser != null)
             {
                 _settings.Common.CurrentUser = UserService.Instance.FirstOrDefault(m => m.UserId == _settings.Common.CurrentUser.UserId) ?? UserService.Instance.FirstOrDefault();

@@ -13,14 +13,13 @@
     <RepositoryType>git</RepositoryType>
     <Product>PunchPal</Product>
     <Authors>PicaPico</Authors>
-    <Version>2.0.0</Version>
+    <Version>2.0.2</Version>
     <AssemblyTitle>PunchPal</AssemblyTitle>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
     <PackageIcon>logo.ico</PackageIcon>
     <LangVersion>7.3</LangVersion>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <ApplicationIcon>logo.ico</ApplicationIcon>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 

@@ -16,13 +16,18 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Grid Margin="0 0 0 5">
+        <StackPanel Margin="0 0 0 5" Orientation="Horizontal">
             <ui:Button Appearance="Primary" Content="添加" Command="{Binding AddCommand}">
                 <ui:Button.Icon>
                     <ui:SymbolIcon Symbol="Add12" Margin="0 2 0 0"/>
                 </ui:Button.Icon>
             </ui:Button>
-        </Grid>
+            <Label Content="弹性时间（分钟）" VerticalAlignment="Center" Margin="20 0 0 0"/>
+            <ui:TextBox Height="30" Width="40" Text="{Binding FlexibleWorkingMinute}" Padding="5 0"/>
+            <Label Content="容错时间（分钟）" VerticalAlignment="Center" Margin="20 0 0 0"/>
+            <ComboBox ItemsSource="{Binding FaultToleranceMinuteList}" Style="{StaticResource TimeComboBoxStyle}"
+                      SelectedItem="{Binding FaultToleranceMinute, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+        </StackPanel>
         <ui:DataGrid Grid.Row="1" CanUserAddRows="False" AutoGenerateColumns="False" HeadersVisibility="Column"
                  ItemsSource="{Binding Items}" Background="Transparent" IsReadOnly="True"
                  SelectedItem="{Binding SelectedItem}">

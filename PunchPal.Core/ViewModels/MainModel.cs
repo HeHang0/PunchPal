@@ -31,6 +31,7 @@ namespace PunchPal.Core.ViewModels
 
         public MainModel()
         {
+            Setting.About.SetUIContext(uiContext);
             InitAutoAddRecord();
             Setting.Calendar.PropertyChanged += OnPropertyChanged;
             InitTimer();
@@ -38,11 +39,39 @@ namespace PunchPal.Core.ViewModels
 
         private void InitTimer()
         {
-            _timer = new Timer(OnTimer, null, 0, 60 * 1000);
+            _timer = new Timer(OnTimer, null, 0, 1000);
+        }
+
+        public string CountdownOffWork
+        {
+            get
+            {
+                var now = DateTime.Now;
+                var work = Setting.WorkingTimeRange.CurrentItems;
+                if (work == null)
+                {
+                    return string.Empty;
+                }
+                var offWork = new DateTime(now.Year, now.Month, now.Day, work.Work.StartHour, work.Work.StartMinute, 0);
+                var diff = (offWork - now);
+                if (diff.TotalSeconds <= 0)
+                {
+                    return "下班啦";
+                }
+                return diff.ToString("hh\\:mm\\:ss");
+            }
         }
 
         private void OnTimer(object state)
         {
+            uiContext.Post(_ =>
+            {
+                OnPropertyChanged(nameof(CountdownOffWork));
+            }, null);
+            if (DateTime.Now.Second != 0)
+            {
+                return;
+            }
             var now = DateTime.Now;
             if (Setting.Common.IsNotifyEndPunch)
             {

@@ -1,17 +1,19 @@
 ﻿using AutoUpdate.Core;
 using PunchPal.Core.Apis;
+using PunchPal.Core.Events;
 using PunchPal.Tools;
 using System;
 using System.Diagnostics;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace PunchPal.Core.ViewModels
 {
     public class SettingsAbout : NotifyPropertyBase
     {
-        private readonly SynchronizationContext uiContext = SynchronizationContext.Current;
+        private SynchronizationContext _uiContext = null;
         private readonly bool _canUpdate = false;
         private string _newVersion = string.Empty;
         private bool _isUpdateChecking = false;
@@ -19,6 +21,11 @@ namespace PunchPal.Core.ViewModels
         public string CheckUpdateText => _isUpdateChecking ? "" : (_canUpdate ? $"更新({_newVersion})" : "检查更新");
         public string NewVersionText => (_canUpdate ? $"有新版本({_newVersion})" : "");
         public string AppVersion => $"{NameTools.AppTitle} {NameTools.AppVersion}";
+
+        public void SetUIContext(SynchronizationContext uiContext)
+        {
+            _uiContext = uiContext;
+        }
 
         public bool IsUpdateChecking
         {
@@ -54,13 +61,21 @@ namespace PunchPal.Core.ViewModels
         private async void RunCheckUpdate()
         {
             IsUpdateChecking = true;
-            var (ok, version) = await Update.GithubChecker.CheckUpdate();
-            if (ok)
+            var (ok, version) = (false, string.Empty);
+            await Task.Run(async () =>
             {
-                _newVersion = version;
-            }
-            uiContext.Post(_ =>
+                (ok, version) = await Update.GithubChecker.CheckUpdate();
+            });
+            _uiContext?.Post(_ =>
             {
+                if (ok)
+                {
+                    _newVersion = version;
+                }
+                else
+                {
+                    EventManager.ShowTips(new Models.TipsOption("提示", "当前已是最新版本！"));
+                }
                 IsUpdateChecking = false;
             }, null);
         }
@@ -73,7 +88,7 @@ namespace PunchPal.Core.ViewModels
             {
                 if (p == 100)
                 {
-                    uiContext.Post(_ =>
+                    _uiContext?.Post(_ =>
                     {
                         IsUpdateChecking = false;
                     }, null);

@@ -114,6 +114,8 @@ namespace PunchPal.Core.Services
             {
                 return null;
             }
+            var lateTimeFix = settings.WorkingTimeRange.FlexibleWorkingMinute * 60;
+            var faultTolerance = settings.WorkingTimeRange.FaultToleranceMinute;
             var (minTime, maxTime) = GetMinMaxTime(punchRecords);
             if (workingTime != null && workingTime.Work != null)
             {
@@ -126,9 +128,10 @@ namespace PunchPal.Core.Services
                 {
                     minTime = startWorkTimeUnix;
                 }
-                if (startWorkTimeUnix < minTime)
+                if (startWorkTimeUnix + lateTimeFix < minTime)
                 {
-                    item.LateMinutes = (int)((minTime - startWorkTimeUnix) / 60);
+                    var lateMinutes = (int)((minTime - startWorkTimeUnix - lateTimeFix) / 60);
+                    item.LateMinutes = lateMinutes > faultTolerance ? lateMinutes : 0;
                 }
                 if (endWorkTimeUnix > maxTime)
                 {
