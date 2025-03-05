@@ -121,6 +121,8 @@
             </ui:NavigationView.MenuItems>
             <ui:NavigationView.PaneFooter>
                 <StackPanel Orientation="Horizontal" Height="35" Margin="0 0.5 0 0" VerticalAlignment="Top">
+                    <TextBlock Opacity="0.6" FontSize="13" Foreground="{DynamicResource WindowForeground}" Margin="0 0 5 0"
+                               Text="{Binding CountdownOffWork}" ToolTip="下班倒计时" VerticalAlignment="Center" />
                     <ui:Button Padding="10 0" Margin="0 0 5 0" Cursor="Hand" ToolTip="添加打卡记录"
                                Appearance="Secondary" Content="添加"
                                Command="{Binding AddRecordCommand}"
@@ -130,12 +132,12 @@
                             <ui:SymbolIcon Filled="False" FontSize="26" Symbol="AddCircle20" />
                         </ui:Button.Icon>
                     </ui:Button>
-                    <StackPanel Orientation="Horizontal"
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
                                Visibility="{Binding CanYearMonth, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
                         <ui:Button Width="20" Height="20" Padding="0" Cursor="Hand" ToolTip="上个月"
                                    Appearance="Secondary" Background="Transparent" Focusable="False"
                                    BorderBrush="Transparent" Content="" Command="{Binding LastMonthCommand}"
-                                   Foreground="{DynamicResource NavigationViewItemForeground}"  VerticalAlignment="Center">
+                                   Foreground="{DynamicResource NavigationViewItemForeground}" VerticalAlignment="Center">
                             <ui:Button.Icon>
                                 <ui:SymbolIcon Filled="True" FontSize="26" Symbol="CaretLeft20" />
                             </ui:Button.Icon>
