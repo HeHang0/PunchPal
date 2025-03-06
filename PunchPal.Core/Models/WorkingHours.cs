@@ -32,9 +32,9 @@ namespace PunchPal.Core.Models
                 return text;
             }
         }
-        public string TotalHoursText => $"{((double)TotalMinutes / 60):F3}\t({TotalMinutes})";
+        public string TotalHoursText => IsToday ? string.Empty : $"{((double)TotalMinutes / 60):F3}\t({TotalMinutes})";
         public string LateMinutesText => LateMinutes > 0 ? $"{LateMinutes}" : string.Empty;
-        public string LeaveEarlyMinutesText => LeaveEarlyMinutes > 0 ? $"{LeaveEarlyMinutes}" : string.Empty;
+        public string LeaveEarlyMinutesText => !IsToday && LeaveEarlyMinutes > 0 ? $"{LeaveEarlyMinutes}" : string.Empty;
         public string Remark { get; set; } = string.Empty;
         public bool IsHoliday { get; set; } = false;
         public bool IsToday { get; set; } = false;

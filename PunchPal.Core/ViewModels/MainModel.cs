@@ -52,7 +52,7 @@ namespace PunchPal.Core.ViewModels
                 {
                     return string.Empty;
                 }
-                var offWork = new DateTime(now.Year, now.Month, now.Day, work.Work.StartHour, work.Work.StartMinute, 0);
+                var offWork = new DateTime(now.Year, now.Month, now.Day, work.Work.EndHour, work.Work.EndMinute, 0);
                 var diff = (offWork - now);
                 if (diff.TotalSeconds <= 0)
                 {

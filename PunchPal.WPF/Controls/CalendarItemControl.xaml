@@ -36,7 +36,10 @@
                        VerticalAlignment="Bottom" HorizontalAlignment="Right"
                        Foreground="{DynamicResource WindowForeground}"
                        Visibility="{Binding Is996, Converter={StaticResource BooleanToVisibility}}"/>
-            <ListBox Grid.Row="1" Margin="5 5 0 5" VerticalAlignment="Bottom"
+            <TextBlock Grid.Row="1" Margin="5 5 0 5" VerticalAlignment="Bottom" FontSize="13" Text="{Binding TextListText}"
+                       Opacity="{Binding Opacity}" ToolTip="{Binding TextListToolTip}" HorizontalAlignment="Left"
+                       TextTrimming="CharacterEllipsis" Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
+            <!--<ListBox Grid.Row="1" Margin="5 5 0 5" VerticalAlignment="Bottom"
                      ScrollViewer.VerticalScrollBarVisibility="Auto"
                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                      ItemsSource="{Binding TextList}" Opacity="{Binding Opacity}"
@@ -47,7 +50,7 @@
                                    TextTrimming="CharacterEllipsis" Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
-            </ListBox>
+            </ListBox>-->
         </Grid>
     </Border>
 </UserControl>

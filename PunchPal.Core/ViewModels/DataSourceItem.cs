@@ -599,12 +599,29 @@ namespace PunchPal.Core.ViewModels
                 {
                     return defaultValue;
                 }
-                var value = string.IsNullOrWhiteSpace(mapping.Value) ? string.Empty : data[mapping.Value]?.ToString() ?? string.Empty;
+                var value = string.Empty;
                 if (!string.IsNullOrWhiteSpace(mapping.Scripts))
                 {
+                    var scripts = mapping.Scripts;
+                    var valueMappings = mapping.Value?.Split(',') ?? new string[] { };
+                    if (valueMappings.Length > 1)
+                    {
+                        for (var i = 0; i < valueMappings.Length; i++)
+                        {
+                            var valueItem = data[valueMappings[i].Trim()]?.ToString() ?? string.Empty;
+                            scripts = scripts.Replace($"{{VALUE{i + 1}}}", valueItem);
+                        }
+                    }
+                    else
+                    {
+                        scripts = scripts.Replace("{VALUE}", data[mapping.Value.Trim()]?.ToString() ?? string.Empty);
+                    }
                     value = (await CSharpScript.EvaluateAsync<object>(
-                        RoyalScript + mapping.Scripts.Replace("{VALUE}", value),
-                        RoyalScriptOptions)).ToString();
+                        RoyalScript + scripts, RoyalScriptOptions)).ToString();
+                }
+                else
+                {
+                    value = data[mapping.Value]?.ToString() ?? string.Empty;
                 }
                 if (string.IsNullOrWhiteSpace(value))
                 {

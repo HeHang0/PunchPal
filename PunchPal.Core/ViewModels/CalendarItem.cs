@@ -1,8 +1,10 @@
 ﻿using PunchPal.Core.Models;
+using PunchPal.Core.Services;
 using PunchPal.Tools;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 
 namespace PunchPal.Core.ViewModels
 {
@@ -113,6 +115,7 @@ namespace PunchPal.Core.ViewModels
         public bool IsWorkOvertime { get; set; }
 
         private List<string> _textList = null;
+        public string TextListText => string.Join(" ", TextList);
         public List<string> TextList
         {
             get
@@ -129,24 +132,37 @@ namespace PunchPal.Core.ViewModels
                 var record = CalendarData;
                 if (!string.IsNullOrWhiteSpace(record.Remark))
                 {
-                    _textList.Add(record.Remark);
+                    foreach (var item in (record.Remark.Split(' ')))
+                    {
+                        _textList.Add(item.Trim());
+                    }
                 }
                 var lunarSolarTermVisible = SettingsModel.Load().Calendar.LunarSolarTermVisible;
                 if (!lunarSolarTermVisible && !IsHoliday)
                 {
-                    return _textList;
+                    return _textList.Distinct().ToList();
                 }
                 var festivalEmpty = string.IsNullOrWhiteSpace(record.Festival);
                 var solarTermEmpty = string.IsNullOrWhiteSpace(record.SolarTerm);
-                if (!solarTermEmpty && record.SolarTerm != record.Festival && !_textList.Contains(record.SolarTerm))
+                if (lunarSolarTermVisible && !solarTermEmpty && record.SolarTerm != record.Festival && !_textList.Contains(record.SolarTerm))
                 {
-                    _textList.Add(record.SolarTerm.Trim());
+                    foreach (var item in (record.SolarTerm.Split(' ')))
+                    {
+                        _textList.Add(item.Trim());
+                    }
                 }
                 if (lunarSolarTermVisible && !festivalEmpty && !_textList.Contains(record.Festival))
                 {
-                    _textList.Add(record.Festival.Trim());
+                    foreach (var item in (record.Festival?.Split(' ')))
+                    {
+                        _textList.Add(item.Trim());
+                    }
                 }
-                if (_textList.Count == 0 && record.LunarDate.Length > 0 && record.LunarMonth.Length > 0)
+                if (!lunarSolarTermVisible && CalendarService.ChineseHolidays.Contains(record.SolarTerm))
+                {
+                    _textList.Add(record.SolarTerm);
+                }
+                if (lunarSolarTermVisible && _textList.Count == 0 && record.LunarDate.Length > 0 && record.LunarMonth.Length > 0)
                 {
                     if (record.LunarDate == "初一" && !string.IsNullOrWhiteSpace(record.LunarMonth))
                     {
@@ -157,7 +173,7 @@ namespace PunchPal.Core.ViewModels
                         _textList.Add(record.LunarDate);
                     }
                 }
-                return _textList;
+                return _textList.Distinct().ToList();
             }
         }
 

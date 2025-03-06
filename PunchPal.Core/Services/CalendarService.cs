@@ -128,6 +128,14 @@ namespace PunchPal.Core.Services
                 var otherCalendarData = otherCalendarMap.ContainsKey(date) ? otherCalendarMap[date] : null;
                 if (otherCalendarData != null)
                 {
+                    if (string.IsNullOrWhiteSpace(otherCalendarData.LunarDate) &&
+                        string.IsNullOrWhiteSpace(otherCalendarData.LunarMonth) &&
+                        string.IsNullOrWhiteSpace(otherCalendarData.LunarYear) &&
+                        string.IsNullOrWhiteSpace(otherCalendarData.Remark) &&
+                        !string.IsNullOrWhiteSpace(otherCalendarData.Festival))
+                    {
+                        item.Remark = otherCalendarData.Festival;
+                    }
                     item.IsHoliday = otherCalendarData.IsHoliday;
                     item.IsWorkday = otherCalendarData.IsWorkday;
                     var festivals = new List<string>();
@@ -178,7 +186,7 @@ namespace PunchPal.Core.Services
             return result;
         }
 
-        private static readonly string[] ChineseHolidays = { "元旦", "春节", "清明节", "清明", "劳动节", "端午节", "国庆节", "中秋节" };
+        public static readonly string[] ChineseHolidays = { "元旦", "除夕", "春节", "清明节", "清明", "劳动节", "端午节", "国庆节", "中秋节" };
         public async Task<(CalendarRecord Record, int Distance)> GetRecentHolidays()
         {
             try
@@ -187,7 +195,7 @@ namespace PunchPal.Core.Services
                 {
                     var today = DateTime.Now;
                     var startValue = new DateTime(today.Year, today.Month, today.Day).AddDays(1).TimestampUnix();
-                    var result = await context.CalendarRecords.OrderBy(m => m.Date).FirstOrDefaultAsync(m => m.Date >= startValue && ChineseHolidays.Contains(m.SolarTerm));
+                    var result = await context.CalendarRecords.OrderBy(m => m.Date).FirstOrDefaultAsync(m => m.Date >= startValue && m.SolarTerm != "除夕" && ChineseHolidays.Contains(m.SolarTerm));
                     if (result == null)
                     {
                         return (null, 0);

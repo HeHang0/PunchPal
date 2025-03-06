@@ -174,7 +174,7 @@ namespace PunchPal.Core.ViewModels
             var (user, _) = await UserInfo.RunRequest(preData);
             if (user == null)
             {
-                var (auth, cookieAuth) = await Authenticate.RunRequest(preData);
+                var (auth, cookieAuth) = await Authenticate.RunRequest(preData, headers);
                 if (auth == null && string.IsNullOrWhiteSpace(cookieAuth))
                 {
                     return null;
@@ -187,7 +187,7 @@ namespace PunchPal.Core.ViewModels
                         preData[item.Key] = item.Value;
                     }
                 }
-                var (user1, _) = await UserInfo.RunRequest(preData);
+                var (user1, _) = await UserInfo.RunRequest(preData, headers);
                 user = user1;
             }
             return user as User;

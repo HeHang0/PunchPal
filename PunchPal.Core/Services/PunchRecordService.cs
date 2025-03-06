@@ -27,7 +27,11 @@ namespace PunchPal.Core.Services
             {
                 using (var context = new PunchDbContext())
                 {
-                    context.PunchRecords.AddOrUpdate(entity);
+                    context.PunchRecords.AddOrUpdate(m => new
+                    {
+                        m.PunchTime,
+                        m.UserId
+                    }, entity);
                     await context.SaveChangesAsync();
                 }
                 return true;
@@ -47,7 +51,11 @@ namespace PunchPal.Core.Services
                     var count = 0;
                     foreach (var entity in entities)
                     {
-                        context.PunchRecords.AddOrUpdate(entity);
+                        context.PunchRecords.AddOrUpdate(m => new
+                        {
+                            m.PunchTime,
+                            m.UserId
+                        }, entity);
                         count++;
                     }
                     await context.SaveChangesAsync();
