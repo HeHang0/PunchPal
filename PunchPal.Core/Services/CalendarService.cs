@@ -263,7 +263,15 @@ namespace PunchPal.Core.Services
                 }
                 foreach (var record in monthRecords)
                 {
-                    context.CalendarRecords.AddOrUpdate(record);
+                    var existingEntity = context.CalendarRecords.FirstOrDefaultAsync(m => m.Date == record.Date && m.Type == record.Type);
+                    if (existingEntity != null)
+                    {
+                        context.Entry(existingEntity).CurrentValues.SetValues(existingEntity);
+                    }
+                    else
+                    {
+                        context.CalendarRecords.Add(record);
+                    }
                 }
             }
             await context.SaveChangesAsync();

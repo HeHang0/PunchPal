@@ -68,6 +68,15 @@ namespace PunchPal.Core.Services
                     foreach (var entity in entities)
                     {
                         context.WorkingTimeRanges.AddOrUpdate(entity);
+                        var existingEntity = context.WorkingTimeRanges.FirstOrDefaultAsync(m => m.Date == entity.Date && m.Type == entity.Type);
+                        if (existingEntity != null)
+                        {
+                            context.Entry(existingEntity).CurrentValues.SetValues(existingEntity);
+                        }
+                        else
+                        {
+                            context.WorkingTimeRanges.Add(entity);
+                        }
                         count++;
                     }
                     await context.SaveChangesAsync();

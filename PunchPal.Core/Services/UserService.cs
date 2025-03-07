@@ -88,7 +88,15 @@ namespace PunchPal.Core.Services
                     var count = 0;
                     foreach (var entity in entities)
                     {
-                        context.Users.AddOrUpdate(entity);
+                        var existingEntity = context.Users.FirstOrDefaultAsync(m => m.UserId == entity.UserId);
+                        if (existingEntity != null)
+                        {
+                            context.Entry(existingEntity).CurrentValues.SetValues(existingEntity);
+                        }
+                        else
+                        {
+                            context.Users.Add(entity);
+                        }
                         count++;
                     }
                     await context.SaveChangesAsync();
@@ -146,28 +154,28 @@ namespace PunchPal.Core.Services
                     OldDataService.ImportFromOldDatabase(context);
                 }
                 var existsUsers = RecordUsers(context);
-                if (existsUsers.Any())
+                if (!existsUsers.Any())
                 {
-                    foreach (var id in existsUsers)
-                    {
-                        context.Users.AddOrUpdate(new User
-                        {
-                            UserId = id,
-                            Name = "用户" + id,
-                            Remark = "初始用户"
-                        });
-                    }
-                    context.SaveChanges();
-                    return;
+                    existsUsers.Add(Guid.NewGuid().ToString("N").Substring(0, 8));
                 }
-                var userId = Guid.NewGuid().ToString("N").Substring(0, 8);
-                var user = new User
+                foreach (var id in existsUsers)
                 {
-                    UserId = userId,
-                    Name = "User",
-                    Remark = "初始用户"
-                };
-                context.Users.Add(user);
+                    var entity = new User
+                    {
+                        UserId = id,
+                        Name = "用户" + id,
+                        Remark = "初始用户"
+                    };
+                    var existingEntity = context.Users.FirstOrDefaultAsync(m => m.UserId == entity.UserId);
+                    if (existingEntity != null)
+                    {
+                        context.Entry(existingEntity).CurrentValues.SetValues(existingEntity);
+                    }
+                    else
+                    {
+                        context.Users.Add(entity);
+                    }
+                }
                 context.SaveChanges();
             }
         }

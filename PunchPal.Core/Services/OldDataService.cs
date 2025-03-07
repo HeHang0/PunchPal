@@ -2,7 +2,7 @@
 using PunchPal.Tools;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity.Migrations;
+using System.Data.Entity;
 using System.Data.SQLite;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -85,7 +85,15 @@ namespace PunchPal.Core.Services
                         UserId = userId,
                         PunchType = PunchRecord.PunchTypeImport
                     };
-                    context.PunchRecords.AddOrUpdate(record);
+                    var existingEntity = context.PunchRecords.FirstOrDefaultAsync(m => m.UserId == record.UserId && m.PunchTime == record.PunchTime);
+                    if (existingEntity != null)
+                    {
+                        context.Entry(existingEntity).CurrentValues.SetValues(existingEntity);
+                    }
+                    else
+                    {
+                        context.PunchRecords.Add(record);
+                    }
                 }
                 context.SaveChanges();
             }

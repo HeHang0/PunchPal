@@ -51,11 +51,16 @@ namespace PunchPal.Core.Services
                     var count = 0;
                     foreach (var entity in entities)
                     {
-                        context.PunchRecords.AddOrUpdate(m => new
+                        var existingEntity = context.PunchRecords.FirstOrDefaultAsync(m => m.UserId == entity.UserId && m.PunchTime == entity.PunchTime);
+                        if (existingEntity != null)
                         {
-                            m.PunchTime,
-                            m.UserId
-                        }, entity);
+                            context.Entry(existingEntity).CurrentValues.SetValues(existingEntity);
+                            continue;
+                        }
+                        else
+                        {
+                            context.PunchRecords.Add(entity);
+                        }
                         count++;
                     }
                     await context.SaveChangesAsync();
