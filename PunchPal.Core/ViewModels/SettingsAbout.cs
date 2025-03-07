@@ -14,7 +14,7 @@ namespace PunchPal.Core.ViewModels
     public class SettingsAbout : NotifyPropertyBase
     {
         private SynchronizationContext _uiContext = null;
-        private readonly bool _canUpdate = false;
+        private bool _canUpdate = false;
         private string _newVersion = string.Empty;
         private bool _isUpdateChecking = false;
         public bool CanUpdate => _canUpdate;
@@ -25,6 +25,28 @@ namespace PunchPal.Core.ViewModels
         public void SetUIContext(SynchronizationContext uiContext)
         {
             _uiContext = uiContext;
+        }
+
+        private bool _isUpdating = false;
+        public bool IsUpdating
+        {
+            get => _isUpdating;
+            private set
+            {
+                _isUpdating = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private int updateProgress = 0;
+        public int UpdateProgress
+        {
+            get => updateProgress;
+            private set
+            {
+                updateProgress = value;
+                OnPropertyChanged();
+            }
         }
 
         public bool IsUpdateChecking
@@ -68,6 +90,7 @@ namespace PunchPal.Core.ViewModels
             });
             _uiContext?.Post(_ =>
             {
+                _canUpdate = ok;
                 if (ok)
                 {
                     _newVersion = version;
@@ -84,13 +107,23 @@ namespace PunchPal.Core.ViewModels
         {
             CancellationTokenSource cts = new CancellationTokenSource();
             IsUpdateChecking = true;
+            IsUpdating = true;
             Update.AutoUpdate?.Update(new SingleInstaller(), cts.Token, new Progress<int>(p =>
             {
-                if (p == 100)
+                if (p == 100 || p == -1)
                 {
                     _uiContext?.Post(_ =>
                     {
+                        UpdateProgress = 0;
                         IsUpdateChecking = false;
+                        IsUpdating = false;
+                    }, null);
+                }
+                else
+                {
+                    _uiContext?.Post(_ =>
+                    {
+                        UpdateProgress = p;
                     }, null);
                 }
             }));

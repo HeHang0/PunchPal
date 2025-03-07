@@ -90,8 +90,13 @@
                     <ui:HyperlinkButton Content="{Binding CheckUpdateText}"
                                     Command="{Binding CheckUpdate}" Cursor="Hand"
                                  Visibility="{Binding IsUpdateChecking, Converter={StaticResource BooleanToNotVisibility}, Mode=OneWay}"></ui:HyperlinkButton>
-                    <ui:ProgressRing Width="20" Height="20" IsIndeterminate="True" Progress="70" Margin="0 0 10 0"
-                                 Visibility="{Binding IsUpdateChecking, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}"/>
+                    <Grid Width="20" Height="20" Margin="0 0 10 0"
+                          Visibility="{Binding IsUpdateChecking, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
+                        <ui:ProgressRing Width="20" Height="20" IsIndeterminate="True" Progress="70" HorizontalAlignment="Right"/>
+                        <TextBlock Text="{Binding UpdateProgress, Mode=OneWay}" FontSize="10"
+                                   VerticalAlignment="Center" HorizontalAlignment="Center"
+                                   Visibility="{Binding IsUpdating, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}"/>                        
+                    </Grid>
                 </StackPanel>
             </Grid>
         </ui:Anchor>

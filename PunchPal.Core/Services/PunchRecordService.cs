@@ -55,7 +55,6 @@ namespace PunchPal.Core.Services
                         if (existingEntity != null)
                         {
                             context.Entry(existingEntity).CurrentValues.SetValues(existingEntity);
-                            continue;
                         }
                         else
                         {
