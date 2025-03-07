@@ -157,7 +157,12 @@ namespace PunchPal.Core.Services
             }
             var date = item.WorkingDateTime;
             var now = DateTime.Now;
-            item.IsToday = date.Year == now.Year && date.Month == now.Month && date.Day == now.Day;
+            var isTody = date.Year == now.Year && date.Month == now.Month && date.Day == now.Day;
+            if(isTody)
+            {
+                var endWorkTime = new DateTime(date.Year, date.Month, date.Day, workingTime.Work.EndHour, workingTime.Work.EndMinute, 0);
+                item.IsToday = endWorkTime >= now;
+            }
             return item;
         }
 
