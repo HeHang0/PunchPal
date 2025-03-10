@@ -88,7 +88,7 @@ namespace PunchPal.Core.Services
                     var count = 0;
                     foreach (var entity in entities)
                     {
-                        var existingEntity = context.Users.FirstOrDefaultAsync(m => m.UserId == entity.UserId);
+                        var existingEntity = await context.Users.FirstOrDefaultAsync(m => m.UserId == entity.UserId);
                         if (existingEntity != null)
                         {
                             context.Entry(existingEntity).CurrentValues.SetValues(existingEntity);
@@ -166,7 +166,7 @@ namespace PunchPal.Core.Services
                         Name = "用户" + id,
                         Remark = "初始用户"
                     };
-                    var existingEntity = context.Users.FirstOrDefaultAsync(m => m.UserId == entity.UserId);
+                    var existingEntity = context.Users.FirstOrDefault(m => m.UserId == entity.UserId);
                     if (existingEntity != null)
                     {
                         context.Entry(existingEntity).CurrentValues.SetValues(existingEntity);

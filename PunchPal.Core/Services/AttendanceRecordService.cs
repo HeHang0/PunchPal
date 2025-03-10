@@ -44,7 +44,7 @@ namespace PunchPal.Core.Services
                 {
                     foreach (var entity in entities)
                     {
-                        var existingEntity = context.AttendanceRecords.FirstOrDefaultAsync(m => m.AttendanceId == entity.AttendanceId);
+                        var existingEntity = await context.AttendanceRecords.FirstOrDefaultAsync(m => m.AttendanceId == entity.AttendanceId);
                         if (existingEntity != null)
                         {
                             context.Entry(existingEntity).CurrentValues.SetValues(existingEntity);

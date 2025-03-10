@@ -38,10 +38,11 @@ namespace PunchPal.WPF
             Loaded += MainWindow_Loaded;
             Closing += MainWindow_Closing;
             EventManager.RegisterConfirmDialog(OnConfirmDialog);
-            EventManager.RegisterFileDialog(OnFileSelecting);
-            EventManager.RegisterSaveDialog(OnSaveDialog);
-            EventManager.RegisterNotification(OnNotification);
+            EventManager.RegisterFileDialog(DialogTools.OnFileSelecting);
+            EventManager.RegisterSaveDialog(DialogTools.OnSaveDialog);
+            EventManager.RegisterNotification(NotificationTools.OnNotification);
             EventManager.RegisterTips(ShowTips);
+            EventManager.RegisterSetForegroundWindow(WindowTools.SetForegroundWindow);
             InitWindowBackdropType();
         }
 
@@ -129,54 +130,6 @@ namespace PunchPal.WPF
             _mainModel.Loading = true;
             await _mainModel.Setting.WorkingTimeRange.InitRanges();
             _mainModel.Loading = false;
-        }
-
-        private string[] OnFileSelecting(EventManager.FileDialogOption e)
-        {
-            var openFileDialog = new OpenFileDialog()
-            {
-                Filter = e.Filter,
-                Multiselect = e.Multiselect
-            };
-            if (openFileDialog.ShowDialog() != true)
-            {
-                return new string[] { };
-            }
-            if (e.Multiselect)
-            {
-                return openFileDialog.FileNames ?? new string[] { };
-            }
-            else
-            {
-                return new string[] { openFileDialog.FileName };
-            }
-        }
-
-        private void OnNotification(EventManager.NotificationOption e)
-        {
-            ShowToast(e.Message, e.LongDuration);
-        }
-
-        private string OnSaveDialog(EventManager.SaveDialogOption e)
-        {
-            var saveFileDialog = new SaveFileDialog()
-            {
-                Title = e.Title,
-                Filter = e.Filter,
-                DefaultExt = e.DefaultExt,
-                FileName = e.FileName,
-                AddExtension = e.AddExtension
-            };
-            if (saveFileDialog.ShowDialog() != true)
-            {
-                return string.Empty;
-            }
-            return saveFileDialog.FileName;
-        }
-
-        private void OnShowWindow(object sender, EventArgs e)
-        {
-            Dispatcher.Invoke(ShowWindow);
         }
 
         private void OnPersonalizeChanged(object sender, PropertyChangedEventArgs e)
@@ -388,16 +341,12 @@ namespace PunchPal.WPF
             _mainModel.WorkingHours.TextCoping += OnTextCoping;
             _mainModel.Setting.Personalize.PropertyChanged += OnPersonalizeChanged;
             _mainModel.Setting.WorkingTimeRange.Edited += OnWorkingTimeRangeEdited;
-            _mainModel.ShowWindow += OnShowWindow;
             _mainModel.Setting.Common.PropertyChanged += Common_PropertyChanged;
             PunchNavigationView.Navigate("记录");
-            ShowWindow();
+            WindowTools.ShowWindow(this);
             LockScreenTools.Register(new WindowInteropHelper(this).Handle, OnLockScreen);
             HotKeyTools.SetCallback(this, OnHotKey);
             Common_PropertyChanged(null, new PropertyChangedEventArgs(nameof(SettingsCommon.ShortcutText)));
-#if NETFRAMEWORK
-            Microsoft.Toolkit.Uwp.Notifications.ToastNotificationManagerCompat.OnActivated += OnToastActivated;
-#endif
             LoadingBorder.Opacity = 0.5;
         }
 
@@ -420,7 +369,7 @@ namespace PunchPal.WPF
             }
             else
             {
-                ShowWindow();
+                WindowTools.ShowWindow(this);
             }
         }
 
@@ -545,7 +494,7 @@ namespace PunchPal.WPF
         {
             _exiting = true;
             _ = _mainModel.Setting.SaveReal();
-            ExitToast();
+            NotificationTools.ExitToast();
             Application.Current.Shutdown();
         }
 
@@ -579,30 +528,18 @@ namespace PunchPal.WPF
                 return;
             }
 
-            ShowToast("已最小化到托盘");
+            NotificationTools.ShowToast("已最小化到托盘");
             _toastShown = true;
-        }
-
-        private void ShowWindow()
-        {
-            Show();
-            WindowState = WindowState.Normal;
-            Activate();
-            var handle = new WindowInteropHelper(this).Handle;
-            if (handle != IntPtr.Zero)
-            {
-                SetForegroundWindow(handle);
-            }
         }
 
         private void OnShowWindowClick(object sender, RoutedEventArgs e)
         {
-            ShowWindow();
+            WindowTools.ShowWindow(this);
         }
 
         private void OnShowSettingsClick(object sender, RoutedEventArgs e)
         {
-            ShowWindow();
+            WindowTools.ShowWindow(this);
             PunchNavigationView.Navigate("设置");
         }
 
@@ -632,40 +569,5 @@ namespace PunchPal.WPF
         {
             FocusHelper.Focus();
         }
-
-#if NETFRAMEWORK
-        private void OnToastActivated(Microsoft.Toolkit.Uwp.Notifications.ToastNotificationActivatedEventArgsCompat _)
-        {
-            ShowWindow();
-        }
-
-        public static void ShowToast(string message, bool longDuration = false)
-        {
-            try
-            {
-                Microsoft.Toolkit.Uwp.Notifications.ToastNotificationManagerCompat.History.Clear();
-                var builder = new Microsoft.Toolkit.Uwp.Notifications.ToastContentBuilder()
-                    .AddArgument(NameTools.AppName)
-                    .AddText(message);
-                builder.SetToastDuration(longDuration
-                    ? Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long
-                    : Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Short);
-                builder.Show();
-            }
-            catch (Exception)
-            {
-                // ignore
-            }
-        }
-
-        public static void ExitToast()
-        {
-            Microsoft.Toolkit.Uwp.Notifications.ToastNotificationManagerCompat.History.Clear();
-            Microsoft.Toolkit.Uwp.Notifications.ToastNotificationManagerCompat.Uninstall();
-        }
-#else
-        public static void ShowToast(string message, bool longDuration = false) { }
-        public static void ExitToast() { }
-#endif
     }
 }

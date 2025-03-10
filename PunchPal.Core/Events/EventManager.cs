@@ -99,5 +99,30 @@ namespace PunchPal.Core.Events
             _notification?.Invoke(option);
         }
         #endregion
+
+        #region ForegroundWindow
+        public class ForegroundWindowOption
+        {
+            public IntPtr Handle { get; set; }
+            public bool Center { get; set; }
+            public bool Half { get; set; }
+            public ForegroundWindowOption(IntPtr handle, bool center = true, bool half = false)
+            {
+                Handle = handle;
+                Center = center;
+                Half = half;
+            }
+        }
+        private static Action<ForegroundWindowOption> _foregroundWindow = null;
+        public static void RegisterSetForegroundWindow(Action<ForegroundWindowOption> notification)
+        {
+            _foregroundWindow = notification;
+        }
+
+        public static void SetForegroundWindow(ForegroundWindowOption option = null)
+        {
+            _foregroundWindow?.Invoke(option);
+        }
+        #endregion
     }
 }

@@ -120,8 +120,8 @@ namespace PunchPal.Core.Services
             if (workingTime != null && workingTime.Work != null)
             {
                 var dateStart = timeStart.Unix2DateTime();
-                var startWorkTime = new DateTime(dateStart.Year, dateStart.Month, dateStart.Day, workingTime.Work.StartHour, 0, 0);
-                var endWorkTime = new DateTime(dateStart.Year, dateStart.Month, dateStart.Day, workingTime.Work.EndHour, 0, 0);
+                var startWorkTime = new DateTime(dateStart.Year, dateStart.Month, dateStart.Day, workingTime.Work.StartHour, workingTime.Work.StartMinute, 0);
+                var endWorkTime = new DateTime(dateStart.Year, dateStart.Month, dateStart.Day, workingTime.Work.EndHour, workingTime.Work.EndMinute, 0);
                 var startWorkTimeUnix = startWorkTime.TimestampUnix();
                 var endWorkTimeUnix = endWorkTime.TimestampUnix();
                 if (settings.Data.IsIgnoreBeforeWorkTime && startWorkTimeUnix > minTime)
@@ -158,7 +158,7 @@ namespace PunchPal.Core.Services
             var date = item.WorkingDateTime;
             var now = DateTime.Now;
             var isTody = date.Year == now.Year && date.Month == now.Month && date.Day == now.Day;
-            if(isTody)
+            if (isTody)
             {
                 var endWorkTime = new DateTime(date.Year, date.Month, date.Day, workingTime.Work.EndHour, workingTime.Work.EndMinute, 0);
                 item.IsToday = endWorkTime >= now;

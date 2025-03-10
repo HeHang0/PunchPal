@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace PunchPal.Core.Apis
@@ -53,7 +52,7 @@ namespace PunchPal.Core.Apis
                 {
                     _ = Task.Delay(TimeSpan.FromSeconds(10)).ContinueWith(t => { _tcs.TrySetResult(null); });
                 }
-
+                ShowAllWindow();
                 var result = await _tcs.Task;
                 await browser.CloseAsync();
                 await browser.DisposeAsync();
@@ -193,46 +192,8 @@ namespace PunchPal.Core.Apis
         {
             foreach (var browser in Browsers)
             {
-                try
-                {
-                    ShowWindow(browser.Process.MainWindowHandle, 1);
-                    SetForegroundWindow(browser.Process.MainWindowHandle);
-                }
-                catch (Exception)
-                {
-                    // ignore
-                }
+                EventManager.SetForegroundWindow(new EventManager.ForegroundWindowOption(browser.Process.MainWindowHandle, true, true));
             }
         }
-
-        //private static void CenterAndHalfWindow(IBrowser browser)
-        //{
-        //    try
-        //    {
-        //        var height = (int)SystemParameters.PrimaryScreenHeight / 2;
-        //        var width = (int)SystemParameters.PrimaryScreenWidth / 2;
-        //        SetWindowPos(browser.Process.MainWindowHandle, IntPtr.Zero,
-        //            (width - (width % 2)) / 2, (height - (height % 2)) / 2,
-        //            width, height, SWP_NOSIZE | SWP_CENTER | SWP_SHOWWINDOW);
-        //    }
-        //    catch (Exception)
-        //    {
-        //        // ignore
-        //    }
-        //}
-
-        [DllImport("user32.dll")]
-        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool SetForegroundWindow(IntPtr hWnd);
-
-        [DllImport("user32.dll")]
-        static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, int dwFlags);
-
-        const int SWP_NOSIZE = 0x0001;
-        const int SWP_CENTER = 0x0002;
-        const int SWP_SHOWWINDOW = 0x0040;
     }
 }

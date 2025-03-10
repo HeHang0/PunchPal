@@ -51,7 +51,7 @@ namespace PunchPal.Core.Services
                     var count = 0;
                     foreach (var entity in entities)
                     {
-                        var existingEntity = context.PunchRecords.FirstOrDefaultAsync(m => m.UserId == entity.UserId && m.PunchTime == entity.PunchTime);
+                        var existingEntity = await context.PunchRecords.FirstOrDefaultAsync(m => m.UserId == entity.UserId && m.PunchTime == entity.PunchTime);
                         if (existingEntity != null)
                         {
                             context.Entry(existingEntity).CurrentValues.SetValues(existingEntity);

@@ -263,7 +263,7 @@ namespace PunchPal.Core.Services
                 }
                 foreach (var record in monthRecords)
                 {
-                    var existingEntity = context.CalendarRecords.FirstOrDefaultAsync(m => m.Date == record.Date && m.Type == record.Type);
+                    var existingEntity = await context.CalendarRecords.FirstOrDefaultAsync(m => m.Date == record.Date && m.Type == record.Type);
                     if (existingEntity != null)
                     {
                         context.Entry(existingEntity).CurrentValues.SetValues(existingEntity);

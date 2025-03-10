@@ -36,11 +36,21 @@
             </Image.Effect>
         </Image>
         <Border Grid.Row="0" x:Name="DragHelper" Visibility="Collapsed" Background="#01000000" Height="48"/>
-        <ui:TitleBar Grid.Row="0" Title="{Binding Title}"
-                     CanMaximize="True" ShowMaximize="True" ShowMinimize="True">
-            <ui:TitleBar.Icon>
-                <ui:ImageIcon Source="{Binding AppIcon}"/>
-            </ui:TitleBar.Icon>
+        <ui:TitleBar Grid.Row="0" CanMaximize="True" ShowMaximize="True" ShowMinimize="True">
+            <ui:TitleBar.Header>
+                <Grid Margin="16 0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <ui:ImageIcon Source="{Binding AppIcon}" Height="16" Margin="0 0 12 0"/>
+                    <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Title}" />
+                </Grid>
+            </ui:TitleBar.Header>
+            <ui:TitleBar.TrailingContent>
+                <TextBlock IsHitTestVisible="False" Height="32" Grid.Column="2" Opacity="0.6" FontSize="13" Foreground="{DynamicResource WindowForeground}" Margin="0 0 5 0"
+           Text="{Binding CountdownOffWork}" VerticalAlignment="Center" />
+            </ui:TitleBar.TrailingContent>
         </ui:TitleBar>
         <Grid Grid.Row="1" Margin="20 0 20 0"
               Visibility="{Binding Setting.Common.IsShowHoursOnMain, Converter={StaticResource BooleanToVisibility}}">
@@ -121,15 +131,13 @@
             </ui:NavigationView.MenuItems>
             <ui:NavigationView.PaneFooter>
                 <StackPanel Orientation="Horizontal" Height="35" Margin="0 0.5 0 0" VerticalAlignment="Top">
-                    <TextBlock Opacity="0.6" FontSize="13" Foreground="{DynamicResource WindowForeground}" Margin="0 0 5 0"
-                               Text="{Binding CountdownOffWork}" ToolTip="下班倒计时" VerticalAlignment="Center" />
-                    <ui:Button Padding="10 0" Margin="0 0 5 0" Cursor="Hand" ToolTip="添加打卡记录"
+                    <ui:Button Padding="10 2" Margin="0 0 5 0" Cursor="Hand" ToolTip="添加打卡记录"
                                Appearance="Secondary" Content="添加"
                                Command="{Binding AddRecordCommand}"
                                Foreground="{DynamicResource NavigationViewItemForeground}"
                                Visibility="{Binding CanAddRecord, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
                         <ui:Button.Icon>
-                            <ui:SymbolIcon Filled="False" FontSize="26" Symbol="AddCircle20" />
+                            <ui:SymbolIcon Filled="False" FontSize="16" Symbol="AddCircle20" />
                         </ui:Button.Icon>
                     </ui:Button>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
@@ -139,7 +147,7 @@
                                    BorderBrush="Transparent" Content="" Command="{Binding LastMonthCommand}"
                                    Foreground="{DynamicResource NavigationViewItemForeground}" VerticalAlignment="Center">
                             <ui:Button.Icon>
-                                <ui:SymbolIcon Filled="True" FontSize="26" Symbol="CaretLeft20" />
+                                <ui:SymbolIcon Filled="True" FontSize="16" Symbol="CaretLeft20" />
                             </ui:Button.Icon>
                         </ui:Button>
                         <Label Content="{Binding MonthText}" FontSize="14"
@@ -161,7 +169,7 @@
                                    Command="{Binding NextMonthCommand}" Focusable="False"
                                    Foreground="{DynamicResource NavigationViewItemForeground}">
                             <ui:Button.Icon>
-                                <ui:SymbolIcon Filled="True" FontSize="26" Symbol="CaretRight20" />
+                                <ui:SymbolIcon Filled="True" FontSize="16" Symbol="CaretRight20" />
                             </ui:Button.Icon>
                         </ui:Button>
                     </StackPanel>

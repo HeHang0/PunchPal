@@ -13,7 +13,6 @@ namespace PunchPal.Core.ViewModels
     public class MainModel : NotifyPropertyBase
     {
         public event EventHandler AddRecord;
-        public event EventHandler ShowWindow;
         private readonly SynchronizationContext uiContext = SynchronizationContext.Current;
         private Timer _timer;
         private bool _isTimerRunning;
@@ -58,7 +57,7 @@ namespace PunchPal.Core.ViewModels
                 {
                     return "下班啦";
                 }
-                return diff.ToString("hh\\:mm\\:ss");
+                return "下班倒计时：" + diff.ToString("hh\\:mm\\:ss");
             }
         }
 
