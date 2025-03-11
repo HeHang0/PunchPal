@@ -86,17 +86,10 @@ namespace PunchPal.Core.Services
                 using (var context = new PunchDbContext())
                 {
                     var count = 0;
+                    entities = entities.GroupBy(m => m.UserId).Select(m => m.First());
                     foreach (var entity in entities)
                     {
-                        var existingEntity = await context.Users.FirstOrDefaultAsync(m => m.UserId == entity.UserId);
-                        if (existingEntity != null)
-                        {
-                            context.Entry(existingEntity).CurrentValues.SetValues(existingEntity);
-                        }
-                        else
-                        {
-                            context.Users.Add(entity);
-                        }
+                        context.Users.AddOrUpdate(entity);
                         count++;
                     }
                     await context.SaveChangesAsync();
@@ -158,6 +151,7 @@ namespace PunchPal.Core.Services
                 {
                     existsUsers.Add(Guid.NewGuid().ToString("N").Substring(0, 8));
                 }
+                existsUsers = existsUsers.GroupBy(m => m).Select(m => m.First()).ToList();
                 foreach (var id in existsUsers)
                 {
                     var entity = new User
@@ -166,15 +160,7 @@ namespace PunchPal.Core.Services
                         Name = "用户" + id,
                         Remark = "初始用户"
                     };
-                    var existingEntity = context.Users.FirstOrDefault(m => m.UserId == entity.UserId);
-                    if (existingEntity != null)
-                    {
-                        context.Entry(existingEntity).CurrentValues.SetValues(existingEntity);
-                    }
-                    else
-                    {
-                        context.Users.Add(entity);
-                    }
+                    context.Users.AddOrUpdate(entity);
                 }
                 context.SaveChanges();
             }

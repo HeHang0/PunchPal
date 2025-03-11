@@ -256,22 +256,14 @@ namespace PunchPal.Core.Services
                 var monthEnd = monthStart.AddMonths(1);
                 var monthStartValue = monthStart.TimestampUnix();
                 var monthEndValue = monthEnd.TimestampUnix();
-                var monthRecords = records.Where(m => m.Date >= monthStartValue && m.Date < monthEndValue).ToList();
+                var monthRecords = records.Where(m => m.Date >= monthStartValue && m.Date < monthEndValue).GroupBy(m => new { m.Date, m.Type }).Select(m => m.First()).ToList();
                 if (monthRecords.Count != GetYearDays(monthStart))
                 {
                     continue;
                 }
                 foreach (var record in monthRecords)
                 {
-                    var existingEntity = await context.CalendarRecords.FirstOrDefaultAsync(m => m.Date == record.Date && m.Type == record.Type);
-                    if (existingEntity != null)
-                    {
-                        context.Entry(existingEntity).CurrentValues.SetValues(existingEntity);
-                    }
-                    else
-                    {
-                        context.CalendarRecords.Add(record);
-                    }
+                    context.CalendarRecords.AddOrUpdate(record);
                 }
             }
             await context.SaveChangesAsync();

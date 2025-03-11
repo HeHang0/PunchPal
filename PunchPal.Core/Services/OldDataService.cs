@@ -42,7 +42,7 @@ namespace PunchPal.Core.Services
 
         private static void ParseOldDatabase(string oldPath, PunchDbContext context)
         {
-            List<(long time, string remark, string userId)> results = new List<(long, string, string)>();
+            List<(long time, string remark, string userId)> result = new List<(long, string, string)>();
             string connectionString = $"Data Source={oldPath};";
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))
             {
@@ -69,14 +69,15 @@ namespace PunchPal.Core.Services
                             long timeValue = reader.GetInt64(0);
                             string recordValue = reader.GetString(1);
                             string userValue = Regex.Replace(reader.GetString(2), "[a-z]", "");
-                            results.Add((timeValue, recordValue, userValue));
+                            result.Add((timeValue, recordValue, userValue));
                         }
                     }
                 }
             }
             try
             {
-                foreach (var (time, remark, userId) in results)
+                result = result.GroupBy(m => new { m.time, m.userId }).Select(m => m.First()).ToList();
+                foreach (var (time, remark, userId) in result)
                 {
                     var record = new PunchRecord
                     {
@@ -85,15 +86,7 @@ namespace PunchPal.Core.Services
                         UserId = userId,
                         PunchType = PunchRecord.PunchTypeImport
                     };
-                    var existingEntity = context.PunchRecords.FirstOrDefault(m => m.UserId == record.UserId && m.PunchTime == record.PunchTime);
-                    if (existingEntity != null)
-                    {
-                        context.Entry(existingEntity).CurrentValues.SetValues(existingEntity);
-                    }
-                    else
-                    {
-                        context.PunchRecords.Add(record);
-                    }
+                    context.PunchRecords.Add(record);
                 }
                 context.SaveChanges();
             }

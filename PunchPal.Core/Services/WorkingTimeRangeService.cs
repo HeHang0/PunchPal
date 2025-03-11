@@ -62,21 +62,13 @@ namespace PunchPal.Core.Services
         {
             try
             {
+                entities = entities.GroupBy(m => new { m.Type, m.Date }).Select(m => m.First());
                 using (var context = new PunchDbContext())
                 {
                     var count = 0;
                     foreach (var entity in entities)
                     {
                         context.WorkingTimeRanges.AddOrUpdate(entity);
-                        var existingEntity = await context.WorkingTimeRanges.FirstOrDefaultAsync(m => m.Date == entity.Date && m.Type == entity.Type);
-                        if (existingEntity != null)
-                        {
-                            context.Entry(existingEntity).CurrentValues.SetValues(existingEntity);
-                        }
-                        else
-                        {
-                            context.WorkingTimeRanges.Add(entity);
-                        }
                         count++;
                     }
                     await context.SaveChangesAsync();

@@ -40,19 +40,12 @@ namespace PunchPal.Core.Services
             try
             {
                 var count = 0;
+                entities = entities.GroupBy(m => m.AttendanceId).Select(m => m.First());
                 using (var context = new PunchDbContext())
                 {
                     foreach (var entity in entities)
                     {
-                        var existingEntity = await context.AttendanceRecords.FirstOrDefaultAsync(m => m.AttendanceId == entity.AttendanceId);
-                        if (existingEntity != null)
-                        {
-                            context.Entry(existingEntity).CurrentValues.SetValues(existingEntity);
-                        }
-                        else
-                        {
-                            context.AttendanceRecords.Add(entity);
-                        }
+                        context.AttendanceRecords.AddOrUpdate(entity);
                         count++;
                     }
                     await context.SaveChangesAsync();
