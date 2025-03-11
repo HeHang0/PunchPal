@@ -437,11 +437,19 @@ namespace PunchPal.Core.ViewModels
                     var punchList = new List<PunchRecord>();
                     for (var i = 0; i < ja.Count; i++)
                     {
-                        var punch = new PunchRecord();
-                        punch.PunchTime = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(PunchRecord.PunchTime)), punch.PunchTime);
-                        punch.PunchType = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(PunchRecord.PunchType)), punch.PunchType);
-                        punch.Remark = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(PunchRecord.Remark)), punch.Remark);
-                        punchList.Add(punch);
+                        long defaultTime = 0;
+                        var result = await ParseJsonArray((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(PunchRecord.PunchTime)), defaultTime);
+                        var punchType = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(PunchRecord.PunchType)), string.Empty);
+                        var remark = await ParseJsonItem((JObject)ja[i], RequestMappings.FirstOrDefault(m => m.Key == nameof(PunchRecord.Remark)), string.Empty);
+                        foreach (var item in result)
+                        {
+                            punchList.Add(new PunchRecord
+                            {
+                                PunchTime = item,
+                                PunchType = punchType,
+                                Remark = remark
+                            });
+                        }
                     }
                     return punchList;
                 case DataSourceType.Attendance:
@@ -591,15 +599,15 @@ namespace PunchPal.Core.ViewModels
                         .WithImports("System");
         private static readonly string RoyalScript = "public static int TimestampUnix(this DateTime dateTime)\r\n        {\r\n            return (int)dateTime.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;\r\n        }\n";
 
-        private async Task<T> ParseJsonItem<T>(JObject data, RequestMapping mapping, T defaultValue)
+        private async Task<string> ParseJsonText(JObject data, RequestMapping mapping)
         {
+            if (mapping == null)
+            {
+                return string.Empty;
+            }
+            var value = string.Empty;
             try
             {
-                if (mapping == null)
-                {
-                    return defaultValue;
-                }
-                var value = string.Empty;
                 if (!string.IsNullOrWhiteSpace(mapping.Scripts))
                 {
                     var scripts = mapping.Scripts;
@@ -623,37 +631,60 @@ namespace PunchPal.Core.ViewModels
                 {
                     value = data[mapping.Value]?.ToString() ?? string.Empty;
                 }
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    return defaultValue;
-                }
-                var text = value;
-                if (typeof(T) == typeof(string))
-                {
-                    return (T)(object)text;
-                }
-                else if (typeof(T) == typeof(bool))
-                {
-                    return (T)(object)(text.ToLower() == "true");
-                }
-                else if (typeof(T) == typeof(long))
-                {
-                    return (T)(object)long.Parse(text);
-                }
-                else if (typeof(T) == typeof(int))
-                {
-                    return (T)(object)int.Parse(text);
-                }
-                else if (typeof(T) == typeof(WorkingTimeRangeType))
-                {
-                    return (T)(object)int.Parse(text);
-                }
             }
             catch (Exception)
             {
-                // ignore
+                //ignore
+            }
+            return value;
+        }
+
+        private T ParseJsonItem<T>(string value, T defaultValue)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return defaultValue;
+            }
+            var text = value;
+            if (typeof(T) == typeof(string))
+            {
+                return (T)(object)text;
+            }
+            else if (typeof(T) == typeof(bool))
+            {
+                return (T)(object)(text.ToLower() == "true");
+            }
+            else if (typeof(T) == typeof(long))
+            {
+                return (T)(object)long.Parse(text);
+            }
+            else if (typeof(T) == typeof(int))
+            {
+                return (T)(object)int.Parse(text);
+            }
+            else if (typeof(T) == typeof(WorkingTimeRangeType))
+            {
+                return (T)(object)int.Parse(text);
             }
             return defaultValue;
+        }
+
+        private async Task<List<T>> ParseJsonArray<T>(JObject data, RequestMapping mapping, T defaultValue)
+        {
+            List<T> result = new List<T>();
+            var value = await ParseJsonText(data, mapping);
+            var values = value.Split(',');
+            foreach (var item in values)
+            {
+                result.Add(ParseJsonItem(value, defaultValue));
+            }
+            return result;
+        }
+
+        private async Task<T> ParseJsonItem<T>(JObject data, RequestMapping mapping, T defaultValue)
+        {
+            var value = await ParseJsonText(data, mapping);
+            return ParseJsonItem(value, defaultValue);
         }
 
         private string ReplaceValue(string text, Dictionary<string, string> preData)
