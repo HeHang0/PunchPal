@@ -676,7 +676,7 @@ namespace PunchPal.Core.ViewModels
             var values = value.Split(',');
             foreach (var item in values)
             {
-                result.Add(ParseJsonItem(value, defaultValue));
+                result.Add(ParseJsonItem(item, defaultValue));
             }
             return result;
         }
