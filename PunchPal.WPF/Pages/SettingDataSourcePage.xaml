@@ -96,11 +96,16 @@ IsExpanded="{Binding IsExpanded}">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="50" />
                                         <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <Label Content="取值：" VerticalAlignment="Center" HorizontalContentAlignment="Right"/>
-                                    <ui:TextBox Grid.Column="1" Height="30" Padding="5 0" Text="{Binding ResponseValue}"/>
+                                    <ui:TextBox Grid.Column="1" MinHeight="30" Padding="5 0" Text="{Binding ResponseValue}" AcceptsReturn="True" AcceptsTab="True" MaxLines="5" />
+                                    <StackPanel Grid.Column="2" Margin="10 0 0 0" Orientation="Horizontal">
+                                        <Label Content="JS脚本" VerticalAlignment="Center" HorizontalContentAlignment="Right"/>
+                                        <ui:ToggleSwitch Margin="5 0 0 0" IsChecked="{Binding IsResponseJavaScript}" />
+                                    </StackPanel>
                                 </Grid>
-                                <Grid Margin="0 0 0 12" Visibility="{Binding IsBrowser, Converter={StaticResource BooleanToNotVisibility}}">
+                                <Grid Margin="0 0 0 12" Visibility="{Binding RequestFilterVisible, Converter={StaticResource BooleanToVisibility}}">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="50" />
                                         <ColumnDefinition Width="*" />
@@ -134,7 +139,7 @@ IsExpanded="{Binding IsExpanded}">
                                         <ui:Button Content="添加" HorizontalAlignment="Stretch" Command="{Binding AddRequestFilter}"/>
                                     </StackPanel>
                                 </Grid>
-                                <Grid Visibility="{Binding RequestMappingVisible, Converter={StaticResource BooleanToVisibility}}">
+                                <Grid Margin="0 0 0 12" Visibility="{Binding RequestMappingVisible, Converter={StaticResource BooleanToVisibility}}">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="50" />
                                         <ColumnDefinition Width="*" />
@@ -172,13 +177,21 @@ IsExpanded="{Binding IsExpanded}">
                           Visibility="{Binding CanAddMapping, Converter={StaticResource BooleanToVisibility}}"/>
                                     </StackPanel>
                                 </Grid>
-                                <Grid Margin="0 12 0 0" Visibility="{Binding RequestMappingVisible, Converter={StaticResource BooleanToVisibility}}">
+                                <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="50" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
                                     <ui:Button Grid.Column="1" Content="测试" HorizontalAlignment="Stretch" CommandParameter="{Binding}"
                                                Command="{Binding DataContext.TestRequest, RelativeSource={RelativeSource AncestorType=ListBox}}"/>
+                                </Grid>
+                                <Grid Margin="0 12 0 0" Visibility="{Binding IsResponseJavaScript, Converter={StaticResource BooleanToVisibility}}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="50" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="：：：" VerticalAlignment="Center" HorizontalContentAlignment="Right" Opacity="0"/>
+                                    <ui:TextBlock Grid.Column="1" Text="{Binding JavaScriptTips, Mode=OneWay}" Opacity="0.6" TextWrapping = "Wrap"/>
                                 </Grid>
                             </StackPanel>
                         </ui:CardExpander>

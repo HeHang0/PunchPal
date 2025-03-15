@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using PunchPal.Core.Apis;
 using PunchPal.Core.Models;
 using PunchPal.Tools;
+using PuppeteerSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -196,6 +197,7 @@ namespace PunchPal.Core.ViewModels
                 _requestMethod = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(IsBrowser));
+                OnPropertyChanged(nameof(RequestFilterVisible));
             }
         }
         private string _requestBody = string.Empty;
@@ -218,6 +220,19 @@ namespace PunchPal.Core.ViewModels
                 OnPropertyChanged();
             }
         }
+        private bool _isResponseJavaScript = false;
+        public bool IsResponseJavaScript
+        {
+            get => _isResponseJavaScript;
+            set
+            {
+                _isResponseJavaScript = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(RequestMappingVisible));
+                OnPropertyChanged(nameof(RequestMappingVisible));
+                OnPropertyChanged(nameof(RequestFilterVisible));
+            }
+        }
 
         private static readonly List<KeyValuePair<RequestType, string>> RequestTypesOrigin = new List<KeyValuePair<RequestType, string>>
         {
@@ -232,12 +247,37 @@ namespace PunchPal.Core.ViewModels
 
         public bool IsBrowser => RequestMethod == RequestType.Browser;
         public bool CanAddMapping => Type == DataSourceType.Authenticate;
-        public bool RequestMappingVisible => CanAddMapping || RequestMappings.Any();
+        public bool RequestMappingVisible => !IsResponseJavaScript && (CanAddMapping || RequestMappings.Any());
+        public bool RequestFilterVisible => !IsResponseJavaScript && !IsBrowser;
         public ObservableCollection<RequestMapping> RequestHeaders { get; set; } = new ObservableCollection<RequestMapping>();
         public ObservableCollection<RequestMapping> RequestFilters { get; set; } = new ObservableCollection<RequestMapping>();
         public ObservableCollection<RequestMapping> RequestMappings { get; set; } = new ObservableCollection<RequestMapping>();
         public ObservableCollection<RequestMapping> BrowserMappings { get; set; } = new ObservableCollection<RequestMapping>() { new RequestMapping { Scripts = "关闭" } };
 
+        private static readonly string JavaScriptTipsPrefix = "脚本为(text: string) => string\n";
+        public string JavaScriptTips
+        {
+            get
+            {
+                switch (Type)
+                {
+                    case DataSourceType.Authenticate:
+                        return JavaScriptTipsPrefix + "返回值为 Record<string, string> 类型JSON字符串";
+                    case DataSourceType.UserInfo:
+                        return JavaScriptTipsPrefix + "返回值为 User 类型JSON字符串\ninterface User {\n  name: string;\n  avator: string;\n  password: string;\n  remark: string;\n}";
+                    case DataSourceType.PunchTime:
+                        return JavaScriptTipsPrefix + "返回值为 PunchRecord[] 类型JSON字符串\ninterface PunchRecord {\n  punchTime: number; // 秒时间戳+8h\n  punchType: string; // 打卡类型\n  remark: string;\n}";
+                    case DataSourceType.Attendance:
+                        return JavaScriptTipsPrefix + "返回值为 AttendanceRecord[] 类型JSON字符串\ninterface AttendanceRecord {\n  attendanceId: string;\n  attendanceTypeId: string;\n  startTime: number; // 秒时间戳+8h\n  endTime: number; // 秒时间戳+8h\n  attendanceTime: number; // 秒时间戳+8h\n  remark: string;\n}";
+                    case DataSourceType.Calendar:
+                        return JavaScriptTipsPrefix + "返回值为 CalendarRecord[] 类型JSON字符串\ninterface CalendarRecord {\n  date: number; // 秒时间戳+8h\n  festival: string; // 节日\n  lunarMonth: string; // 农历月\n  lunarDate: string; // 农历日\n  lunarYear: string; // 农历年\n  solarTerm: string; // 节气\n  isHoliday: boolean; // 是否节假日\n  isWorkday: boolean; // 是否工作日\n  remark: string;\n}\nenum AttendanceTypeId {\n  // 考勤类型\n  \"正常出勤\" = \"NA\",\"迟到\" = \"LA\",\"早退\" = \"EA\",\"缺勤\" = \"AB\",\"加班\" = \"OT\",\"外勤/出差\" = \"WF\",\"调休\" = \"RS\",\"旷工\" = \"AW\",\"培训\" = \"TR\",\"工伤假\" = \"IW\",\"补打卡\" = \"CP\",\n  // 请假类型\n  \"年假\" = \"AL\",\"病假\" = \"SL\",\"事假\" = \"PL\",\"婚假\" = \"ML\",\"陪产假\" = \"PPL\",\"产假\" = \"BL\",\"丧假\" = \"FL\",\"育儿假\" = \"CL\",\"公假\" = \"GL\",\"探亲假\" = \"RL\",\"调休假\" = \"TL\",\"婚检假\" = \"MCL\",\"产检假\" = \"MNL\",\"体检假\" = \"PEL\",\n  // 节假日和法定假期\n  \"法定假期\" = \"PH\",\"节日假期\" = \"SH\",\"生日假\" = \"BD\",\"调休日\" = \"RD\",\"周末\" = \"WD\",\"其他假期\" = \"OD\"\n}";
+                    case DataSourceType.WorkTime:
+                        return JavaScriptTipsPrefix + "返回值为 WorkingTimeRange[] 类型JSON字符串";
+                    default:
+                        return string.Empty;
+                }
+            }
+        }
         [JsonIgnore]
         public ICommand AddRequestHeader => new ActionCommand(OnAddRequestHeader);
         [JsonIgnore]
@@ -309,7 +349,7 @@ namespace PunchPal.Core.ViewModels
             RequestMappings.Remove(mapping);
         }
 
-        public async Task<(object, string)> RunRequest(Dictionary<string, string> preData = null, Dictionary<string, string> headers = null, bool test = false)
+        public async Task<(object, string)> RunRequest(Dictionary<string, string> preData = null, Dictionary<string, string> headers = null, bool test = false, IBrowser browser = null)
         {
             (object, string) result = (null, string.Empty);
             if (string.IsNullOrWhiteSpace(RequestUrl))
@@ -319,13 +359,13 @@ namespace PunchPal.Core.ViewModels
             Loading = true;
             await Task.Run(async () =>
             {
-                result = await RunRequestAsync(preData, headers, test);
+                result = await RunRequestAsync(preData, headers, test, browser);
             });
             Loading = false;
             return result;
         }
 
-        public async Task<(object, string)> RunRequestAsync(Dictionary<string, string> preData = null, Dictionary<string, string> headers = null, bool test = false)
+        private async Task<(object, string)> RunRequestAsync(Dictionary<string, string> preData = null, Dictionary<string, string> headers = null, bool test = false, IBrowser browser = null)
         {
             var url = ReplaceValue(RequestUrl, preData);
             if (RequestMethod == RequestType.Browser)
@@ -372,7 +412,16 @@ namespace PunchPal.Core.ViewModels
             var (text, cookie) = await NetworkUtils.Request(url, body, RequestMethod.ToString(), headers);
             try
             {
-                var result = (await ParseJsonData(JsonTools.ParsePath(ResponseValue), text), cookie);
+                object data = null;
+                if (IsResponseJavaScript)
+                {
+                    data = await ParseJavaScriptData(ResponseValue, text, browser);
+                }
+                else
+                {
+                    data = await ParseJsonData(JsonTools.ParsePath(ResponseValue), text);
+                }
+                var result = (data, cookie);
                 if (!test && Type == DataSourceType.Calendar)
                 {
                     requestCacheSet.Add(FileTools.CalculateTextMD5(indexText));
@@ -383,6 +432,37 @@ namespace PunchPal.Core.ViewModels
             {
                 return (null, string.Empty);
             }
+        }
+
+        private async Task<object> ParseJavaScriptData(string script, string text, IBrowser browser = null)
+        {
+            var browserNull = browser == null;
+            if (browserNull)
+            {
+                browser = await PuppeteerBrowser.GetHeadlessBrowser();
+            }
+            var page = (await browser?.PagesAsync()).FirstOrDefault();
+            var resultJson = await page?.EvaluateFunctionAsync<string>(script, text) ?? string.Empty;
+            if (browserNull)
+            {
+                await browser?.CloseAsync();
+            }
+            switch (Type)
+            {
+                case DataSourceType.Authenticate:
+                    return JsonConvert.DeserializeObject<Dictionary<string, string>>(resultJson);
+                case DataSourceType.UserInfo:
+                    return JsonConvert.DeserializeObject<User>(resultJson);
+                case DataSourceType.PunchTime:
+                    return JsonConvert.DeserializeObject<List<PunchRecord>>(resultJson);
+                case DataSourceType.Attendance:
+                    return JsonConvert.DeserializeObject<List<AttendanceRecord>>(resultJson);
+                case DataSourceType.Calendar:
+                    return JsonConvert.DeserializeObject<List<CalendarRecord>>(resultJson);
+                case DataSourceType.WorkTime:
+                    return JsonConvert.DeserializeObject<List<WorkingTimeRange>>(resultJson);
+            }
+            return null;
         }
 
         private async Task<object> ParseJsonData(List<object> list, string text)

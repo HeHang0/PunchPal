@@ -172,6 +172,21 @@ namespace PunchPal.Core.Apis
             Process.GetCurrentProcess().Exited += OnExited;
         }
 
+        public static async Task<IBrowser> GetHeadlessBrowser()
+        {
+            var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+            {
+                ExecutablePath = ChromiumPath,
+                Headless = true
+            });
+            var pages = (await browser.PagesAsync()).ToList();
+            if (pages.Count <= 0)
+            {
+                pages.Add(await browser.NewPageAsync());
+            }
+            return browser;
+        }
+
         private static void OnExited(object sender, EventArgs e)
         {
             foreach (var browser in Browsers)

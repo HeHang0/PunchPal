@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using PunchPal.Core.Apis;
 using PunchPal.Core.Events;
 using PunchPal.Core.Models;
 using PunchPal.Core.Services;
@@ -107,26 +108,36 @@ namespace PunchPal.Core.ViewModels
             {
                 File.WriteAllText(PathTools.CookiePath, headers["Cookie"]);
             }
+            var browser = await PuppeteerBrowser.GetHeadlessBrowser();
             var ok = false;
-            var (punch, _) = await PunchTime.RunRequest(preData, headers);
+            var (punch, _) = await PunchTime.RunRequest(preData, headers, browser: browser);
             if (punch is List<PunchRecord> punchRecords)
             {
                 punchRecords.ForEach(m => m.UserId = user.UserId);
                 await PunchRecordService.Instance.Add(punchRecords);
                 ok = true;
             }
-            var (attendance, _) = await Attendance.RunRequest(preData, headers);
+            var (attendance, _) = await Attendance.RunRequest(preData, headers, browser: browser);
             if (attendance is List<AttendanceRecord> attendanceRecords)
             {
                 attendanceRecords.ForEach(m => m.UserId = user.UserId);
                 await AttendanceRecordService.Instance.Add(attendanceRecords);
                 ok = true;
             }
-            var (calendar, _) = await Calendar.RunRequest(preData, headers);
+            var (calendar, _) = await Calendar.RunRequest(preData, headers, browser: browser);
             if (calendar is List<CalendarRecord> calendarRecords)
             {
+                calendarRecords.ForEach(m => m.Type = CalendarType.DataSource);
                 await CalendarService.Instance.Add(calendarRecords);
                 ok = true;
+            }
+            try
+            {
+                await browser?.CloseAsync();
+            }
+            catch (Exception)
+            {
+                // ignore
             }
             return ok;
         }
