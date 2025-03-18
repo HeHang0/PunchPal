@@ -1,4 +1,5 @@
-﻿using PunchPal.Tools;
+﻿using Newtonsoft.Json;
+using PunchPal.Tools;
 using System;
 using System.Collections.Generic;
 
@@ -6,10 +7,10 @@ namespace PunchPal.Core.ViewModels
 {
     public class SettingsData : NotifyPropertyBase
     {
-        public static List<int> HoursList => DateTimeTools.HoursList;
-        public static List<int> MinutesList => DateTimeTools.MinutesList;
+        [JsonIgnore] public static List<int> HoursList => DateTimeTools.HoursList;
+        [JsonIgnore] public static List<int> MinutesList => DateTimeTools.MinutesList;
 
-        public static List<int> HoursTotalList => DateTimeTools.HourTotalList;
+        [JsonIgnore] public static List<int> HoursTotalList => DateTimeTools.HourTotalList;
 
         private int _refreshDataHour = DateTime.Now.Hour;
         public int RefreshDataHour

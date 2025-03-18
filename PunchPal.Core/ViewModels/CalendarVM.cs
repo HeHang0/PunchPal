@@ -71,17 +71,8 @@ namespace PunchPal.Core.ViewModels
             }
 
             var day = 0;
-            var lastDayWeek = lastDay.DayOfWeek == DayOfWeek.Sunday ? 7 : (int)lastDay.DayOfWeek;
-            var weekEndIndex = weekStartIndex - 1;
-            if (weekEndIndex < 0)
-            {
-                weekEndIndex = 6;
-            }
-            if (lastDayWeek >= 7)
-            {
-                lastDayWeek = 0;
-            }
-            for (int i = lastDayWeek + 1; i <= weekEndIndex; i++)
+            var endNextDays = 7 - result.Count % 7;
+            for (int i = 0; i < endNextDays; i++)
             {
                 result.Add(new CalendarItem(lastDay.AddDays(++day), true) { IsNext = true });
             }

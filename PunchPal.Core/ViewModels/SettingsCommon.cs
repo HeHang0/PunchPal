@@ -1,4 +1,5 @@
-﻿using PunchPal.Core.Models;
+﻿using Newtonsoft.Json;
+using PunchPal.Core.Models;
 using PunchPal.Core.Services;
 using PunchPal.Startup;
 using PunchPal.Tools;
@@ -10,9 +11,9 @@ namespace PunchPal.Core.ViewModels
 {
     public class SettingsCommon : NotifyPropertyBase
     {
-        public static List<int> HoursList => DateTimeTools.HoursList;
+        [JsonIgnore] public static List<int> HoursList => DateTimeTools.HoursList;
 
-        public static List<int> MinutesList => DateTimeTools.MinutesList;
+        [JsonIgnore] public static List<int> MinutesList => DateTimeTools.MinutesList;
 
         static SettingsCommon()
         {

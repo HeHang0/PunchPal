@@ -1,4 +1,5 @@
-﻿using PunchPal.Tools;
+﻿using Newtonsoft.Json;
+using PunchPal.Tools;
 using System.Collections.Generic;
 
 namespace PunchPal.Core.ViewModels
@@ -38,6 +39,6 @@ namespace PunchPal.Core.ViewModels
             }
         }
 
-        public List<int> DayList => DateTimeTools.DayList;
+        [JsonIgnore] public List<int> DayList => DateTimeTools.DayList;
     }
 }

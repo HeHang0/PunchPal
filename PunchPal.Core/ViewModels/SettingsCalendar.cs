@@ -1,4 +1,5 @@
-﻿using PunchPal.Tools;
+﻿using Newtonsoft.Json;
+using PunchPal.Tools;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -61,17 +62,6 @@ namespace PunchPal.Core.ViewModels
             return result;
         }
 
-        //private bool _isCalendarStartSun = true;
-        //public bool IsCalendarStartSun
-        //{
-        //    get => _isCalendarStartSun;
-        //    set
-        //    {
-        //        _isCalendarStartSun = value;
-        //        OnPropertyChanged();
-        //    }
-        //}
-
         private DayOfWeek _weekStart = DayOfWeek.Sunday;
         public DayOfWeek WeekStart
         {
@@ -83,7 +73,8 @@ namespace PunchPal.Core.ViewModels
             }
         }
 
-        public List<KeyValuePair<DayOfWeek, string>> WeekList { get; } = new List<KeyValuePair<DayOfWeek, string>>
+        [JsonIgnore] public List<KeyValuePair<DayOfWeek, string>> WeekList => _weekList;
+        private readonly List<KeyValuePair<DayOfWeek, string>> _weekList = new List<KeyValuePair<DayOfWeek, string>>
         {
             new KeyValuePair<DayOfWeek, string>(DayOfWeek.Sunday, "星期日"),
             new KeyValuePair<DayOfWeek, string>(DayOfWeek.Monday, "星期一"),
