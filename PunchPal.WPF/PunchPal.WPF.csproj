@@ -13,7 +13,7 @@
     <RepositoryType>git</RepositoryType>
     <Product>PunchPal</Product>
     <Authors>PicaPico</Authors>
-    <Version>2.0.5</Version>
+    <Version>2.0.6</Version>
     <AssemblyTitle>PunchPal</AssemblyTitle>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
     <PackageIcon>logo.ico</PackageIcon>

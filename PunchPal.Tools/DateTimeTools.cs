@@ -42,6 +42,7 @@ namespace PunchPal.Tools
             return dateTime.ToString("yyyy-MM");
         }
 
+        public readonly static List<int> DayList = new List<int>();
         public readonly static List<int> HoursList = new List<int>();
         public readonly static List<int> HourTotalList = new List<int>();
         public readonly static List<int> MinutesList = new List<int>();
@@ -55,6 +56,10 @@ namespace PunchPal.Tools
                 {
                     HoursList.Add(i);
                     HourTotalList.Add(i + 1);
+                }
+                if (i < 31)
+                {
+                    DayList.Add(i + 1);
                 }
                 MinutesList.Add(i);
             }

@@ -38,7 +38,8 @@
                        Visibility="{Binding Is996, Converter={StaticResource BooleanToVisibility}}"/>
             <TextBlock Grid.Row="1" Margin="5 5 0 5" VerticalAlignment="Bottom" FontSize="13" Text="{Binding TextListText}"
                        Opacity="{Binding Opacity}" ToolTip="{Binding TextListToolTip}" HorizontalAlignment="Left"
-                       TextTrimming="CharacterEllipsis" Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
+                       TextTrimming="CharacterEllipsis" Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                       TextDecorations="{Binding IsDaySchedule, Converter={StaticResource BooleanToUnderlineDecorations}}"/>
             <!--<ListBox Grid.Row="1" Margin="5 5 0 5" VerticalAlignment="Bottom"
                      ScrollViewer.VerticalScrollBarVisibility="Auto"
                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"

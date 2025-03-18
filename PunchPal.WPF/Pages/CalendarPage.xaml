@@ -45,5 +45,8 @@
         <TextBlock Grid.Row="3" Text="{Binding HolidayCountdownText}" Margin="5 5 0 0"
                    Foreground="{DynamicResource TextFillColorPrimaryBrush}" HorizontalAlignment="Right"
                    Visibility="{Binding HolidayCountdownVisible, Converter={StaticResource BooleanToVisibility}}" />
+        <TextBlock Grid.Row="3" Text="{Binding ScheduleCountdownText}" Margin="5 5 0 0"
+                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" HorizontalAlignment="Left"
+                   Visibility="{Binding HolidayCountdownVisible, Converter={StaticResource BooleanToVisibility}}" />
     </Grid>
 </Page>

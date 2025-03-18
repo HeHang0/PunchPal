@@ -47,5 +47,45 @@
             </ui:CardControl.Header>
             <ui:ToggleSwitch IsChecked="{Binding HolidayCountdownVisible}" />
         </ui:CardControl>
+        <ui:CardExpander Margin="0,0,0,12" ContentPadding="0" Width="Auto" HorizontalAlignment="Stretch" IsExpanded="True">
+            <ui:CardExpander.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="CalendarMonth24" />
+                    <ui:TextBlock FontTypography="Body" Text="月度重要日程" />
+                </StackPanel>
+            </ui:CardExpander.Header>
+            <StackPanel Grid.Column="1" Margin="40 10 10 10">
+                <ListBox ItemsSource="{Binding MonthScheduleList}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0 0 0 6" HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="6" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="6" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="6" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <ComboBox ItemsSource="{Binding DayList}" Style="{StaticResource TimeComboBoxStyle}"
+                                          SelectedItem="{Binding Day, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <ui:TextBox Grid.Column="2" Height="30" Text="{Binding Remark}" Padding="5 0"
+                                            PlaceholderText="日程内容" PlaceholderEnabled="True"/>
+                                <StackPanel Grid.Column="4" Orientation="Horizontal">
+                                    <Label Content="遇周末提前至周五" VerticalAlignment="Center" Margin="10 0 5 0" />
+                                    <ui:ToggleSwitch IsChecked="{Binding MoveUpWhenWeekend}" />
+                                </StackPanel>
+                                <ui:Button Grid.Column="6" Height="30" Margin="10 0 0 0" CommandParameter="{Binding}" Appearance="Danger"
+                                           Command="{Binding DataContext.RemoveMonthSchedule, RelativeSource={RelativeSource AncestorType=ListBox}}">
+                                    <ui:SymbolIcon Symbol="Delete20" />
+                                </ui:Button>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <ui:Button Content="添加" HorizontalAlignment="Stretch" Command="{Binding AddMonthSchedule}" />
+            </StackPanel>
+        </ui:CardExpander>
     </StackPanel>
 </Page>

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using PunchPal.Core.Events;
 using PunchPal.Core.Services;
 using PunchPal.Tools;
 using System;
@@ -95,6 +96,8 @@ namespace PunchPal.Core.ViewModels
         public ICommand ExportDataSource => DataSource.ExportDataSource;
         [JsonIgnore]
         public ICommand SaveDataSource => DataSource.SaveDataSource;
+        [JsonIgnore]
+        public ICommand SaveCommand => new ActionCommand(OnSave);
 
         static SettingsModel()
         {
@@ -156,6 +159,13 @@ namespace PunchPal.Core.ViewModels
             saveCts?.Cancel();
             saveCts = new CancellationTokenSource();
             _ = SaveReal(saveCts.Token);
+        }
+
+        private async void OnSave()
+        {
+            saveCts?.Cancel();
+            await SaveReal();
+            EventManager.ShowTips(new Models.TipsOption("提示", "保存成功"));
         }
 
         public async Task SaveReal(CancellationToken? token = null)

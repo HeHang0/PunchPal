@@ -20,6 +20,8 @@ namespace PunchPal.Core.ViewModels
         public bool IsLast { get; set; }
         public bool IsNext { get; set; }
         public int WorkMinutes => _workItem?.TotalMinutes ?? 0;
+        public string DaySchedule { get; set; } = string.Empty;
+        public bool IsDaySchedule => !string.IsNullOrWhiteSpace(DaySchedule);
         private WorkingHours _workItem;
         public WorkingHours WorkItem
         {
@@ -125,6 +127,10 @@ namespace PunchPal.Core.ViewModels
                     return _textList;
                 }
                 _textList = new List<string>();
+                if (IsDaySchedule)
+                {
+                    _textList.Add(DaySchedule);
+                }
                 if (CalendarData == null)
                 {
                     return _textList;

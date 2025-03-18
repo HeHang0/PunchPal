@@ -22,6 +22,7 @@ namespace PunchPal.Core.ViewModels
                 return _calendarHeaders.Skip(start).Concat(_calendarHeaders.Take(start)).ToArray();
             }
         }
+
         private string _holidayCountdownText = string.Empty;
         public string HolidayCountdownText
         {
@@ -34,14 +35,28 @@ namespace PunchPal.Core.ViewModels
             }
         }
 
+        private string _scheduleCountdownText = string.Empty;
+        public string ScheduleCountdownText
+        {
+            get => _scheduleCountdownText;
+            set
+            {
+                _scheduleCountdownText = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HolidayCountdownVisible));
+            }
+        }
+
         public bool HolidayCountdownVisible => SettingsModel.Load().Calendar.HolidayCountdownVisible && !string.IsNullOrWhiteSpace(_holidayCountdownText);
 
         public async Task InitItems(DateTime dateTime, IList<WorkingHours> hours)
         {
             var result = new List<CalendarItem>();
-            var weekStart = SettingsModel.Load().Calendar.WeekStart;
+            var settings = SettingsModel.Load();
+            var weekStart = settings.Calendar.WeekStart;
             var weekStartIndex = (int)weekStart;
             var firstDay = new DateTime(dateTime.Year, dateTime.Month, 1);
+            var daySchedule = settings.Calendar.GetSchedule(firstDay);
             var firstDayWeek = (int)firstDay.DayOfWeek;
             for (var i = weekStartIndex; i < firstDayWeek; i++)
             {
@@ -79,11 +94,30 @@ namespace PunchPal.Core.ViewModels
                 calendars = await CalendarService.Instance.ListAll(m => m.Date >= startValue && m.Date < endValue);
             });
             var calendarMap = CalendarService.GetCalendarMap(calendars);
+            string scheduleDateText = null;
             foreach (var item in result)
             {
                 var date = item.Date.ToDateString();
                 item.WorkItem = recordMap.ContainsKey(date) ? recordMap[date] : null;
                 item.CalendarData = calendarMap.ContainsKey(date) ? calendarMap[date] : null;
+                if (daySchedule.ContainsKey(date))
+                {
+                    if (scheduleDateText == null && item.Date > DateTime.Now)
+                    {
+                        scheduleDateText = date;
+                    }
+                    item.DaySchedule = daySchedule[date];
+                }
+            }
+            if (scheduleDateText == null)
+            {
+                ScheduleCountdownText = string.Empty;
+            }
+            else if (DateTime.TryParse(scheduleDateText, out DateTime scheduleDate))
+            {
+
+                var distance = (int)(scheduleDate - DateTime.Now.Date).TotalDays;
+                ScheduleCountdownText = distance > 0 ? $"距离 {daySchedule[scheduleDateText]} 还有{distance}天" : string.Empty;
             }
             await UpdateHolidayCountdown();
 
