@@ -20,6 +20,16 @@ namespace PunchPal.Core.ViewModels
                 OnPropertyChanged();
             }
         }
+        private bool _otherFestivalVisible = true;
+        public bool OtherFestivalVisible
+        {
+            get => _otherFestivalVisible;
+            set
+            {
+                _otherFestivalVisible = value;
+                OnPropertyChanged();
+            }
+        }
 
         private bool _holidayCountdownVisible = true;
         public bool HolidayCountdownVisible

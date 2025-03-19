@@ -33,7 +33,7 @@
             <ui:CardControl.Header>
                 <StackPanel Orientation="Horizontal">
                     <ui:SymbolIcon Margin="0 0 10 0" Symbol="AccessTime20" />
-                    <ui:TextBlock FontTypography="Body" Text="显示农历及节气" />
+                    <ui:TextBlock FontTypography="Body" Text="显示农历及重要节假日" />
                 </StackPanel>
             </ui:CardControl.Header>
             <ui:ToggleSwitch IsChecked="{Binding LunarSolarTermVisible}" />
@@ -41,8 +41,17 @@
         <ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
             <ui:CardControl.Header>
                 <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="BrightnessHigh20" />
+                    <ui:TextBlock FontTypography="Body" Text="显示其他节假日" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:ToggleSwitch IsChecked="{Binding OtherFestivalVisible}" />
+        </ui:CardControl>
+        <ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
                     <ui:SymbolIcon Margin="0 0 10 0" Symbol="Rocket20" />
-                    <ui:TextBlock FontTypography="Body" Text="显示节假日倒计时" />
+                    <ui:TextBlock FontTypography="Body" Text="显示重要节假日倒计时" />
                 </StackPanel>
             </ui:CardControl.Header>
             <ui:ToggleSwitch IsChecked="{Binding HolidayCountdownVisible}" />

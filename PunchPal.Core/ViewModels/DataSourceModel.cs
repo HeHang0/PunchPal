@@ -44,6 +44,10 @@ namespace PunchPal.Core.ViewModels
                 headers["Cookie"] = File.ReadAllText(PathTools.CookiePath);
             }
             var result = await item.RunRequest(GetPreData(DateTime.Now), headers, true);
+            if (item.Type == DataSourceItem.DataSourceType.Authenticate && string.IsNullOrWhiteSpace(headers["Cookie"]))
+            {
+                headers["Cookie"] = result.Item2;
+            }
             if (item.Type == DataSourceItem.DataSourceType.Authenticate && !string.IsNullOrWhiteSpace(headers["Cookie"]))
             {
                 File.WriteAllText(PathTools.CookiePath, headers["Cookie"]);
@@ -91,7 +95,7 @@ namespace PunchPal.Core.ViewModels
             var preData = GetPreData(date);
             var headers = new Dictionary<string, string>
             {
-                ["Cookie"] = ""
+                ["Cookie"] = string.Empty
             };
             if (File.Exists(PathTools.CookiePath))
             {
@@ -111,25 +115,31 @@ namespace PunchPal.Core.ViewModels
             var browser = await PuppeteerBrowser.GetHeadlessBrowser();
             var ok = false;
             var (punch, _) = await PunchTime.RunRequest(preData, headers, browser: browser);
+            var punchCount = 0;
             if (punch is List<PunchRecord> punchRecords)
             {
                 punchRecords.ForEach(m => m.UserId = user.UserId);
                 await PunchRecordService.Instance.Add(punchRecords);
                 ok = true;
+                punchCount = punchRecords.Count;
             }
             var (attendance, _) = await Attendance.RunRequest(preData, headers, browser: browser);
+            var attendanceCount = 0;
             if (attendance is List<AttendanceRecord> attendanceRecords)
             {
                 attendanceRecords.ForEach(m => m.UserId = user.UserId);
                 await AttendanceRecordService.Instance.Add(attendanceRecords);
                 ok = true;
+                attendanceCount = attendanceRecords.Count;
             }
             var (calendar, _) = await Calendar.RunRequest(preData, headers, browser: browser);
+            var calendarCount = 0;
             if (calendar is List<CalendarRecord> calendarRecords)
             {
                 calendarRecords.ForEach(m => m.Type = CalendarType.DataSource);
                 await CalendarService.Instance.Add(calendarRecords);
                 ok = true;
+                calendarCount = calendarRecords.Count;
             }
             try
             {
@@ -138,6 +148,27 @@ namespace PunchPal.Core.ViewModels
             catch (Exception)
             {
                 // ignore
+            }
+            if (ok)
+            {
+                var result = new List<string>();
+                if (punchCount > 0)
+                {
+                    result.Add($"打卡记录：{punchCount}条");
+                }
+                if (attendanceCount > 0)
+                {
+                    result.Add($"考勤记录：{attendanceCount}条");
+                }
+                if (calendarCount > 0)
+                {
+                    result.Add($"日历记录：{calendarCount}条");
+                }
+                EventManager.ShowTips(new TipsOption("提示", $"数据同步成功！\n" + string.Join(" ", result)));
+            }
+            else
+            {
+                EventManager.ShowTips(new TipsOption("提示", "未同步到任何数据！"));
             }
             return ok;
         }

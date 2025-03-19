@@ -72,7 +72,7 @@ namespace PunchPal.Core.ViewModels
 
             var day = 0;
             var endNextDays = 7 - result.Count % 7;
-            for (int i = 0; i < endNextDays; i++)
+            for (int i = 0; endNextDays < 7 && i < endNextDays; i++)
             {
                 result.Add(new CalendarItem(lastDay.AddDays(++day), true) { IsNext = true });
             }
