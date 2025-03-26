@@ -163,8 +163,15 @@ namespace PunchPal.Core.ViewModels
 
         private async void OnSave()
         {
-            saveCts?.Cancel();
-            await SaveReal();
+            if (CurrentSettingPage == PageType.DataSource)
+            {
+                await DataSource.OnSave();
+            }
+            else
+            {
+                saveCts?.Cancel();
+                await SaveReal();
+            }
             EventManager.ShowTips(new Models.TipsOption("提示", "保存成功"));
         }
 

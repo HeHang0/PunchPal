@@ -117,7 +117,7 @@ namespace PunchPal.Core.ViewModels
         public bool IsWorkOvertime { get; set; }
 
         private List<string> _textList = null;
-        private List<string> _remarks = null;
+        private readonly List<string> _remarks = new List<string>();
         private string _lunarDate = string.Empty;
         public string TextListText
         {
@@ -128,20 +128,25 @@ namespace PunchPal.Core.ViewModels
                 {
                     result.Add(DaySchedule);
                 }
+                var textList = TextList;
+                if (_remarks.Count > 0)
+                {
+                    result.AddRange(_remarks);
+                }
                 var settings = SettingsModel.Load();
                 var lunarSolarTermVisible = settings.Calendar.LunarSolarTermVisible;
                 var otherFestivalVisible = settings.Calendar.OtherFestivalVisible;
                 if (lunarSolarTermVisible && otherFestivalVisible)
                 {
-                    result.AddRange(TextList);
+                    result.AddRange(textList);
                 }
                 else if (lunarSolarTermVisible)
                 {
-                    result.AddRange(TextList.Where(m => CalendarService.ChineseHolidays.Contains(m) && CalendarService.SolarTerms.Contains(m)));
+                    result.AddRange(textList.Where(m => CalendarService.ChineseHolidays.Contains(m) || CalendarService.SolarTerms.Contains(m)));
                 }
                 else if (otherFestivalVisible)
                 {
-                    result.AddRange(TextList.Where(m => !CalendarService.ChineseHolidays.Contains(m) && !CalendarService.SolarTerms.Contains(m)));
+                    result.AddRange(textList.Where(m => !CalendarService.ChineseHolidays.Contains(m) && !CalendarService.SolarTerms.Contains(m)));
                 }
                 if (result.Count == 0 && !string.IsNullOrWhiteSpace(_lunarDate))
                 {
@@ -170,10 +175,6 @@ namespace PunchPal.Core.ViewModels
                     {
                         _remarks.Add(item.Trim());
                     }
-                }
-                else
-                {
-                    _remarks = new List<string>();
                 }
                 var festivalEmpty = string.IsNullOrWhiteSpace(record.Festival);
                 var solarTermEmpty = string.IsNullOrWhiteSpace(record.SolarTerm);
@@ -211,7 +212,14 @@ namespace PunchPal.Core.ViewModels
         {
             get
             {
-                var text = string.Join(Environment.NewLine, TextList);
+                var result = new List<string>();
+                var textList = TextList;
+                if (_remarks != null && _remarks.Count > 0)
+                {
+                    result.AddRange(_remarks);
+                }
+                result.AddRange(textList);
+                var text = string.Join(Environment.NewLine, result.Distinct());
                 if (!SettingsModel.Load().Calendar.LunarSolarTermVisible ||
                     _calendarData == null ||
                     string.IsNullOrWhiteSpace(_calendarData.LunarYear) ||
@@ -225,7 +233,7 @@ namespace PunchPal.Core.ViewModels
                 {
                     return lunarDate;
                 }
-                return string.Join(Environment.NewLine, TextList) + Environment.NewLine + lunarDate;
+                return text + Environment.NewLine + lunarDate;
             }
         }
 

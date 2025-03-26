@@ -349,6 +349,12 @@ namespace PunchPal.Core.ViewModels
             _ = SaveReal(saveCts.Token);
         }
 
+        public async Task OnSave()
+        {
+            saveCts?.Cancel();
+            await SaveReal();
+        }
+
         public async Task SaveReal(CancellationToken? token = null)
         {
             try

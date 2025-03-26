@@ -65,6 +65,7 @@ namespace PunchPal.Core.Services
             }
         }
         public static readonly string[] AskForLeaveIds = new string[] { "AL", "SL", "PL", "ML", "PPL", "BL", "FL", "CL", "GL", "RL", "TL", "BD", "IW" };
+        public static readonly string[] PunchInRecordIds = new string[] { "NA", "CP" };
         private static readonly KeyValuePair<string, string>[] initialTyps = new KeyValuePair<string, string>[]
         {
                 // 考勤类型

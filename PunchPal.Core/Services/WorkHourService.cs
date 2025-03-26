@@ -23,14 +23,15 @@ namespace PunchPal.Core.Services
             var records = await PunchRecordService.Instance.List(predicate);
             return await List(dayStartHour, records);
         }
-        public async Task<List<WorkingHours>> List(int dayStartHour, IEnumerable<PunchRecord> punchRecords)
+        public async Task<List<WorkingHours>> List(int dayStartHour, IEnumerable<PunchRecord> punchRecordEnumerables)
         {
             var result = new List<WorkingHours>();
-            if (punchRecords == null || punchRecords.Count() == 0)
+            if (punchRecordEnumerables == null || punchRecordEnumerables.Count() == 0)
             {
                 return result;
             }
-            var lastRecord = punchRecords.FirstOrDefault();
+            var lastRecord = punchRecordEnumerables.FirstOrDefault();
+            var punchRecords = punchRecordEnumerables.ToList();
             var lastDate = lastRecord.PunchDateTime;
             var monthStartDay = new DateTime(lastDate.Year, lastDate.Month, 1);
             var monthEndDay = monthStartDay.AddMonths(1).AddDays(-1);
@@ -38,8 +39,18 @@ namespace PunchPal.Core.Services
             var startUnix = monthStartDay.TimestampUnix();
             var endUnix = monthEndDay.TimestampUnix();
             var workingTimeRanges = await WorkingTimeRangeService.Instance.Items(startUnix, endUnix);
-            var attendanceRecords = await AttendanceRecordService.Instance.List(m => m.StartTime >= startUnix && m.StartTime < endUnix && AttendanceTypeService.AskForLeaveIds.Contains(m.AttendanceTypeId));
+            var attendances = await AttendanceRecordService.Instance.List(m => m.StartTime >= startUnix && m.StartTime < endUnix && AttendanceTypeService.AskForLeaveIds.Contains(m.AttendanceTypeId));
+            var punchInRecords = await AttendanceRecordService.Instance.List(m => m.StartTime >= startUnix && m.StartTime < endUnix && (m.EndTime <= 0 || m.EndTime < endUnix) && AttendanceTypeService.PunchInRecordIds.Contains(m.AttendanceTypeId));
+            var attendanceRecords = ParseAttendance(attendances, workingTimeRanges);
             var calendars = await CalendarService.Instance.ListAll(m => m.Date >= startUnix && m.Date < endUnix);
+            foreach (var item in punchInRecords)
+            {
+                if (item.StartTime <= 0 && item.EndTime <= 0) continue;
+                punchRecords.Add(new PunchRecord()
+                {
+                    PunchTime = item.StartTime > 0 ? item.StartTime : item.EndTime,
+                });
+            }
             for (var i = 1; i <= monthEndDay.Day; i++)
             {
                 if (monthEndDay.Year == now.Year && monthEndDay.Month == now.Month && i > now.Day)
@@ -61,6 +72,60 @@ namespace PunchPal.Core.Services
             return result.OrderByDescending(m => m.WorkingDate).ToList();
         }
 
+        private List<AttendanceRecord> ParseAttendance(List<AttendanceRecord> attendances, Dictionary<long, WorkingTimeRangeItems> workingTimeRanges)
+        {
+            var result = new List<AttendanceRecord>();
+            foreach (var item in attendances)
+            {
+                var startDate = item.StartDateTime;
+                var endDate = item.EndDateTime;
+                var startDateUnix = startDate?.TimestampUnix() ?? 0;
+                var endDateUnix = endDate?.TimestampUnix() ?? 0;
+                var diff = endDateUnix - startDateUnix;
+                if (diff > DateTimeTools.DaySeconds)
+                {
+                    var ranges = GetDateRanges(startDate.Value, endDate.Value, workingTimeRanges);
+                    foreach (var range in ranges)
+                    {
+                        result.Add(new AttendanceRecord()
+                        {
+                            AttendanceId = item.AttendanceId,
+                            AttendanceTypeId = item.AttendanceTypeId,
+                            AttendanceType = item.AttendanceType,
+                            UserId = item.UserId,
+                            StartTime = range.Item1,
+                            EndTime = range.Item2,
+                            AttendanceTime = item.AttendanceTime,
+                            Remark = item.Remark
+                        });
+                    }
+                }
+                else
+                {
+                    result.Add(item);
+                }
+            }
+            return result;
+        }
+
+        private List<(int, int)> GetDateRanges(DateTime startTime, DateTime endTime, Dictionary<long, WorkingTimeRangeItems> workingTimeRanges)
+        {
+            var result = new List<(int, int)>();
+            var endTimeUnix = endTime.TimestampUnix();
+            for (var start = startTime; start < endTime; start = start.AddDays(1))
+            {
+                var dateUnix = start.Date.TimestampUnix();
+                if (!workingTimeRanges.TryGetValue(dateUnix, out WorkingTimeRangeItems work))
+                {
+                    continue;
+                }
+                var startWorkDate = new DateTime(start.Year, start.Month, start.Day, work.Work.StartHour, work.Work.StartMinute, 0);
+                var endWorkDate = new DateTime(start.Year, start.Month, start.Day, work.Work.EndHour, work.Work.EndMinute, 0);
+                result.Add((Math.Max(startWorkDate.TimestampUnix(), start.TimestampUnix()), Math.Min(endWorkDate.TimestampUnix(), endTimeUnix)));
+            }
+            return result;
+        }
+
         private List<AttendanceRecord> GetAttendanceRecords(List<AttendanceRecord> attendanceRecords, long timeStart, long timeEnd, WorkingTimeRangeItems workingTime)
         {
             var currentRecords = attendanceRecords.Where(m => m.StartTime >= timeStart && m.StartTime < timeEnd).ToList();
@@ -73,7 +138,7 @@ namespace PunchPal.Core.Services
             var startWorkDate = new DateTime(date.Year, date.Month, date.Day, workingTime.Work.StartHour, 0, 0);
             if (currentRecords.Count == 0)
             {
-                var currentCrossRecords = attendanceRecords.Where(m => m.StartTime < timeStart && m.EndTime > timeStart).ToList();
+                var currentCrossRecords = attendanceRecords.Where(m => m.StartTime <= timeStart && m.EndTime >= timeStart).ToList();
                 foreach (var item in currentCrossRecords)
                 {
                     item.StartTime = Math.Max(item.StartTime, startWorkDate.TimestampUnix());
