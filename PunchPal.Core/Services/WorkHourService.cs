@@ -182,6 +182,14 @@ namespace PunchPal.Core.Services
             var lateTimeFix = settings.WorkingTimeRange.FlexibleWorkingMinute * 60;
             var faultTolerance = settings.WorkingTimeRange.FaultToleranceMinute;
             var (minTime, maxTime) = GetMinMaxTime(punchRecords);
+            if (minTimePure <= 0)
+            {
+                minTimePure = minTime;
+            }
+            if (maxTimePure <= 0)
+            {
+                maxTimePure = maxTime;
+            }
             if (workingTime != null && workingTime.Work != null)
             {
                 var dateStart = timeStart.Unix2DateTime();
