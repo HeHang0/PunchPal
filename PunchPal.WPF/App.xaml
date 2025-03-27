@@ -16,6 +16,7 @@
             <converters:RectangleToThicknessConverter x:Key="RectangleToThickness"/>
             <converters:BooleanToUnderlineDecorationsConverter x:Key="BooleanToUnderlineDecorations"/>
             <converters:DrawBrushToMediaBrushConverter x:Key="DrawBrushToMediaBrush"/>
+            <converters:BooleanToCursorHandConverter x:Key="BooleanToCursorHand"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

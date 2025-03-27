@@ -19,6 +19,7 @@ namespace PunchPal.Core.ViewModels
         public float Opacity { get; set; } = 1;
         public bool IsLast { get; set; }
         public bool IsNext { get; set; }
+        public bool IsNextOrLast => IsNext || IsLast;
         public int WorkMinutes => _workItem?.TotalMinutes ?? 0;
         public string DaySchedule { get; set; } = string.Empty;
         public bool IsDaySchedule => !string.IsNullOrWhiteSpace(DaySchedule);
@@ -43,14 +44,15 @@ namespace PunchPal.Core.ViewModels
                 var extText = startDateTime?.ToDateString() == endDateTime?.ToDateString() ? string.Empty : "(次日)";
                 if (!string.IsNullOrWhiteSpace(startText) && !string.IsNullOrWhiteSpace(endText))
                 {
-                    return $"{startText} - {endText}{extText}";
+                    return $"{startText} - {endText}{extText}\n{WorkHoursToolTips}";
                 }
 
                 return null;
             }
         }
         public bool Is996 => BackgroundOpacity == 1;
-        public string WorkHoursText => WorkMinutes <= 0 || _weak ? string.Empty : $"{(WorkMinutes * 1.0f / 60).ToString("F3").TrimEnd('0').TrimEnd('.')}(小时)";
+        public string WorkHoursText => WorkMinutes <= 0 || _weak ? string.Empty : $"{WorkMinutes * 1.0f / 60:F1}";
+        public string WorkHoursToolTips => WorkMinutes <= 0 || _weak ? string.Empty : $"{(WorkMinutes * 1.0f / 60).ToString("F3").TrimEnd('0').TrimEnd('.')}(小时)";
         public float WorkHoursTextOpacity => WorkMinutes < (SettingsModel.Load().Data.EveryDayWorkHour * 60) ? 0.9f : 0.5f;
         public bool IsHoliday { get; set; }
         public bool IsWorkday { get; set; }

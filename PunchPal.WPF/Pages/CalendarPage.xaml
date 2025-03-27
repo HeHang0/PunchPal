@@ -6,6 +6,7 @@
       xmlns:local="clr-namespace:PunchPal.WPF.Pages"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:controls="clr-namespace:PunchPal.WPF.Controls"
+      xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       xmlns:vm="clr-namespace:PunchPal.Core.ViewModels;assembly=PunchPal.Core"
       mc:Ignorable="d" ScrollViewer.CanContentScroll="False"
       d:DesignHeight="450" d:DesignWidth="800"
@@ -38,7 +39,14 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <controls:CalendarItemControl DataContext="{Binding}"/>
+                    <controls:CalendarItemControl DataContext="{Binding}" Cursor="{Binding IsNextOrLast, Converter={StaticResource BooleanToCursorHand}}">
+                        <b:Interaction.Triggers>
+                            <b:EventTrigger EventName="MouseLeftButtonUp">
+                                <b:InvokeCommandAction CommandParameter="{Binding}"
+                                               Command="{Binding DataContext.ToLastOrNextCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"/>
+                            </b:EventTrigger>
+                        </b:Interaction.Triggers>
+                    </controls:CalendarItemControl>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

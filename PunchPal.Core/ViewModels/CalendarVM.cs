@@ -6,11 +6,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace PunchPal.Core.ViewModels
 {
     public class CalendarVM : NotifyPropertyBase
     {
+        public event EventHandler<bool> NextOrLastClick;
         public ObservableCollection<CalendarItem> Items { get; } = new ObservableCollection<CalendarItem>();
 
         private readonly string[] _calendarHeaders = { "日", "一", "二", "三", "四", "五", "六" };
@@ -48,6 +50,16 @@ namespace PunchPal.Core.ViewModels
         }
 
         public bool HolidayCountdownVisible => SettingsModel.Load().Calendar.HolidayCountdownVisible && !string.IsNullOrWhiteSpace(_holidayCountdownText);
+
+        public ICommand ToLastOrNextCommand => new RelayCommand<CalendarItem>(ToLastOrNext);
+
+        private void ToLastOrNext(CalendarItem item)
+        {
+            if (item.IsNextOrLast)
+            {
+                NextOrLastClick?.Invoke(this, item.IsNext);
+            }
+        }
 
         public async Task InitItems(DateTime dateTime, IList<WorkingHours> hours)
         {

@@ -34,6 +34,19 @@ namespace PunchPal.Core.ViewModels
             InitAutoAddRecord();
             Setting.Calendar.PropertyChanged += OnPropertyChanged;
             InitTimer();
+            Calendar.NextOrLastClick += OnNextOrLastClick;
+        }
+
+        private void OnNextOrLastClick(object sender, bool isNext)
+        {
+            if (isNext)
+            {
+                OnNextMonth();
+            }
+            else
+            {
+                OnLastMonth();
+            }
         }
 
         private void InitTimer()
