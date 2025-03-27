@@ -66,9 +66,9 @@ namespace PunchPal.Core.ViewModels
         public Brush DayAverageColor => _dayAverage >= SettingsModel.Load().Data.EveryDayWorkHour * 60 ? Brushes.Green : Brushes.Red;
         public Brush MonthMinuteColor => _monthMinute >= 0 ? Brushes.Green : Brushes.Red;
 
-        public string DayAverageText => (_dayAverage / 60f).ToString("F3").TrimEnd('0').TrimEnd('.');//$"日均{}小时，当月{(_monthMinute >= 0 ? "盈余" : "欠")}{(Math.Abs(_monthMinute) / 60f).ToString("F3").TrimEnd('0').TrimEnd('.')}小时";
+        public string DayAverageText => (_dayAverage / 60f).ToString("F3").TrimEnd('0').TrimEnd('.');
         public string MonthHourText => (Math.Abs(_monthMinute) / 60f).ToString("F3").TrimEnd('0').TrimEnd('.');
-        public string MonthHourUnit => "当月" + (_monthMinute >= 0 ? "盈余" : "欠");
+        public string MonthHourUnit => "当月" + (_monthMinute >= 0 ? "贡献" : "欠");
         public string DayAverageRateText => _dayAverageRate != 0 ? $"较上周{(_dayAverageRate > 0 ? "增加" : "降低")}{Math.Abs(_dayAverageRate)}%" : string.Empty;
         public string StandardAverageText => $"{_standardAverage / 60f:F3}";
         public string OvertimeAverageText => $"{_overtimeAverage / 60f:F3}";
