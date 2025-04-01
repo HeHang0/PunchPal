@@ -150,7 +150,7 @@ namespace PunchPal.Core.ViewModels
                 {
                     result.AddRange(textList.Where(m => !CalendarService.ChineseHolidays.Contains(m) && !CalendarService.SolarTerms.Contains(m)));
                 }
-                if (result.Count == 0 && !string.IsNullOrWhiteSpace(_lunarDate))
+                if (lunarSolarTermVisible && result.Count == 0 && !string.IsNullOrWhiteSpace(_lunarDate))
                 {
                     result.Add(_lunarDate);
                 }

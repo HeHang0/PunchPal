@@ -21,7 +21,7 @@ namespace PunchPal.Core.Services
                 {
                     return;
                 }
-                foreach (var type in initialTyps)
+                foreach (var type in initialTypes)
                 {
                     context.AttendanceTypes.AddOrUpdate(new AttendanceType
                     {
@@ -55,7 +55,7 @@ namespace PunchPal.Core.Services
                 using (var context = new PunchDbContext())
                 {
                     var result = await context.AttendanceTypes.ToListAsync();
-                    result.Sort((x, y) => initialTypsSort[x.TypeId].CompareTo(initialTypsSort[y.TypeId]));
+                    result.Sort((x, y) => initialTypesSort[x.TypeId].CompareTo(initialTypesSort[y.TypeId]));
                     return result;
                 }
             }
@@ -65,8 +65,8 @@ namespace PunchPal.Core.Services
             }
         }
         public static readonly string[] AskForLeaveIds = new string[] { "AL", "SL", "PL", "ML", "PPL", "BL", "FL", "CL", "GL", "RL", "TL", "BD", "IW" };
-        public static readonly string[] PunchInRecordIds = new string[] { "NA", "CP" };
-        private static readonly KeyValuePair<string, string>[] initialTyps = new KeyValuePair<string, string>[]
+        public static readonly string[] PunchInRecordIds = new string[] { "NA", "CP", "WF", "TR", "RS" };
+        private static readonly KeyValuePair<string, string>[] initialTypes = new KeyValuePair<string, string>[]
         {
                 // 考勤类型
                 new KeyValuePair<string, string>("NA", "正常出勤"),
@@ -106,7 +106,7 @@ namespace PunchPal.Core.Services
                 new KeyValuePair<string, string>("OD", "其他假期")
         };
 
-        private static readonly Dictionary<string, int> initialTypsSort = new Dictionary<string, int>
+        private static readonly Dictionary<string, int> initialTypesSort = new Dictionary<string, int>
         {
                 // 考勤类型
                 { "NA", 1 },

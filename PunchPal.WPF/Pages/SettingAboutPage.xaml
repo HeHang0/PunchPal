@@ -61,19 +61,6 @@
                 <ui:SymbolIcon Grid.Column="1" Symbol="Link24" />
             </Grid>
         </ui:Anchor>
-        <ui:Anchor Command="{Binding EmailWithMe}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="PersonChat24" />
-                    <TextBlock Text="联系作者" />
-                </StackPanel>
-                <ui:SymbolIcon Grid.Column="1" Symbol="Link24" />
-            </Grid>
-        </ui:Anchor>
         <ui:Anchor Cursor="Arrow" Padding="16 16 6 16">
             <Grid>
                 <Grid.ColumnDefinitions>

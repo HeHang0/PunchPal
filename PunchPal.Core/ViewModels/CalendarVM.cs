@@ -68,7 +68,6 @@ namespace PunchPal.Core.ViewModels
             var weekStart = settings.Calendar.WeekStart;
             var weekStartIndex = (int)weekStart;
             var firstDay = new DateTime(dateTime.Year, dateTime.Month, 1);
-            var daySchedule = settings.Calendar.GetSchedule(firstDay);
             var firstDayWeek = (int)firstDay.DayOfWeek;
             for (var i = weekStartIndex; i < firstDayWeek; i++)
             {
@@ -97,13 +96,18 @@ namespace PunchPal.Core.ViewModels
                 calendars = await CalendarService.Instance.ListAll(m => m.Date >= startValue && m.Date < endValue);
             });
             var calendarMap = CalendarService.GetCalendarMap(calendars);
-            string scheduleDateText = null;
             foreach (var item in result)
             {
                 var date = item.Date.ToDateString();
                 item.WorkItem = recordMap.ContainsKey(date) ? recordMap[date] : null;
                 item.CalendarData = calendarMap.ContainsKey(date) ? calendarMap[date] : null;
-                if (daySchedule.ContainsKey(date))
+            }
+            var daySchedule = settings.Calendar.GetSchedule(firstDay, result);
+            string scheduleDateText = null;
+            foreach (var item in result)
+            {
+                var date = item.Date.ToDateString();
+                if (item.Date.Month == dateTime.Month && daySchedule.ContainsKey(date))
                 {
                     if (scheduleDateText == null && item.Date > DateTime.Now)
                     {

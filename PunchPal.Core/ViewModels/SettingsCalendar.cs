@@ -53,23 +53,57 @@ namespace PunchPal.Core.ViewModels
             }
         }
 
-        public Dictionary<string, string> GetSchedule(DateTime date)
+        public Dictionary<string, string> GetSchedule(DateTime date, List<CalendarItem> calendars)
         {
             var result = new Dictionary<string, string>();
+            var dayInMonth = DateTime.DaysInMonth(date.Year, date.Month);
             foreach (var item in MonthScheduleList)
             {
                 if (string.IsNullOrWhiteSpace(item.Remark))
                 {
                     continue;
                 }
-                var day = new DateTime(date.Year, date.Month, item.Day);
-                if (item.MoveUpWhenWeekend && (day.DayOfWeek == DayOfWeek.Sunday || day.DayOfWeek == DayOfWeek.Saturday))
+                if (item.Day <= 0 || item.Day > 31)
                 {
-                    day = day.AddDays(day.DayOfWeek == DayOfWeek.Sunday ? -2 : -1);
+                    continue;
+                }
+                var itemDay = item.Day > dayInMonth ? dayInMonth : item.Day;
+                var day = new DateTime(date.Year, date.Month, itemDay);
+                if (!item.MoveUpWhenWeekend)
+                {
+                    result[day.ToDateString()] = item.Remark;
+                    continue;
+                }
+                var canNext = false;
+                for (var i = calendars.Count - 1; i >= 0; i--)
+                {
+                    if (calendars[i].Date == day)
+                    {
+                        if (IsCalendarWorkday(calendars[i].CalendarData))
+                        {
+                            break;
+                        }
+                        canNext = true;
+                        continue;
+                    }
+                    if (canNext && IsCalendarWorkday(calendars[i].CalendarData))
+                    {
+                        day = calendars[i].Date;
+                        break;
+                    }
                 }
                 result[day.ToDateString()] = item.Remark;
             }
             return result;
+        }
+
+        private bool IsCalendarWorkday(Models.CalendarRecord calendarRecord)
+        {
+            if (calendarRecord == null)
+            {
+                return false;
+            }
+            return calendarRecord.IsWorkday || !(calendarRecord.IsWeekend || calendarRecord.IsHoliday);
         }
 
         private DayOfWeek _weekStart = DayOfWeek.Sunday;

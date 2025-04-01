@@ -82,7 +82,7 @@
                                 <ui:TextBox Grid.Column="2" Height="30" Text="{Binding Remark}" Padding="5 0"
                                             PlaceholderText="日程内容" PlaceholderEnabled="True"/>
                                 <StackPanel Grid.Column="4" Orientation="Horizontal">
-                                    <Label Content="遇周末提前至周五" VerticalAlignment="Center" Margin="10 0 5 0" />
+                                    <Label Content="提前至最近的工作日" VerticalAlignment="Center" Margin="10 0 5 0" />
                                     <ui:ToggleSwitch IsChecked="{Binding MoveUpWhenWeekend}" />
                                 </StackPanel>
                                 <ui:Button Grid.Column="6" Height="30" Margin="10 0 0 0" CommandParameter="{Binding}" Appearance="Danger"
