@@ -6,52 +6,36 @@
              xmlns:local="clr-namespace:PunchPal.WPF.Controls"
              xmlns:vm="clr-namespace:PunchPal.Core.ViewModels;assembly=PunchPal.Core"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance Type=vm:CalendarItem}">
-    <Border BorderBrush="{DynamicResource TabViewBorderBrush}"
+    <Border BorderBrush="{DynamicResource TabViewBorderBrush}" Background="#01000000"
             BorderThickness="{Binding BorderThickness, Converter={StaticResource RectangleToThickness}}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
-            <!--<Border Grid.Row="0" Grid.RowSpan="2" Opacity="0.8"
-                    Background="{DynamicResource InfoBarWarningSeverityBackgroundBrush}">
-            </Border>-->
-            <Border Grid.Row="0" Grid.RowSpan="2" Background="{DynamicResource AccentButtonBackground}"
-                    Opacity="{Binding BackgroundOpacity}">
+            <Border Grid.Row="0" Grid.RowSpan="2" BorderBrush="{DynamicResource AccentButtonBackground}"
+                    Opacity="{Binding BackgroundOpacity}" BorderThickness="2">
             </Border>
             <TextBlock Grid.Row="0" HorizontalAlignment="Left" Text="{Binding Day}" FontWeight="Bold" ToolTip="{Binding DateText}"
                        Foreground="{Binding DayColor, Converter={StaticResource DrawBrushToMediaBrush}}"
                        TextDecorations="{Binding IsDayDecorations, Converter={StaticResource BooleanToUnderlineDecorations}}"
                        Opacity="{Binding Opacity}" Margin="5 5 0 0"></TextBlock>
-            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-                <ui:InfoBadge Severity="Critical" Style="{DynamicResource DotInfoBadgeStyle}" ToolTip="加班"
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Margin="0 5 5 0">
+                <ui:InfoBadge Severity="Critical" Style="{DynamicResource DotInfoBadgeStyle}" ToolTip="加班" VerticalAlignment="Center"
                               Visibility="{Binding IsWorkOvertime, Converter={StaticResource BooleanToVisibility}}"/>
-                <Label FontSize="12" Content="{Binding WorkHoursText}" ToolTip="{Binding TimeText}"
-                       Opacity="{Binding WorkHoursTextOpacity}" Margin="5 5 5 0"></Label>
+                <Label FontSize="12" Content="{Binding WorkHoursText}" ToolTip="{Binding TimeText}" VerticalAlignment="Center"
+                       Margin="5 0 5 0" Foreground="{Binding WorkHoursColor, Converter={StaticResource DrawBrushToMediaBrush}}" ></Label>
+                <emoji:TextBlock FontSize="16" Text="{Binding WorkHoursEmoji}" ToolTip="{Binding TimeText}"
+                                 VerticalAlignment="Center" />
             </StackPanel>
-            <TextBlock Grid.Row="1" Text="❀" Opacity="0.5" Margin="0 0 5 5" FontSize="16"
-                       VerticalAlignment="Bottom" HorizontalAlignment="Right"
-                       Foreground="{DynamicResource WindowForeground}"
-                       Visibility="{Binding Is996, Converter={StaticResource BooleanToVisibility}}"/>
             <TextBlock Grid.Row="1" Margin="5 5 0 5" VerticalAlignment="Bottom" FontSize="13" Text="{Binding TextListText}"
                        Opacity="{Binding Opacity}" ToolTip="{Binding TextListToolTip}" HorizontalAlignment="Left"
                        TextTrimming="CharacterEllipsis" Foreground="{DynamicResource TextFillColorPrimaryBrush}"
                        TextDecorations="{Binding IsDaySchedule, Converter={StaticResource BooleanToUnderlineDecorations}}"/>
-            <!--<ListBox Grid.Row="1" Margin="5 5 0 5" VerticalAlignment="Bottom"
-                     ScrollViewer.VerticalScrollBarVisibility="Auto"
-                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                     ItemsSource="{Binding TextList}" Opacity="{Binding Opacity}"
-                     ToolTip="{Binding TextListToolTip}">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock FontSize="13" Text="{Binding }" HorizontalAlignment="Left" Margin="0"
-                                   TextTrimming="CharacterEllipsis" Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>-->
         </Grid>
     </Border>
 </UserControl>

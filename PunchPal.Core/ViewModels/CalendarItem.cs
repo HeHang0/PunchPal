@@ -30,8 +30,13 @@ namespace PunchPal.Core.ViewModels
             set
             {
                 _workItem = value;
+                _standardMinutes = SettingsModel.Load().Data.EveryDayWorkHour * 60;
+                _overtimeCoefficient = (int)Math.Round((WorkMinutes - _standardMinutes) / 30f);
             }
         }
+
+        private int _standardMinutes;
+        private int _overtimeCoefficient;
 
         public string TimeText
         {
@@ -50,7 +55,6 @@ namespace PunchPal.Core.ViewModels
                 return null;
             }
         }
-        public bool Is996 => BackgroundOpacity == 1;
         public string WorkHoursText => WorkMinutes <= 0 || _weak ? string.Empty : $"{WorkMinutes * 1.0f / 60:F1}";
         public string WorkHoursToolTips => WorkMinutes <= 0 || _weak ? string.Empty : $"{(WorkMinutes * 1.0f / 60).ToString("F3").TrimEnd('0').TrimEnd('.')}(小时)";
         public float WorkHoursTextOpacity => WorkMinutes < (SettingsModel.Load().Data.EveryDayWorkHour * 60) ? 0.9f : 0.5f;
@@ -97,9 +101,7 @@ namespace PunchPal.Core.ViewModels
         {
             get
             {
-                var standardMinutes = SettingsModel.Load().Data.EveryDayWorkHour * 60;
-                var overtimeCoefficient = Math.Round((WorkMinutes - standardMinutes) / 30f);
-                switch (overtimeCoefficient)
+                switch (_overtimeCoefficient)
                 {
                     case 1: return 0.2f;
                     case 2: return 0.2f;
@@ -111,7 +113,61 @@ namespace PunchPal.Core.ViewModels
                     case 8: return 0.6f;
                     case 9: return 0.7f;
                     case 10: return 0.8f;
-                    default: return overtimeCoefficient > 10 ? 1 : (WorkMinutes >= standardMinutes ? 0.1f : 0);
+                    default: return _overtimeCoefficient > 10 ? 1 : (WorkMinutes >= _standardMinutes ? 0.1f : 0);
+                }
+            }
+        }
+
+        public Brush WorkHoursColor
+        {
+            get
+            {
+                if (_overtimeCoefficient <= 0)
+                {
+                    return new SolidBrush(Color.FromArgb(0x67, 0xC2, 0x3A)); //(IsDarkMode ? Brushes.White : Brushes.Black);
+                }
+                switch (_overtimeCoefficient)
+                {
+                    case 1:
+                    case 2: return new SolidBrush(Color.FromArgb(0xEE, 0xBE, 0x77));
+                    case 3:
+                    case 4: return new SolidBrush(Color.FromArgb(0xE6, 0xA2, 0x3C));
+                    case 5:
+                    case 6: return new SolidBrush(Color.FromArgb(0xB8, 0x82, 0x30));
+                    case 7:
+                    case 8: return new SolidBrush(Color.FromArgb(0xF8, 0x98, 0x98));
+                    case 9:
+                    case 10: return new SolidBrush(Color.FromArgb(0xF5, 0x6C, 0x6C));
+                    default: return new SolidBrush(Color.FromArgb(0xC4, 0x56, 0x56));
+                }
+            }
+        }
+
+        public string WorkHoursEmoji
+        {
+            get
+            {
+                if (WorkMinutes <= 0)
+                {
+                    return string.Empty;
+                }
+                if (_overtimeCoefficient <= 0)
+                {
+                    return "😊";
+                }
+                switch (_overtimeCoefficient)
+                {
+                    case 1:
+                    case 2: return "😅";
+                    case 3:
+                    case 4: return "🥲";
+                    case 5:
+                    case 6: return "😐";
+                    case 7:
+                    case 8: return "😔";
+                    case 9:
+                    case 10: return "😠";
+                    default: return "👿";
                 }
             }
         }

@@ -118,13 +118,13 @@ namespace PunchPal.Core.Services
 
         public async Task ImportFromFile(string fileName, string userId)
         {
-            if (string.IsNullOrWhiteSpace(fileName) || File.Exists(fileName))
+            if (string.IsNullOrWhiteSpace(fileName) || !File.Exists(fileName))
             {
                 return;
             }
             var text = File.ReadAllText(fileName);
             var matches = Regex.Matches(text,
-                "([\\d]{4}-[\\d]{2}-[\\d]{2} [\\d]{2}:[\\d]{2}:[\\d]{2})[\\s]+[\\n]([\\S]+)[\\s]+");
+                "([\\d]{4}-[\\d]{2}-[\\d]{2} [\\d]{2}:[\\d]{2}:[\\d]{2})[\\s]*[\\n]([\\S]+)[\\s]*");
             var records = new List<PunchRecord>();
             foreach (Match match in matches)
             {

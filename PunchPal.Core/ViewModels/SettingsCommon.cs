@@ -51,7 +51,7 @@ namespace PunchPal.Core.ViewModels
             {
                 if (_currentUser == null)
                 {
-                    _currentUser = UserService.Instance.FirstOrDefault();
+                    _currentUser = UserService.Instance?.FirstOrDefault();
                 }
                 return _currentUser;
             }

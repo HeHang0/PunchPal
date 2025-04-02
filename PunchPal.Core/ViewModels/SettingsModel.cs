@@ -121,7 +121,7 @@ namespace PunchPal.Core.ViewModels
             _settings.WorkingTimeRange.PropertyChanged += OnChildPropertyChanged;
             if (_settings.Common.CurrentUser != null)
             {
-                _settings.Common.CurrentUser = UserService.Instance.FirstOrDefault(m => m.UserId == _settings.Common.CurrentUser.UserId) ?? UserService.Instance.FirstOrDefault();
+                _settings.Common.CurrentUser = UserService.Instance?.FirstOrDefault(m => m.UserId == _settings.Common.CurrentUser.UserId) ?? UserService.Instance.FirstOrDefault();
             }
             _ = _settings.WorkingTimeRange.InitRanges();
         }
