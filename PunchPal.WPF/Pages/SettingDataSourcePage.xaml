@@ -16,8 +16,7 @@
                 <StackPanel HorizontalAlignment="Stretch">
                     <Label FontWeight="Bold" Margin="0,0,0,8" Content="{Binding Name}" />
                     <Grid>
-                        <ui:CardExpander Margin="0,0,0,12" ContentPadding="0" Width="Auto" HorizontalAlignment="Stretch"
-IsExpanded="{Binding IsExpanded}">
+                        <ui:CardExpander Margin="0,0,0,12" ContentPadding="0" Width="Auto" HorizontalAlignment="Stretch" IsExpanded="{Binding IsExpanded}">
                             <ui:CardExpander.Header>
                                 <Grid HorizontalAlignment="Stretch">
                                     <Grid.ColumnDefinitions>
@@ -182,8 +181,12 @@ IsExpanded="{Binding IsExpanded}">
                                         <ColumnDefinition Width="50" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
-                                    <ui:Button Grid.Column="1" Content="测试" HorizontalAlignment="Stretch" CommandParameter="{Binding}"
-                                               Command="{Binding DataContext.TestRequest, RelativeSource={RelativeSource AncestorType=ListBox}}"/>
+                                    <StackPanel Grid.Column="1">
+                                        <ui:Button Content="测试" HorizontalAlignment="Stretch" CommandParameter="{Binding}" Margin="0 0 0 12"
+                                                   Command="{Binding DataContext.TestRequest, RelativeSource={RelativeSource AncestorType=ListBox}}"/>
+                                        <ui:Button Content="删除" CommandParameter="{Binding}" Appearance="Danger" HorizontalAlignment="Stretch"
+                                                   Command="{Binding DataContext.RemoveItem, RelativeSource={RelativeSource AncestorType=ListBox}}"/>
+                                    </StackPanel>                                    
                                 </Grid>
                                 <Grid Margin="0 12 0 0" Visibility="{Binding IsResponseJavaScript, Converter={StaticResource BooleanToVisibility}}">
                                     <Grid.ColumnDefinitions>

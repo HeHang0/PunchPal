@@ -21,17 +21,49 @@ namespace PunchPal.Core.ViewModels
 
         public ObservableCollection<DataSourceItem> Items { get; } = new ObservableCollection<DataSourceItem>();
 
-        public DataSourceItem Authenticate { get; set; }
-        public DataSourceItem UserInfo { get; set; }
-        public DataSourceItem PunchTime { get; set; }
-        public DataSourceItem Attendance { get; set; }
-        public DataSourceItem Calendar { get; set; }
-        public DataSourceItem WorkTime { get; set; }
-
         public ICommand ImportDataSource => new ActionCommand(OnImportDataSource);
         public ICommand ExportDataSource => new ActionCommand(OnExportDataSource);
         public ICommand SaveDataSource => new ActionCommand(OnSaveDataSource);
         public ICommand TestRequest => new RelayCommand<DataSourceItem>(OnTestRequest);
+        public ICommand AddDataSource => new RelayCommand<string>(OnAddDataSource);
+        public ICommand RemoveItem => new RelayCommand<DataSourceItem>(OnRemoveItem);
+
+        public void OnAddDataSource(string type)
+        {
+            if (!Enum.TryParse(type, out DataSourceItem.DataSourceType dataSourceType))
+            {
+                return;
+            }
+            if (dataSourceType == DataSourceItem.DataSourceType.UserInfo &&
+                Items.FirstOrDefault(m => m.Type == DataSourceItem.DataSourceType.UserInfo) != null)
+            {
+                EventManager.ShowTips(new TipsOption("提示", "用户信息数据源只能添加一个"));
+                return;
+            }
+            var item = new DataSourceItem(dataSourceType, DataSourceItem.RequestType.Post);
+            item.ResetMappings();
+            var index = 0;
+            for (var i = 0; i < Items.Count; i++)
+            {
+                if (Items[i].Type == dataSourceType)
+                {
+                    index = i;
+                }
+            }
+            if (index >= 0 || index < Items.Count)
+            {
+                Items.Insert(index, item);
+            }
+            else
+            {
+                Items.Add(item);
+            }
+        }
+
+        public void OnRemoveItem(DataSourceItem item)
+        {
+            Items.Remove(item);
+        }
 
         public async void OnTestRequest(DataSourceItem item)
         {
@@ -76,13 +108,21 @@ namespace PunchPal.Core.ViewModels
 
         private Dictionary<string, string> GetPreData(DateTime date)
         {
-            var preData = new Dictionary<string, string>
+            var preData = new Dictionary<string, string>();
+            if (File.Exists(PathTools.PreDataPath))
             {
-                ["YEAR"] = date.Year.ToString(),
-                ["MONTH"] = date.Month.ToString()
-            };
+                try
+                {
+                    preData = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(PathTools.PreDataPath));
+                }
+                catch (Exception)
+                {
+                }
+            }
             var start = new DateTime(date.Year, date.Month, 1);
             var end = start.AddMonths(1).AddDays(-1);
+            preData["YEAR"] = date.Year.ToString();
+            preData["MONTH"] = date.Month.ToString();
             preData["DAYSTART"] = start.ToDateString();
             preData["DAYEND"] = end.ToDateString();
             preData["TIMESTART"] = start.ToDateTimeString();
@@ -111,35 +151,48 @@ namespace PunchPal.Core.ViewModels
             if (!string.IsNullOrWhiteSpace(headers["Cookie"]))
             {
                 File.WriteAllText(PathTools.CookiePath, headers["Cookie"]);
+                File.WriteAllText(PathTools.PreDataPath, JsonConvert.SerializeObject(preData));
             }
             var browser = await PuppeteerBrowser.GetHeadlessBrowser();
             var ok = false;
-            var (punch, _) = await PunchTime.RunRequest(preData, headers, browser: browser);
+            var punchTimeList = Items.Where(m => m.Type == DataSourceItem.DataSourceType.PunchTime);
+            var attendanceList = Items.Where(m => m.Type == DataSourceItem.DataSourceType.Attendance);
+            var calendarList = Items.Where(m => m.Type == DataSourceItem.DataSourceType.Calendar);
             var punchCount = 0;
-            if (punch is List<PunchRecord> punchRecords)
-            {
-                punchRecords.ForEach(m => m.UserId = user.UserId);
-                await PunchRecordService.Instance.Add(punchRecords);
-                ok = true;
-                punchCount = punchRecords.Count;
-            }
-            var (attendance, _) = await Attendance.RunRequest(preData, headers, browser: browser);
             var attendanceCount = 0;
-            if (attendance is List<AttendanceRecord> attendanceRecords)
-            {
-                attendanceRecords.ForEach(m => m.UserId = user.UserId);
-                await AttendanceRecordService.Instance.Add(attendanceRecords);
-                ok = true;
-                attendanceCount = attendanceRecords.Count;
-            }
-            var (calendar, _) = await Calendar.RunRequest(preData, headers, browser: browser);
             var calendarCount = 0;
-            if (calendar is List<CalendarRecord> calendarRecords)
+            foreach (var item in punchTimeList)
             {
-                calendarRecords.ForEach(m => m.Type = CalendarType.DataSource);
-                await CalendarService.Instance.Add(calendarRecords);
-                ok = true;
-                calendarCount = calendarRecords.Count;
+                var (punch, _) = await item.RunRequest(preData, headers, browser: browser);
+                if (punch is List<PunchRecord> punchRecords)
+                {
+                    punchRecords.ForEach(m => m.UserId = user.UserId);
+                    await PunchRecordService.Instance.Add(punchRecords);
+                    ok = true;
+                    punchCount += punchRecords.Count;
+                }
+            }
+            foreach (var item in attendanceList)
+            {
+                var (attendance, _) = await item.RunRequest(preData, headers, browser: browser);
+                if (attendance is List<AttendanceRecord> attendanceRecords)
+                {
+                    attendanceRecords.ForEach(m => m.UserId = user.UserId);
+                    await AttendanceRecordService.Instance.Add(attendanceRecords);
+                    ok = true;
+                    attendanceCount += attendanceRecords.Count;
+                }
+            }
+            foreach (var item in calendarList)
+            {
+                var (calendar, _) = await item.RunRequest(preData, headers, browser: browser);
+                if (calendar is List<CalendarRecord> calendarRecords)
+                {
+                    calendarRecords.ForEach(m => m.Type = CalendarType.DataSource);
+                    await CalendarService.Instance.Add(calendarRecords);
+                    ok = true;
+                    calendarCount += calendarRecords.Count;
+                }
             }
             try
             {
@@ -213,21 +266,31 @@ namespace PunchPal.Core.ViewModels
 
         private async Task<User> CheckAuth(Dictionary<string, string> preData, Dictionary<string, string> headers)
         {
-            var (user, _) = await UserInfo.RunRequest(preData);
+            var UserInfo = Items.FirstOrDefault(m => m.Type == DataSourceItem.DataSourceType.UserInfo);
+            var (user, _) = await UserInfo?.RunRequest(preData);
             if (user == null)
             {
-                var (auth, cookieAuth) = await Authenticate.RunRequest(preData, headers);
-                if (auth == null && string.IsNullOrWhiteSpace(cookieAuth))
+                var authenticates = Items.Where(m => m.Type == DataSourceItem.DataSourceType.Authenticate);
+                var cookies = new List<string>();
+                foreach (var authenticate in authenticates)
                 {
-                    return null;
-                }
-                headers["Cookie"] = cookieAuth;
-                if (auth is Dictionary<string, string> authMap)
-                {
-                    foreach (var item in authMap)
+                    var (auth, cookieAuth) = await authenticate.RunRequest(preData, headers);
+                    if (auth is Dictionary<string, string> authMap)
                     {
-                        preData[item.Key] = item.Value;
+                        foreach (var item in authMap)
+                        {
+                            preData[item.Key] = item.Value;
+                        }
                     }
+                    if (!string.IsNullOrWhiteSpace(cookieAuth))
+                    {
+                        cookies.Add(cookieAuth);
+                        headers["Cookie"] += "; " + string.Join("; ", cookies);
+                    }
+                }
+                if (cookies.Count > 0)
+                {
+                    headers["Cookie"] = string.Join("; ", cookies);
                 }
                 var (user1, _) = await UserInfo.RunRequest(preData, headers);
                 user = user1;
@@ -294,13 +357,7 @@ namespace PunchPal.Core.ViewModels
             }
             if (items.Count > 0 || force)
             {
-                _dataSource.Authenticate = items.FirstOrDefault(m => m.Type == DataSourceItem.DataSourceType.Authenticate) ?? new DataSourceItem(DataSourceItem.DataSourceType.Authenticate, DataSourceItem.RequestType.Get);
-                _dataSource.UserInfo = items.FirstOrDefault(m => m.Type == DataSourceItem.DataSourceType.UserInfo) ?? new DataSourceItem(DataSourceItem.DataSourceType.UserInfo, DataSourceItem.RequestType.Get);
-                _dataSource.PunchTime = items.FirstOrDefault(m => m.Type == DataSourceItem.DataSourceType.PunchTime) ?? new DataSourceItem(DataSourceItem.DataSourceType.PunchTime);
-                _dataSource.Attendance = items.FirstOrDefault(m => m.Type == DataSourceItem.DataSourceType.Attendance) ?? new DataSourceItem(DataSourceItem.DataSourceType.Attendance);
-                _dataSource.Calendar = items.FirstOrDefault(m => m.Type == DataSourceItem.DataSourceType.Calendar) ?? new DataSourceItem(DataSourceItem.DataSourceType.Calendar);
-                _dataSource.WorkTime = items.FirstOrDefault(m => m.Type == DataSourceItem.DataSourceType.WorkTime) ?? new DataSourceItem(DataSourceItem.DataSourceType.WorkTime);
-                _dataSource.ResetItems();
+                _dataSource.ResetItems(items);
             }
         }
 
@@ -308,15 +365,9 @@ namespace PunchPal.Core.ViewModels
         {
         }
 
-        public void ResetItems()
+        public void ResetItems(List<DataSourceItem> items)
         {
-            Items.Clear();
-            Items.Add(Authenticate);
-            Items.Add(UserInfo);
-            Items.Add(PunchTime);
-            Items.Add(Attendance);
-            Items.Add(Calendar);
-            //Items.Add(WorkTime);
+            items.ForEach(m => Items.Add(m));
             foreach (var item in Items)
             {
                 item.ResetMappings();

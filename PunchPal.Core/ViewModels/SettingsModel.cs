@@ -93,6 +93,8 @@ namespace PunchPal.Core.ViewModels
         [JsonIgnore]
         public ICommand ImportDataSource => DataSource.ImportDataSource;
         [JsonIgnore]
+        public ICommand AddDataSource => DataSource.AddDataSource;
+        [JsonIgnore]
         public ICommand ExportDataSource => DataSource.ExportDataSource;
         [JsonIgnore]
         public ICommand SaveDataSource => DataSource.SaveDataSource;

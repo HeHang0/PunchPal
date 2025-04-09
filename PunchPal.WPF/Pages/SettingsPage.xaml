@@ -37,6 +37,18 @@
                     <TextBlock Margin="10 0 0 20" FontSize="30" FontWeight="Bold" Text="{Binding CurrentSettingTitle}" />
                     <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="10 0 0 20"
                                 Visibility="{Binding DataSourceOperateVisible, Converter={StaticResource BooleanToVisibility}}">
+
+                        <ui:DropDownButton Margin="0 0 8 0" Content="添加" >
+                            <ui:DropDownButton.Flyout>
+                                <ContextMenu>
+                                    <MenuItem Header="认证" Command="{Binding AddDataSource}" CommandParameter="Authenticate"/>
+                                    <MenuItem Header="用户信息" Command="{Binding AddDataSource}" CommandParameter="UserInfo"/>
+                                    <MenuItem Header="打卡时间" Command="{Binding AddDataSource}" CommandParameter="PunchTime"/>
+                                    <MenuItem Header="考勤" Command="{Binding AddDataSource}" CommandParameter="Attendance"/>
+                                    <MenuItem Header="日历" Command="{Binding AddDataSource}" CommandParameter="Calendar"/>
+                                </ContextMenu>
+                            </ui:DropDownButton.Flyout>
+                        </ui:DropDownButton>
                         <ui:Button Appearance="Caution" Content="导入" Foreground="White" Command="{Binding ImportDataSource}" />
                         <ui:Button Appearance="Info" Content="导出" Margin="8 0" Command="{Binding ExportDataSource}" />
                         <ui:Button Appearance="Success" Content="保存" Command="{Binding SaveDataSource}" />

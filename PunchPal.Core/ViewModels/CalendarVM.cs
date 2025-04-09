@@ -120,7 +120,9 @@ namespace PunchPal.Core.ViewModels
             {
                 ScheduleCountdownText = string.Empty;
             }
-            else if (DateTime.TryParse(scheduleDateText, out DateTime scheduleDate))
+            else if (DateTime.TryParse(scheduleDateText, out DateTime scheduleDate) &&
+                scheduleDate.Year == DateTime.Now.Year &&
+                scheduleDate.Month == DateTime.Now.Month)
             {
 
                 var distance = (int)(scheduleDate - DateTime.Now.Date).TotalDays;
@@ -150,7 +152,10 @@ namespace PunchPal.Core.ViewModels
                 HolidayCountdownText = string.Empty;
                 return;
             }
-            var year = result.Record.SolarTerm == "国庆节" ? DateTime.Now.Year.ToString() : result.Record.LunarYear;
+
+            var year = CalendarService.ChineseSolarTermHolidays.Contains(result.Record.SolarTerm) ?
+                result.Record.LunarYear :
+                DateTime.Now.Year.ToString();
             if (result.Distance > 0)
             {
                 HolidayCountdownText = $"距离 {year}年{result.Record.SolarTerm}假期 还有{result.Distance}天";

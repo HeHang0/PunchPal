@@ -33,6 +33,8 @@ namespace PunchPal.Tools
 
         public static string CookiePath => Path.Combine(AppDataPath, "cookie");
 
+        public static string PreDataPath => Path.Combine(AppDataPath, "pre_data");
+
         public static string SqlitePath
         {
             get

@@ -190,6 +190,11 @@ namespace PunchPal.Core.Services
         {
             "元旦", "除夕", "春节", "清明节", "清明", "劳动节", "端午节", "国庆节", "中秋节"
         };
+
+        public static HashSet<string> ChineseSolarTermHolidays = new HashSet<string>()
+        {
+            "除夕", "春节", "清明节", "清明", "端午节", "中秋节"
+        };
         public static HashSet<string> SolarTerms = new HashSet<string>()
         {
             "小寒", "大寒", "立春", "雨水", "惊蛰", "春分",
