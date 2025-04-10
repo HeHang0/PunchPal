@@ -395,14 +395,15 @@ namespace PunchPal.Core.ViewModels
                 }
                 return (null, string.Join("; ", cookies));
             }
-            var body = ReplaceValue(RequestBody, preData);
+            var cookieMap = NetworkUtils.CookieToMap(headers["Cookie"], true);
+            var body = ReplaceValue(RequestBody, preData, cookieMap);
             if (headers == null)
             {
                 headers = new Dictionary<string, string>();
             }
             foreach (var item in RequestHeaders)
             {
-                headers[item.Key] = ReplaceValue(item.Value, preData);
+                headers[item.Key] = ReplaceValue(item.Value, preData, cookieMap);
             }
             var indexText = url + body + RequestMethod.ToString() + JsonConvert.SerializeObject(headers);
             if (!test && Type == DataSourceType.Calendar && requestCacheSet.Contains(FileTools.CalculateTextMD5(indexText)))
@@ -767,11 +768,23 @@ namespace PunchPal.Core.ViewModels
             return ParseJsonItem(value, defaultValue);
         }
 
-        private string ReplaceValue(string text, Dictionary<string, string> preData)
+        private string ReplaceValue(string text, Dictionary<string, string> preData, Dictionary<string, string> cookies = null)
         {
+            if (!text.Contains("{") || !text.Contains("}") || preData == null)
+            {
+                return text;
+            }
             foreach (var item in preData)
             {
                 text = text.Replace($"{{{item.Key}}}", item.Value);
+            }
+            if (!text.Contains("{") || !text.Contains("}") || cookies == null)
+            {
+                return text;
+            }
+            foreach (var item in cookies)
+            {
+                text = text.Replace($"{{COOKIE_{item.Key}}}", item.Value);
             }
             return text;
         }

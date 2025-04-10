@@ -101,5 +101,24 @@ namespace PunchPal.Core.Apis
             }
 
         }
+
+        public static Dictionary<string, string> CookieToMap(string text, bool upper = false)
+        {
+            var cookieMap = new Dictionary<string, string>();
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return cookieMap;
+            }
+            foreach (var item in text.Split(';'))
+            {
+                var pairs = item.Trim().Split('=');
+                if (pairs.Length == 2)
+                {
+                    var name = upper ? pairs[0].ToUpper() : pairs[0];
+                    cookieMap[name] = pairs[1];
+                }
+            }
+            return cookieMap;
+        }
     }
 }

@@ -271,7 +271,11 @@ namespace PunchPal.Core.ViewModels
             if (user == null)
             {
                 var authenticates = Items.Where(m => m.Type == DataSourceItem.DataSourceType.Authenticate);
-                var cookies = new List<string>();
+                var cookies = new List<string>() { };
+                if (!string.IsNullOrWhiteSpace(headers["Cookie"]))
+                {
+                    cookies.Add(headers["Cookie"]);
+                }
                 foreach (var authenticate in authenticates)
                 {
                     var (auth, cookieAuth) = await authenticate.RunRequest(preData, headers);
@@ -285,12 +289,8 @@ namespace PunchPal.Core.ViewModels
                     if (!string.IsNullOrWhiteSpace(cookieAuth))
                     {
                         cookies.Add(cookieAuth);
-                        headers["Cookie"] += "; " + string.Join("; ", cookies);
+                        headers["Cookie"] = string.Join("; ", cookies);
                     }
-                }
-                if (cookies.Count > 0)
-                {
-                    headers["Cookie"] = string.Join("; ", cookies);
                 }
                 var (user1, _) = await UserInfo.RunRequest(preData, headers);
                 user = user1;
@@ -367,6 +367,7 @@ namespace PunchPal.Core.ViewModels
 
         public void ResetItems(List<DataSourceItem> items)
         {
+            Items.Clear();
             items.ForEach(m => Items.Add(m));
             foreach (var item in Items)
             {

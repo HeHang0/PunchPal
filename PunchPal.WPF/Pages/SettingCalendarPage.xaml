@@ -20,15 +20,6 @@
             <ComboBox ItemsSource="{Binding WeekList}" SelectedValue="{Binding WeekStart}" Padding="5"
                       SelectedValuePath="Key" DisplayMemberPath="Value"/>
         </ui:CardControl>
-        <!--<ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
-            <ui:CardControl.Header>
-                <StackPanel Orientation="Horizontal">
-                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="CalendarPattern20" />
-                    <ui:TextBlock FontTypography="Body" Text="节假日背景" />
-                </StackPanel>
-            </ui:CardControl.Header>
-            <ui:ToggleSwitch IsChecked="{Binding IsCalendarHolidayVisible}" />
-        </ui:CardControl>-->
         <ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
             <ui:CardControl.Header>
                 <StackPanel Orientation="Horizontal">
@@ -55,6 +46,15 @@
                 </StackPanel>
             </ui:CardControl.Header>
             <ui:ToggleSwitch IsChecked="{Binding HolidayCountdownVisible}" />
+        </ui:CardControl>
+        <ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="CalendarPattern20" />
+                    <ui:TextBlock FontTypography="Body" Text="半透明背景" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:ToggleSwitch IsChecked="{Binding IsTranslucentBackground}" />
         </ui:CardControl>
         <ui:CardExpander Margin="0,0,0,12" ContentPadding="0" Width="Auto" HorizontalAlignment="Stretch" IsExpanded="True">
             <ui:CardExpander.Header>

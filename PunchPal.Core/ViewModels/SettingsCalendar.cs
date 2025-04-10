@@ -42,6 +42,17 @@ namespace PunchPal.Core.ViewModels
             }
         }
 
+        private bool _isTranslucentBackground = false;
+        public bool IsTranslucentBackground
+        {
+            get => _isTranslucentBackground;
+            set
+            {
+                _isTranslucentBackground = value;
+                OnPropertyChanged();
+            }
+        }
+
         private ObservableCollection<MonthSchedule> _monthScheduleList = new ObservableCollection<MonthSchedule>();
         public ObservableCollection<MonthSchedule> MonthScheduleList
         {

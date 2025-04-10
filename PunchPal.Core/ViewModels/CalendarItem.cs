@@ -118,13 +118,19 @@ namespace PunchPal.Core.ViewModels
             }
         }
 
+        public bool IsTranslucentBackground => SettingsModel.Load().Calendar.IsTranslucentBackground;
+
         public Brush WorkHoursColor
         {
             get
             {
+                if (SettingsModel.Load().Calendar.IsTranslucentBackground)
+                {
+                    return IsDarkMode ? Brushes.White : Brushes.Black;
+                }
                 if (_overtimeCoefficient <= 0)
                 {
-                    return new SolidBrush(Color.FromArgb(0x67, 0xC2, 0x3A)); //(IsDarkMode ? Brushes.White : Brushes.Black);
+                    return new SolidBrush(Color.FromArgb(0x67, 0xC2, 0x3A));
                 }
                 switch (_overtimeCoefficient)
                 {
