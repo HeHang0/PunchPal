@@ -61,6 +61,18 @@ namespace PunchPal.Core.ViewModels
             }
         }
 
+        private int CalculateDayLast(int weekStartIndex, int firstDayWeek)
+        {
+            for (int i = 0; i < 7; i++)
+            {
+                if (firstDayWeek == (weekStartIndex + i) % 7)
+                {
+                    return i;
+                }
+            }
+            return 0;
+        }
+
         public async Task InitItems(DateTime dateTime, IList<WorkingHours> hours)
         {
             var result = new List<CalendarItem>();
@@ -69,9 +81,10 @@ namespace PunchPal.Core.ViewModels
             var weekStartIndex = (int)weekStart;
             var firstDay = new DateTime(dateTime.Year, dateTime.Month, 1);
             var firstDayWeek = (int)firstDay.DayOfWeek;
-            for (var i = weekStartIndex; i < firstDayWeek; i++)
+            var dayLastCount = CalculateDayLast(weekStartIndex, firstDayWeek);
+            for (var i = 0; i < dayLastCount; i++)
             {
-                result.Add(new CalendarItem(firstDay.AddDays(i - firstDayWeek), true) { IsLast = true });
+                result.Add(new CalendarItem(firstDay.AddDays(i - dayLastCount), true) { IsLast = true });
             }
             var lastDay = firstDay.AddMonths(1).AddDays(-1);
             var days = (lastDay - firstDay).Days + 1;
@@ -116,17 +129,17 @@ namespace PunchPal.Core.ViewModels
                     item.DaySchedule = daySchedule[date];
                 }
             }
-            if (scheduleDateText == null)
-            {
-                ScheduleCountdownText = string.Empty;
-            }
-            else if (DateTime.TryParse(scheduleDateText, out DateTime scheduleDate) &&
-                scheduleDate.Year == DateTime.Now.Year &&
-                scheduleDate.Month == DateTime.Now.Month)
+            if (DateTime.TryParse(scheduleDateText, out DateTime scheduleDate) &&
+                firstDay.Year == DateTime.Now.Year &&
+                firstDay.Month == DateTime.Now.Month)
             {
 
                 var distance = (int)(scheduleDate - DateTime.Now.Date).TotalDays;
                 ScheduleCountdownText = distance > 0 ? $"距离 {daySchedule[scheduleDateText]} 还有{distance}天" : string.Empty;
+            }
+            else
+            {
+                ScheduleCountdownText = string.Empty;
             }
             await UpdateHolidayCountdown();
 
