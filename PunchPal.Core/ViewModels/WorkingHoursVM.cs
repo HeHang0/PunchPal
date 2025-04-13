@@ -1,6 +1,5 @@
 ﻿using PunchPal.Core.Models;
 using PunchPal.Core.Services;
-using PunchPal.Tools;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,26 +12,26 @@ namespace PunchPal.Core.ViewModels
     public class WorkingHoursVM : NotifyPropertyBase
     {
         public event EventHandler<string> TextCoping;
+        public List<WorkingHours> ItemsAll { get; } = new List<WorkingHours>();
 
-        public async Task InitItems(DateTime dateTime)
+        public async Task InitItems(DateTime dateTime, DateTime start, DateTime end, IEnumerable<PunchRecord> punchRecords, IEnumerable<AttendanceRecord> attendanceRecords)
         {
             Items.Clear();
-            var settings = SettingsModel.Load();
-            var dateStart = new DateTime(dateTime.Year, dateTime.Month, 1, settings.Data.DayStartHour, 0, 0);
-            var dateEnd = dateStart.AddMonths(1);
-            var dateStartValue = dateStart.TimestampUnix();
-            var dateEndValue = dateEnd.TimestampUnix();
-            var userId = settings.Common.CurrentUser?.UserId ?? "";
-            var result = await WorkHourService.Instance.List(settings.Data.DayStartHour, m => m.UserId == userId && m.PunchTime >= dateStartValue && m.PunchTime < dateEndValue);
-            result.ForEach(m => Items.Add(m));
+            ItemsAll.Clear();
+            ItemsAll.AddRange(await GetRecords(start, end, punchRecords, attendanceRecords));
+            ItemsAll.ForEach(m =>
+            {
+                if (m.WorkingDateTime.Month == dateTime.Month)
+                {
+                    Items.Add(m);
+                }
+            });
         }
 
-        public async Task InitItems(IEnumerable<PunchRecord> punchRecords)
+        public async Task<List<WorkingHours>> GetRecords(DateTime start, DateTime end, IEnumerable<PunchRecord> punchRecords, IEnumerable<AttendanceRecord> attendanceRecords)
         {
-            Items.Clear();
             var settings = SettingsModel.Load();
-            var result = await WorkHourService.Instance.List(settings.Data.DayStartHour, punchRecords);
-            result.ForEach(m => Items.Add(m));
+            return await WorkHourService.Instance.List(settings.Data.DayStartHour, start, end, punchRecords, attendanceRecords);
         }
 
         public ICommand CopyWorkHoursCommand => new ActionCommand(OnCopyWorkHours);

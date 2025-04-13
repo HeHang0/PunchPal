@@ -264,7 +264,7 @@ namespace PunchPal.Core.ViewModels
                     case DataSourceType.Authenticate:
                         return JavaScriptTipsPrefix + "返回值为 Record<string, string> 类型JSON字符串";
                     case DataSourceType.UserInfo:
-                        return JavaScriptTipsPrefix + "返回值为 User 类型JSON字符串\ninterface User {\n  name: string;\n  avator: string;\n  password: string;\n  remark: string;\n}";
+                        return JavaScriptTipsPrefix + "返回值为 User 类型JSON字符串\ninterface User {\n  userId: string;\n  name: string;\n  avator: string;\n  remark: string;\n}";
                     case DataSourceType.PunchTime:
                         return JavaScriptTipsPrefix + "返回值为 PunchRecord[] 类型JSON字符串\ninterface PunchRecord {\n  punchTime: number; // 秒时间戳+8h\n  punchType: string; // 打卡类型\n  remark: string;\n}";
                     case DataSourceType.Attendance:
@@ -395,7 +395,7 @@ namespace PunchPal.Core.ViewModels
                 }
                 return (null, string.Join("; ", cookies));
             }
-            var cookieMap = NetworkUtils.CookieToMap(headers["Cookie"], true);
+            var cookieMap = NetworkUtils.CookieToMap(headers?["Cookie"], true);
             var body = ReplaceValue(RequestBody, preData, cookieMap);
             if (headers == null)
             {

@@ -12,7 +12,7 @@
              d:DataContext="{d:DesignInstance Type=vm:CalendarItem}">
     <Border BorderBrush="{DynamicResource TabViewBorderBrush}" Background="#01000000"
             BorderThickness="{Binding BorderThickness, Converter={StaticResource RectangleToThickness}}">
-        <Grid>
+        <Grid Opacity="{Binding Opacity}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
@@ -26,9 +26,8 @@
                     Visibility="{Binding IsTranslucentBackground, Converter={StaticResource BooleanToVisibility}}">
             </Border>
             <TextBlock Grid.Row="0" HorizontalAlignment="Left" Text="{Binding Day}" FontWeight="Bold" ToolTip="{Binding DateText}"
-                       Foreground="{Binding DayColor, Converter={StaticResource DrawBrushToMediaBrush}}"
-                       TextDecorations="{Binding IsDayDecorations, Converter={StaticResource BooleanToUnderlineDecorations}}"
-                       Opacity="{Binding Opacity}" Margin="5 5 0 0"></TextBlock>
+                       Foreground="{Binding DayColor, Converter={StaticResource DrawBrushToMediaBrush}}" Margin="5 5 0 0"
+                       TextDecorations="{Binding IsDayDecorations, Converter={StaticResource BooleanToUnderlineDecorations}}" />
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Margin="0 5 5 0">
                 <ui:InfoBadge Severity="Critical" Style="{DynamicResource DotInfoBadgeStyle}" ToolTip="加班" VerticalAlignment="Center"
                               Visibility="{Binding IsWorkOvertime, Converter={StaticResource BooleanToVisibility}}"/>

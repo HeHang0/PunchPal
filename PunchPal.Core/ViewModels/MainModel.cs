@@ -3,8 +3,10 @@ using PunchPal.Core.Models;
 using PunchPal.Core.Services;
 using PunchPal.Tools;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Timer = System.Threading.Timer;
 
@@ -300,12 +302,28 @@ namespace PunchPal.Core.ViewModels
         public async void InitItems()
         {
             Loading = true;
-            await PunchRecord.InitItems(Date);
-            await AttendanceRecord.InitItems(Date);
-            await WorkingHours.InitItems(PunchRecord.Items);
-            await Calendar.InitItems(Date, WorkingHours.Items);
-            await Overview.InitItems(Date, WorkingHours.Items);
+            var (start, end) = Calendar.GetDateTimeRange(Date);
+            await PunchRecord.InitItems(Date, start, end);
+            await AttendanceRecord.InitItems(Date, start, end);
+            await WorkingHours.InitItems(Date, start, end, PunchRecord.ItemsAll, AttendanceRecord.ItemsAll);
+            await Calendar.InitItems(Date, WorkingHours.ItemsAll);
+            var recentWeekWorkingHours = await GetRecentWeekWorkingHours();
+            await Overview.InitItems(Date, WorkingHours.Items, recentWeekWorkingHours);
             Loading = false;
+        }
+
+        private async Task<IEnumerable<WorkingHours>> GetRecentWeekWorkingHours()
+        {
+            var now = DateTime.Now;
+            if (now.Year != Date.Year || now.Month != Date.Month)
+            {
+                return null;
+            }
+            var start = now.AddDays(-6).Date;
+            var end = now.Date;
+            var punchRecords = await PunchRecord.GetRecords(start, end);
+            var attendanceRecords = await AttendanceRecord.GetRecords(start, end);
+            return await WorkingHours.GetRecords(start, end, punchRecords, attendanceRecords);
         }
 
         public ICommand CurrentMonthCommand => new ActionCommand(OnCurrentMonth);

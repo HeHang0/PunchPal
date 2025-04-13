@@ -20,6 +20,16 @@ namespace PunchPal.Core.ViewModels
         private static readonly DataSourceModel _dataSource;
 
         public ObservableCollection<DataSourceItem> Items { get; } = new ObservableCollection<DataSourceItem>();
+        private DataSourceItem _selectedItem = null;
+        public DataSourceItem SelectedItem
+        {
+            get => _selectedItem;
+            set
+            {
+                _selectedItem = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ICommand ImportDataSource => new ActionCommand(OnImportDataSource);
         public ICommand ExportDataSource => new ActionCommand(OnExportDataSource);
@@ -42,7 +52,7 @@ namespace PunchPal.Core.ViewModels
             }
             var item = new DataSourceItem(dataSourceType, DataSourceItem.RequestType.Post);
             item.ResetMappings();
-            var index = 0;
+            var index = -1;
             for (var i = 0; i < Items.Count; i++)
             {
                 if (Items[i].Type == dataSourceType)
@@ -50,18 +60,20 @@ namespace PunchPal.Core.ViewModels
                     index = i;
                 }
             }
-            if (index >= 0 || index < Items.Count)
+            if (index >= 0 && index < Items.Count - 1)
             {
-                Items.Insert(index, item);
+                Items.Insert(index + 1, item);
             }
             else
             {
                 Items.Add(item);
             }
+            SelectedItem = item;
         }
 
         public void OnRemoveItem(DataSourceItem item)
         {
+            SelectedItem = null;
             Items.Remove(item);
         }
 
@@ -289,7 +301,7 @@ namespace PunchPal.Core.ViewModels
                     if (!string.IsNullOrWhiteSpace(cookieAuth))
                     {
                         cookies.Add(cookieAuth);
-                        headers["Cookie"] = string.Join("; ", cookies);
+                        headers["Cookie"] = string.Join("; ", NetworkUtils.CookieToMap(string.Join("; ", cookies)).Select(item => $"{item.Key}={item.Value}"));
                     }
                 }
                 var (user1, _) = await UserInfo.RunRequest(preData, headers);

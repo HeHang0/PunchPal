@@ -1,5 +1,6 @@
 ﻿using PunchPal.Core.ViewModels;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 
@@ -10,6 +11,7 @@ namespace PunchPal.WPF.Pages
     /// </summary>
     public partial class OverviewPage : Page
     {
+        CancellationTokenSource updateTokenSource = null;
         public OverviewPage()
         {
             InitializeComponent();
@@ -17,31 +19,52 @@ namespace PunchPal.WPF.Pages
 
         private void Page_DataContextChanged(object sender, System.Windows.DependencyPropertyChangedEventArgs e)
         {
-            if (!(DataContext is OverviewVM overview))
+            if (e.OldValue is OverviewVM oldOverview)
             {
-                return;
+                oldOverview.PropertyChanged -= Overview_PropertyChanged;
             }
-            overview.PropertyChanged += Overview_PropertyChanged;
+            else if (e.NewValue is OverviewVM newOverview)
+            {
+                newOverview.PropertyChanged += Overview_PropertyChanged;
+            }
         }
 
         private void Overview_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(OverviewVM.ChartSeries) ||
-                e.PropertyName == nameof(OverviewVM.IsDarkMode))
+                e.PropertyName == nameof(OverviewVM.IsDarkMode) ||
+                e.PropertyName == nameof(OverviewVM.ChartWeekStackSeries) ||
+                e.PropertyName == nameof(OverviewVM.ChartWeekStackXAxis) ||
+                e.PropertyName == nameof(OverviewVM.IsWeeklySelected))
             {
+                updateTokenSource?.Cancel();
+                updateTokenSource = new CancellationTokenSource();
                 UpdateChart();
             }
         }
 
-        private void UpdateChart()
+        private async void UpdateChart()
         {
-            Task.Delay(TimeSpan.FromMilliseconds(100)).ContinueWith(t =>
+            try
             {
+                await Task.Delay(TimeSpan.FromMilliseconds(233), updateTokenSource.Token);
                 Dispatcher.Invoke(() =>
                 {
-                    HourPirChart.CoreChart.Update();
+                    try
+                    {
+                        HourPirChart.CoreChart.Update();
+                        HourStackChart.CoreChart.Update();
+                    }
+                    catch (Exception)
+                    {
+                        // ignore
+                    }
                 });
-            });
+            }
+            catch (TaskCanceledException)
+            {
+                // ignore
+            }
         }
     }
 }

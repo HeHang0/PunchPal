@@ -34,8 +34,13 @@
                 <ToggleButton Grid.Column="{Binding MonthCol}" Grid.ColumnSpan="{Binding MonthSpan}" IsChecked="{Binding IsMonthSelected}" Content="月" Margin="0 5 0 5" HorizontalAlignment="Stretch"/>
             </Grid>
             <lvc:PieChart x:Name="HourPirChart" Grid.Row="1" Margin="0 25 0 0" Series="{Binding ChartSeries}"
-                          IsClockwise="False" InitialRotation="270" />
-            <StackPanel Grid.Row="1" Margin="0 10 0 0">
+                          IsClockwise="False" InitialRotation="270" TooltipTextPaint="{Binding TooltipTextPaint}"
+                          Visibility="{Binding IsMonthSelected, Converter={StaticResource BooleanToVisibility}}"/>
+            <lvc:CartesianChart x:Name="HourStackChart" Grid.Row="1" Margin="0 25 0 0" TooltipTextPaint="{Binding TooltipTextPaint}"
+                                Series="{Binding ChartWeekStackSeries}" XAxes="{Binding ChartWeekStackXAxis}" YAxes="{Binding ChartWeekStackYAxis}"
+                                Visibility="{Binding IsMonthSelected, Converter={StaticResource BooleanToNotVisibility}}"/>
+            <StackPanel Grid.Row="1" Margin="0 10 0 0"
+                        Visibility="{Binding IsMonthSelected, Converter={StaticResource BooleanToVisibility}}">
                 <StackPanel Orientation="Horizontal">
                     <Border CornerRadius="2" Width="20" Height="10" Background="#4299E1"></Border>
                     <Label Content="标准工作时长（小时）" Margin="10 0 0 0"/>
@@ -66,9 +71,6 @@
                     <Run Text="{Binding DayAverageText, Mode=OneWay}" FontWeight="Bold" Foreground="{Binding DayAverageColor, Converter={StaticResource DrawBrushToMediaBrush}}"/>
                     <Run Text="小时" />
                 </TextBlock>
-                <TextBlock Text="{Binding DayAverageRateText}" FontSize="14" Foreground="{DynamicResource WindowForeground}"
-                           Opacity="0.6" Margin="0 5 0 0" Visibility="{Binding IsWeeklySelected, Converter={StaticResource BooleanToVisibility}}"/>
-
                 <StackPanel Orientation="Horizontal" Margin="0 20 0 0">
                     <TextBlock Text="正常上班：" Foreground="{DynamicResource WindowForeground}"/>
                     <TextBlock Text="{Binding StandardAverageText}" Foreground="{DynamicResource WindowForeground}"/>

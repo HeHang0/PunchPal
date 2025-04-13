@@ -1,10 +1,12 @@
-﻿using LiveChartsCore.SkiaSharpView;
+﻿using LiveChartsCore.Kernel.Sketches;
+using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Extensions;
 using LiveChartsCore.SkiaSharpView.Painting;
 using PunchPal.Core.Models;
 using PunchPal.Tools;
 using SkiaSharp;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
@@ -23,7 +25,6 @@ namespace PunchPal.Core.ViewModels
                 _isWeeklySelected = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(IsMonthSelected));
-                _ = InitData();
             }
         }
         public bool IsMonthSelected
@@ -38,7 +39,6 @@ namespace PunchPal.Core.ViewModels
                 _isWeeklySelected = !value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(IsWeeklySelected));
-                _ = InitData();
             }
         }
         public int StandardHours => SettingsModel.Load().Data.EveryDayWorkHour;
@@ -58,7 +58,6 @@ namespace PunchPal.Core.ViewModels
         }
 
         private int _dayAverage = 0;
-        private int _dayAverageRate = 0;
         private int _standardAverage = 0;
         private int _overtimeAverage = 0;
         private int _holidayAverage = 0;
@@ -69,20 +68,21 @@ namespace PunchPal.Core.ViewModels
         public string DayAverageText => (_dayAverage / 60f).ToString("F3").TrimEnd('0').TrimEnd('.');
         public string MonthHourText => (Math.Abs(_monthMinute) / 60f).ToString("F3").TrimEnd('0').TrimEnd('.');
         public string MonthHourUnit => "当月" + (_monthMinute >= 0 ? "贡献" : "欠");
-        public string DayAverageRateText => _dayAverageRate != 0 ? $"较上周{(_dayAverageRate > 0 ? "增加" : "降低")}{Math.Abs(_dayAverageRate)}%" : string.Empty;
         public string StandardAverageText => $"{_standardAverage / 60f:F3}";
         public string OvertimeAverageText => $"{_overtimeAverage / 60f:F3}";
         public string HolidayAverageText => $"{_holidayAverage / 60f:F3}";
         private ObservableCollection<WorkingHours> workingHours;
+        private IEnumerable<WorkingHours> currentWeekWorkingHours;
         private DateTime currentDate;
         public int MonthSpan => IsCurrentMonth ? 1 : 3;
         public int MonthCol => IsCurrentMonth ? 3 : 1;
         public bool IsCurrentMonth => currentDate != null && currentDate.Year == DateTime.Now.Year && currentDate.Month == DateTime.Now.Month;
         public ObservableCollection<string> TipsTextList { get; } = new ObservableCollection<string>();
-        public async Task InitItems(DateTime date, ObservableCollection<WorkingHours> items)
+        public async Task InitItems(DateTime date, ObservableCollection<WorkingHours> items, IEnumerable<WorkingHours> weekWorkingHours)
         {
             currentDate = date;
             workingHours = items;
+            currentWeekWorkingHours = weekWorkingHours;
             await InitData();
             OnPropertyChanged(nameof(MonthSpan));
             OnPropertyChanged(nameof(MonthCol));
@@ -97,7 +97,7 @@ namespace PunchPal.Core.ViewModels
             {
                 return;
             }
-            var (start, end) = GetTimeRange(currentDate, IsMonthSelected);
+            var (start, end) = GetTimeRange(currentDate, true);
             var startUnix = start.TimestampUnix();
             var endUnix = end.TimestampUnix();
             var dayHours = SettingsModel.Load().Data.EveryDayWorkHour;
@@ -120,28 +120,18 @@ namespace PunchPal.Core.ViewModels
                 ChartSeries = new[] { standardMinute, overtimeMinute, holidayMinute }.AsPieSeries((value, series) =>
                 {
                     series.InnerRadius = 0;
-                    series.Fill = _colors[_index++];
-                    series.Name = string.Empty;
+                    series.Name = _pieNames[_index];
+                    series.Fill = _chartsColors[_index++];
                     series.DataLabelsSize = 15;
                     series.DataLabelsPosition = LiveChartsCore.Measure.PolarLabelsPosition.Outer;
-                    series.DataLabelsPaint = _isDark ? WhitePaint : BlackPaint;
-                    series.DataLabelsFormatter = point => point.Coordinate.PrimaryValue <= 0 ? string.Empty : $"{(point.Coordinate.PrimaryValue / 60).ToString("F3").TrimEnd('0').TrimEnd('.')}";
-                    series.ToolTipLabelFormatter = point => $"{point.StackedValue.Share:P2}";
+                    series.DataLabelsPaint = TextPaint;
+                    series.DataLabelsFormatter = point => point.Coordinate.PrimaryValue <= 0 ? string.Empty : $"{(point.Coordinate.PrimaryValue / 60).ToString("F3").TrimEnd('0').TrimEnd('.')}小时";
+                    series.ToolTipLabelFormatter = point =>
+                    $"{(point.Coordinate.PrimaryValue <= 0 ? string.Empty : (point.Coordinate.PrimaryValue / 60).ToString("F3").TrimEnd('0').TrimEnd('.'))}小时" +
+                    $"({point.StackedValue.Share:P2})";
                 });
             }
-            if (!IsMonthSelected)
-            {
-                var (startLW, endLW) = GetTimeRange(currentDate.AddDays(-7), false);
-                var startUnixLW = startLW.TimestampUnix();
-                var endUnixLW = endLW.TimestampUnix();
-                var currentWorkHoursLW = workingHours.Where(m => !m.IsToday && m.WorkingDate >= startUnixLW && m.WorkingDate <= endUnixLW).ToList();
-                var dayAverageLW = currentWorkHoursLW.Count == 0 ? 0 : currentWorkHoursLW.Sum(m => m.TotalMinutes) / currentWorkHoursLW.Count;
-                _dayAverageRate = dayAverageLW == 0 ? 0 : (_dayAverage - dayAverageLW) * 100 / dayAverageLW;
-            }
-            else
-            {
-                _dayAverageRate = 0;
-            }
+            InitWeekCharts();
             TipsTextList.Clear();
             var settings = SettingsModel.Load();
             var extraMinute = _dayAverage - settings.Data.EveryDayWorkHour * 60;
@@ -166,7 +156,6 @@ namespace PunchPal.Core.ViewModels
                 TipsTextList.Add($"当前工作强度正常，建议保持");
             }
             OnPropertyChanged(nameof(DayAverageText));
-            OnPropertyChanged(nameof(DayAverageRateText));
             OnPropertyChanged(nameof(StandardAverageText));
             OnPropertyChanged(nameof(OvertimeAverageText));
             OnPropertyChanged(nameof(HolidayAverageText));
@@ -175,6 +164,96 @@ namespace PunchPal.Core.ViewModels
             OnPropertyChanged(nameof(MonthHourUnit));
             OnPropertyChanged(nameof(MonthHourText));
             await Task.CompletedTask;
+        }
+
+        public SolidColorPaint TooltipTextPaint => new SolidColorPaint
+        {
+            Color = IsDarkMode ? SKColor.Parse("#000000") : SKColor.Parse("#FFFFFF"),
+            FontFamily = SystemFonts.DefaultFont.Name
+        };
+
+        private SolidColorPaint TextPaint => new SolidColorPaint
+        {
+            Color = IsDarkMode ? SKColor.Parse("#FFFFFF") : SKColor.Parse("#000000"),
+            FontFamily = SystemFonts.DefaultFont.Name
+        };
+
+        private readonly string[] _weekNames = { "日", "一", "二", "三", "四", "五", "六" };
+        private void InitWeekCharts()
+        {
+            ChartWeekStackSeries.Clear();
+            ChartWeekStackXAxis.Clear();
+            ChartWeekStackYAxis.Clear();
+            if (currentDate == null || currentWeekWorkingHours == null)
+            {
+                return;
+            }
+            var _chartWeekStackSeries = new ObservableCollection<StackedColumnSeries<int>>();
+            var standardHours = new List<double>();
+            var overtimeHours = new List<double>();
+            List<string> weekNames = new List<string>();
+            List<string> weekDates = new List<string>();
+            double max = 0;
+            for (int i = -7; i < 0; i++)
+            {
+                var day = DateTime.Now.AddDays(i).Date;
+                weekNames.Add(_weekNames[(int)day.DayOfWeek]);
+                weekDates.Add(day.ToDateString());
+                var work = currentWeekWorkingHours.FirstOrDefault(m => m.WorkingDateTime.Date == day);
+                standardHours.Add(Math.Round(((work?.IsHoliday ?? false) ? 0 : work?.StandardMinutes ?? 0) / 60f, 3));
+                overtimeHours.Add(Math.Round(((work?.IsHoliday ?? false) ? work?.TotalMinutes ?? 0 : work?.WorkOvertimeMinutes ?? 0) / 60f, 3));
+                var total = Math.Ceiling((work?.TotalMinutes ?? 0) / 60f);
+                if (total > max)
+                {
+                    max = total;
+                }
+            }
+            ChartWeekStackXAxis = new ObservableCollection<ICartesianAxis>()
+            {
+                new Axis
+                {
+                    Labels = weekNames,
+                    LabelsPaint = TextPaint
+                }
+            };
+            ChartWeekStackYAxis = new ObservableCollection<ICartesianAxis>()
+            {
+                new Axis
+                {
+                    MinLimit = 0,
+                    MaxLimit = max + 2,
+                    ShowSeparatorLines = false,
+                    LabelsPaint = TextPaint,
+                }
+            };
+            ChartWeekStackSeries = new ObservableCollection<StackedColumnSeries<double>>()
+            {
+                new StackedColumnSeries<double>
+                {
+                    Name = "标准工时",
+                    Values = standardHours,
+                    Stroke = null,
+                    DataLabelsFormatter = point => string.Empty,
+                    Fill = _chartsColors[0],
+                    XToolTipLabelFormatter = point =>
+                    {
+                        return $"星期{weekNames[point.Index]}({weekDates[point.Index]})";
+                    }
+                },
+                new StackedColumnSeries<double>
+                {
+                    Name = "加班工时",
+                    Values = overtimeHours,
+                    Stroke = null,
+                    DataLabelsPaint = new SolidColorPaint
+                    {
+                        Color = IsDarkMode ? SKColor.Parse("#FFFFFF") : SKColor.Parse("#000000"),
+                        FontFamily = SystemFonts.DefaultFont.Name
+                    },
+                    DataLabelsFormatter = point => (standardHours[point.Index] + overtimeHours[point.Index]).ToString(),
+                    Fill = _chartsColors[1]
+                }
+            };
         }
 
         private static (DateTime start, DateTime end) GetTimeRange(DateTime dateTime, bool isMonth)
@@ -196,13 +275,9 @@ namespace PunchPal.Core.ViewModels
             }
         }
 
-        //public SolidColorPaint TooltipBackgroundPaint => new SolidColorPaint(new SKColor(0, 0, 0, 0));
-        //public SolidColorPaint TooltipTextPaint => new SolidColorPaint(new SKColor(0, 0, 0, 0));
-
-        public static readonly SolidColorPaint BlackPaint = new SolidColorPaint(new SKColor(0, 0, 0));
-        public static readonly SolidColorPaint WhitePaint = new SolidColorPaint(new SKColor(0xFF, 0xFF, 0xFF));
         private int _index = 0;
-        private readonly SolidColorPaint[] _colors = new SolidColorPaint[] { new SolidColorPaint(new SKColor(0x42, 0x99, 0xE1)), new SolidColorPaint(new SKColor(0x48, 0xBB, 0x78)), new SolidColorPaint(new SKColor(0xED, 0x89, 0x36)) };
+        private readonly SolidColorPaint[] _chartsColors = new SolidColorPaint[] { new SolidColorPaint(new SKColor(0x42, 0x99, 0xE1)), new SolidColorPaint(new SKColor(0x48, 0xBB, 0x78)), new SolidColorPaint(new SKColor(0xED, 0x89, 0x36)) };
+        private readonly string[] _pieNames = new string[] { "标准工时", "工作日加班", "节假日加班" };
         private ObservableCollection<PieSeries<int>> _chartSeries = new ObservableCollection<PieSeries<int>>();
         public ObservableCollection<PieSeries<int>> ChartSeries
         {
@@ -210,6 +285,36 @@ namespace PunchPal.Core.ViewModels
             set
             {
                 _chartSeries = value;
+                OnPropertyChanged();
+            }
+        }
+        private ObservableCollection<StackedColumnSeries<double>> _chartWeekStackSeries = new ObservableCollection<StackedColumnSeries<double>>();
+        public ObservableCollection<StackedColumnSeries<double>> ChartWeekStackSeries
+        {
+            get => _chartWeekStackSeries;
+            set
+            {
+                _chartWeekStackSeries = value;
+                OnPropertyChanged();
+            }
+        }
+        private ObservableCollection<ICartesianAxis> _chartWeekStackXAxis = new ObservableCollection<ICartesianAxis>();
+        public ObservableCollection<ICartesianAxis> ChartWeekStackXAxis
+        {
+            get => _chartWeekStackXAxis;
+            set
+            {
+                _chartWeekStackXAxis = value;
+                OnPropertyChanged();
+            }
+        }
+        private ObservableCollection<ICartesianAxis> _chartWeekStackYAxis = new ObservableCollection<ICartesianAxis>();
+        public ObservableCollection<ICartesianAxis> ChartWeekStackYAxis
+        {
+            get => _chartWeekStackYAxis;
+            set
+            {
+                _chartWeekStackYAxis = value;
                 OnPropertyChanged();
             }
         }
@@ -223,9 +328,24 @@ namespace PunchPal.Core.ViewModels
                 _isDark = value;
                 foreach (var item in ChartSeries)
                 {
-                    item.DataLabelsPaint = _isDark ? WhitePaint : BlackPaint;
+                    item.DataLabelsPaint = TextPaint;
+                }
+                foreach (var item in ChartWeekStackSeries)
+                {
+                    item.DataLabelsPaint = TextPaint;
+                }
+                foreach (var item in ChartWeekStackXAxis)
+                {
+                    item.NamePaint = TextPaint;
+                    item.LabelsPaint = TextPaint;
+                }
+                foreach (var item in ChartWeekStackYAxis)
+                {
+                    item.NamePaint = TextPaint;
+                    item.LabelsPaint = TextPaint;
                 }
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(TooltipTextPaint));
             }
         }
     }

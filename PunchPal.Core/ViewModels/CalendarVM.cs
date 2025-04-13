@@ -73,6 +73,28 @@ namespace PunchPal.Core.ViewModels
             return 0;
         }
 
+        public (DateTime start, DateTime end) GetDateTimeRange(DateTime dateTime)
+        {
+            var settings = SettingsModel.Load();
+            var weekStart = settings.Calendar.WeekStart;
+            var weekStartIndex = (int)weekStart;
+            var firstDay = new DateTime(dateTime.Year, dateTime.Month, 1);
+            var firstDayWeek = (int)firstDay.DayOfWeek;
+            var dayLastCount = CalculateDayLast(weekStartIndex, firstDayWeek);
+            var dateStart = firstDay.AddDays(0 - dayLastCount);
+            var lastDay = firstDay.AddMonths(1).AddDays(-1);
+            var days = (lastDay - firstDay).Days + 1;
+
+            var endNextDays = 7 - (dayLastCount + days) % 7;
+            var day = 0;
+            for (int i = 0; endNextDays < 7 && i < endNextDays; i++)
+            {
+                ++day;
+            }
+            var dateEnd = firstDay.AddDays(days + day);
+            return (dateStart, dateEnd);
+        }
+
         public async Task InitItems(DateTime dateTime, IList<WorkingHours> hours)
         {
             var result = new List<CalendarItem>();
@@ -88,7 +110,6 @@ namespace PunchPal.Core.ViewModels
             }
             var lastDay = firstDay.AddMonths(1).AddDays(-1);
             var days = (lastDay - firstDay).Days + 1;
-            var recordMap = GetWorkingHoursMap(hours);
             for (int i = 0; i < days; i++)
             {
                 result.Add(new CalendarItem(firstDay.AddDays(i)));
@@ -102,6 +123,7 @@ namespace PunchPal.Core.ViewModels
             }
             var startValue = result.FirstOrDefault()?.Date.TimestampUnix() ?? 0;
             var endValue = result.LastOrDefault()?.Date.AddDays(1).TimestampUnix() ?? 0;
+            var recordMap = GetWorkingHoursMap(hours);
             List<CalendarRecord> calendars = null;
             await Task.Run(async () =>
             {

@@ -4,7 +4,6 @@ using PunchPal.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace PunchPal.Core.Services
@@ -18,29 +17,20 @@ namespace PunchPal.Core.Services
             Instance = new WorkHourService();
         }
 
-        public async Task<List<WorkingHours>> List(int dayStartHour, Expression<Func<PunchRecord, bool>> predicate)
-        {
-            var records = await PunchRecordService.Instance.List(predicate);
-            return await List(dayStartHour, records);
-        }
-        public async Task<List<WorkingHours>> List(int dayStartHour, IEnumerable<PunchRecord> punchRecordEnumerables)
+        public async Task<List<WorkingHours>> List(int dayStartHour, DateTime start, DateTime end, IEnumerable<PunchRecord> punchRecordEnumerables, IEnumerable<AttendanceRecord> attendancesAll)
         {
             var result = new List<WorkingHours>();
             if (punchRecordEnumerables == null || punchRecordEnumerables.Count() == 0)
             {
                 return result;
             }
-            var lastRecord = punchRecordEnumerables.FirstOrDefault();
             var punchRecords = punchRecordEnumerables.ToList();
-            var lastDate = lastRecord.PunchDateTime;
-            var monthStartDay = new DateTime(lastDate.Year, lastDate.Month, 1);
-            var monthEndDay = monthStartDay.AddMonths(1).AddDays(-1);
             var now = DateTime.Now;
-            var startUnix = monthStartDay.TimestampUnix();
-            var endUnix = monthEndDay.TimestampUnix();
+            var startUnix = start.TimestampUnix();
+            var endUnix = end.TimestampUnix();
             var workingTimeRanges = await WorkingTimeRangeService.Instance.Items(startUnix, endUnix);
-            var attendances = await AttendanceRecordService.Instance.List(m => m.StartTime >= startUnix && m.StartTime < endUnix && AttendanceTypeService.AskForLeaveIds.Contains(m.AttendanceTypeId));
-            var punchInRecords = await AttendanceRecordService.Instance.List(m => m.StartTime >= startUnix && m.StartTime < endUnix && (m.EndTime <= 0 || m.EndTime < endUnix) && AttendanceTypeService.PunchInRecordIds.Contains(m.AttendanceTypeId));
+            var attendances = attendancesAll.Where(m => AttendanceTypeService.AskForLeaveIds.Contains(m.AttendanceTypeId));
+            var punchInRecords = attendancesAll.Where(m => AttendanceTypeService.PunchInRecordIds.Contains(m.AttendanceTypeId));
             var attendanceRecords = ParseAttendance(attendances, workingTimeRanges);
             var calendars = await CalendarService.Instance.ListAll(m => m.Date >= startUnix && m.Date < endUnix);
             foreach (var item in punchInRecords)
@@ -51,13 +41,13 @@ namespace PunchPal.Core.Services
                     PunchTime = item.StartTime > 0 ? item.StartTime : item.EndTime,
                 });
             }
-            for (var i = 1; i <= monthEndDay.Day; i++)
+            for (; start <= end; start = start.AddDays(1))
             {
-                if (monthEndDay.Year == now.Year && monthEndDay.Month == now.Month && i > now.Day)
+                if (start.Year == now.Year && start.Month == now.Month && start.Day > now.Day)
                 {
                     break;
                 }
-                var date = new DateTime(monthEndDay.Year, monthEndDay.Month, i, dayStartHour, 0, 0);
+                var date = new DateTime(start.Year, start.Month, start.Day, dayStartHour, 0, 0);
                 var dateUnix = date.Date.TimestampUnix();
                 var timeStart = date.TimestampUnix();
                 var timeEnd = timeStart + DateTimeTools.DaySeconds;
@@ -72,7 +62,7 @@ namespace PunchPal.Core.Services
             return result.OrderByDescending(m => m.WorkingDate).ToList();
         }
 
-        private List<AttendanceRecord> ParseAttendance(List<AttendanceRecord> attendances, Dictionary<long, WorkingTimeRangeItems> workingTimeRanges)
+        private List<AttendanceRecord> ParseAttendance(IEnumerable<AttendanceRecord> attendances, Dictionary<long, WorkingTimeRangeItems> workingTimeRanges)
         {
             var result = new List<AttendanceRecord>();
             foreach (var item in attendances)

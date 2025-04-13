@@ -12,7 +12,6 @@ namespace PunchPal.Core.ViewModels
     {
         public static bool IsDarkMode { get; set; }
 
-        private readonly bool _weak = false;
         public DateTime Date { get; private set; }
         public string DateText => Date.ToString("yyyy年MM月dd日");
         public string Day => Date.Day.ToString() ?? string.Empty;
@@ -55,8 +54,8 @@ namespace PunchPal.Core.ViewModels
                 return null;
             }
         }
-        public string WorkHoursText => WorkMinutes <= 0 || _weak ? string.Empty : $"{WorkMinutes * 1.0f / 60:F1}";
-        public string WorkHoursToolTips => WorkMinutes <= 0 || _weak ? string.Empty : $"{(WorkMinutes * 1.0f / 60).ToString("F3").TrimEnd('0').TrimEnd('.')}(小时)";
+        public string WorkHoursText => WorkMinutes <= 0 ? string.Empty : $"{WorkMinutes * 1.0f / 60:F1}";
+        public string WorkHoursToolTips => WorkMinutes <= 0 ? string.Empty : $"{(WorkMinutes * 1.0f / 60).ToString("F3").TrimEnd('0').TrimEnd('.')}(小时)";
         public float WorkHoursTextOpacity => WorkMinutes < (SettingsModel.Load().Data.EveryDayWorkHour * 60) ? 0.9f : 0.5f;
         public bool IsHoliday { get; set; }
         public bool IsWorkday { get; set; }
@@ -64,10 +63,6 @@ namespace PunchPal.Core.ViewModels
         {
             get
             {
-                //if (_weak)
-                //{
-                //    return IsDarkMode ? Brushes.White : Brushes.Black;
-                //}
                 if (IsHoliday)
                 {
                     return Brushes.ForestGreen;
@@ -321,7 +316,6 @@ namespace PunchPal.Core.ViewModels
         {
             Date = date;
             Opacity = weak ? 0.5f : 1f;
-            _weak = weak;
         }
 
         public void SetRow(int row)
