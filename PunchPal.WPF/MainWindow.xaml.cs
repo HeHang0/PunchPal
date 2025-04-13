@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -348,6 +349,11 @@ namespace PunchPal.WPF
             HotKeyTools.SetCallback(this, OnHotKey);
             Common_PropertyChanged(null, new PropertyChangedEventArgs(nameof(SettingsCommon.ShortcutText)));
             LoadingBorder.Opacity = 0.5;
+            string[] args = Environment.GetCommandLineArgs();
+            if (args.Contains("--startup"))
+            {
+                Close();
+            }
         }
 
         private void ToWorkTimeEdit(object sender, System.Windows.Input.MouseButtonEventArgs e)

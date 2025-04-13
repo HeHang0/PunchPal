@@ -17,7 +17,7 @@ namespace PunchPal.Core.ViewModels
 
         static SettingsCommon()
         {
-            _startupManager = new StartupManager("PunchPal", System.Reflection.Assembly.GetExecutingAssembly().Location);
+            _startupManager = new StartupManager("PunchPal", System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName);
         }
 
         public bool IsStartupEnabled

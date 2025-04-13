@@ -9,7 +9,7 @@ namespace PunchPal.Startup
         {
             string startupFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
             string lnkPath = Path.Combine(startupFolderPath, Path.GetFileNameWithoutExtension(appName) + ".lnk");
-            ShellLink.Shortcut.CreateShortcut(appPath, "startup").WriteToFile(lnkPath);
+            ShellLink.Shortcut.CreateShortcut(appPath, "--startup").WriteToFile(lnkPath);
         }
 
         public void DisableStartup(string appName)
