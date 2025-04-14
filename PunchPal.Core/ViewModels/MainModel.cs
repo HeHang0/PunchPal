@@ -319,7 +319,7 @@ namespace PunchPal.Core.ViewModels
             {
                 return null;
             }
-            var start = now.AddDays(-6).Date;
+            var start = now.AddDays(-7).Date;
             var end = now.Date;
             var punchRecords = await PunchRecord.GetRecords(start, end);
             var attendanceRecords = await AttendanceRecord.GetRecords(start, end);
