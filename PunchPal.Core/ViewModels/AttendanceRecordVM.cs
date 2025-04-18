@@ -28,7 +28,6 @@ namespace PunchPal.Core.ViewModels
         }
         public async Task<List<AttendanceRecord>> GetRecords(DateTime start, DateTime end)
         {
-            Items.Clear();
             var settings = SettingsModel.Load();
             var dateStart = new DateTime(start.Year, start.Month, start.Day, settings.Data.DayStartHour, 0, 0);
             var dateEnd = new DateTime(end.Year, end.Month, end.Day, settings.Data.DayStartHour, 0, 0);
