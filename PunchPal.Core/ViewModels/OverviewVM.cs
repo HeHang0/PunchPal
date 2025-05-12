@@ -100,10 +100,12 @@ namespace PunchPal.Core.ViewModels
             var (start, end) = GetTimeRange(currentDate, true);
             var startUnix = start.TimestampUnix();
             var endUnix = end.TimestampUnix();
-            var dayHours = SettingsModel.Load().Data.EveryDayWorkHour;
-            _monthMinute = workingHours.Where(m => !m.IsToday && !m.IsHoliday).Select(m => m.TotalMinutes - dayHours * 60).Sum();
+            var settings = SettingsModel.Load();
+            var dayHours = settings.Data.EveryDayWorkHour;
+            var cmHours = settings.Data.IsWeekendTime ? workingHours.Where(m => !m.IsToday) : workingHours.Where(m => !m.IsToday && !m.IsHoliday);
+            _monthMinute = cmHours.Select(m => m.TotalMinutes - dayHours * 60).Sum();
             var currentWorkHours = workingHours.Where(m => !m.IsToday && m.WorkingDate >= startUnix && m.WorkingDate <= endUnix).ToList();
-            var workDayHours = currentWorkHours.Where(m => !m.IsHoliday).ToList();
+            var workDayHours = cmHours.ToList();
             AdequateDays = workDayHours.Count(m => m.TotalMinutes < dayHours * 60);
             var standardMinute = workDayHours.Sum(m => m.StandardMinutes);
             var overtimeMinute = workDayHours.Sum(m => m.WorkOvertimeMinutes);
@@ -112,7 +114,7 @@ namespace PunchPal.Core.ViewModels
             var holidayList = currentWorkHours.Where(m => m.IsHoliday).ToList();
             var holidayMinute = holidayList.Sum(m => m.TotalMinutes);
             _holidayAverage = holidayList.Count == 0 ? 0 : holidayMinute / holidayList.Count;
-            _dayAverage = currentWorkHours.Count == 0 ? 0 : currentWorkHours.Sum(m => m.TotalMinutes) / currentWorkHours.Count;
+            _dayAverage = workDayHours.Count == 0 ? 0 : workDayHours.Sum(m => m.TotalMinutes) / workDayHours.Count;
             _index = 0;
             ChartSeries.Clear();
             if (standardMinute != 0 || overtimeMinute != 0 || holidayMinute != 0)
@@ -133,8 +135,7 @@ namespace PunchPal.Core.ViewModels
             }
             InitWeekCharts();
             TipsTextList.Clear();
-            var settings = SettingsModel.Load();
-            var extraMinute = _dayAverage - settings.Data.EveryDayWorkHour * 60;
+            var extraMinute = _dayAverage - dayHours * 60;
             if (extraMinute > 60)
             {
                 TipsTextList.Add($"日均工作时长超过标准工作时间{(extraMinute / 60f).ToString("F1").TrimEnd('0').TrimEnd('.')}小时，请合理安排工作时间");
@@ -151,7 +152,7 @@ namespace PunchPal.Core.ViewModels
             {
                 TipsTextList.Add($"当前工作强度过高，建议本周减少加班并安排至少 1 天完整休息时间");
             }
-            if (TipsTextList.Count == 0 && _dayAverage < ((settings.Data.EveryDayWorkHour + 1) * 60))
+            if (TipsTextList.Count == 0 && _dayAverage < ((dayHours + 1) * 60))
             {
                 TipsTextList.Add($"当前工作强度正常，建议保持");
             }

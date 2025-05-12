@@ -7,6 +7,7 @@ using PunchPal.Tools;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -144,7 +145,9 @@ namespace PunchPal.Core.ViewModels
 
         public async Task<bool> SyncData(DateTime date)
         {
+            var start = DateTime.Now.TimestampUnix();
             var preData = GetPreData(date);
+            Trace.WriteLine($"GetPreData: {DateTime.Now.TimestampUnix() - start}");
             var headers = new Dictionary<string, string>
             {
                 ["Cookie"] = string.Empty
@@ -153,23 +156,31 @@ namespace PunchPal.Core.ViewModels
             {
                 headers["Cookie"] = File.ReadAllText(PathTools.CookiePath);
             }
+            Trace.WriteLine($"CookiePath: {DateTime.Now.TimestampUnix() - start}");
             User user = await CheckAuth(preData, headers);
+            Trace.WriteLine($"CheckAuth: {DateTime.Now.TimestampUnix() - start}");
             user = await UpdateUser(user);
             if (user == null)
             {
                 return false;
             }
+            Trace.WriteLine($"UpdateUser: {DateTime.Now.TimestampUnix() - start}");
             SettingsModel.Load().Common.CurrentUser = user;
             if (!string.IsNullOrWhiteSpace(headers["Cookie"]))
             {
                 File.WriteAllText(PathTools.CookiePath, headers["Cookie"]);
                 File.WriteAllText(PathTools.PreDataPath, JsonConvert.SerializeObject(preData));
             }
+            Trace.WriteLine($"PreDataPath: {DateTime.Now.TimestampUnix() - start}");
             var browser = await PuppeteerBrowser.GetHeadlessBrowser();
+            Trace.WriteLine($"GetHeadlessBrowser: {DateTime.Now.TimestampUnix() - start}");
             var ok = false;
             var punchTimeList = Items.Where(m => m.Type == DataSourceItem.DataSourceType.PunchTime);
+            Trace.WriteLine($"PunchTime: {DateTime.Now.TimestampUnix() - start}");
             var attendanceList = Items.Where(m => m.Type == DataSourceItem.DataSourceType.Attendance);
+            Trace.WriteLine($"Attendance: {DateTime.Now.TimestampUnix() - start}");
             var calendarList = Items.Where(m => m.Type == DataSourceItem.DataSourceType.Calendar);
+            Trace.WriteLine($"Calendar: {DateTime.Now.TimestampUnix() - start}");
             var punchCount = 0;
             var attendanceCount = 0;
             var calendarCount = 0;
@@ -184,6 +195,7 @@ namespace PunchPal.Core.ViewModels
                     punchCount += punchRecords.Count;
                 }
             }
+            Trace.WriteLine($"punchTimeList: {DateTime.Now.TimestampUnix() - start}");
             foreach (var item in attendanceList)
             {
                 var (attendance, _) = await item.RunRequest(preData, headers, browser: browser);
@@ -195,6 +207,7 @@ namespace PunchPal.Core.ViewModels
                     attendanceCount += attendanceRecords.Count;
                 }
             }
+            Trace.WriteLine($"attendanceList: {DateTime.Now.TimestampUnix() - start}");
             foreach (var item in calendarList)
             {
                 var (calendar, _) = await item.RunRequest(preData, headers, browser: browser);
@@ -206,6 +219,7 @@ namespace PunchPal.Core.ViewModels
                     calendarCount += calendarRecords.Count;
                 }
             }
+            Trace.WriteLine($"calendarList: {DateTime.Now.TimestampUnix() - start}");
             try
             {
                 await browser?.CloseAsync();
@@ -235,6 +249,7 @@ namespace PunchPal.Core.ViewModels
             {
                 EventManager.ShowTips(new TipsOption("提示", "未同步到任何数据！"));
             }
+            Trace.WriteLine($"ok: {DateTime.Now.TimestampUnix() - start}");
             return ok;
         }
 
@@ -279,7 +294,11 @@ namespace PunchPal.Core.ViewModels
         private async Task<User> CheckAuth(Dictionary<string, string> preData, Dictionary<string, string> headers)
         {
             var UserInfo = Items.FirstOrDefault(m => m.Type == DataSourceItem.DataSourceType.UserInfo);
-            var (user, _) = await UserInfo?.RunRequest(preData);
+            if(UserInfo == null)
+            {
+                return null;
+            }
+            var (user, _) = (await UserInfo?.RunRequest(preData)) ;
             if (user == null)
             {
                 var authenticates = Items.Where(m => m.Type == DataSourceItem.DataSourceType.Authenticate);
