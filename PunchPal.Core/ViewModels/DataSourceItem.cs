@@ -50,7 +50,7 @@ namespace PunchPal.Core.ViewModels
             {
                 case DataSourceType.UserInfo:
                     OnAddRequestMapping(nameof(User.Name));
-                    OnAddRequestMapping(nameof(User.Avator));
+                    OnAddRequestMapping(nameof(User.Avatar));
                     OnAddRequestMapping(nameof(User.UserId));
                     break;
                 case DataSourceType.PunchTime:
@@ -264,7 +264,7 @@ namespace PunchPal.Core.ViewModels
                     case DataSourceType.Authenticate:
                         return JavaScriptTipsPrefix + "返回值为 Record<string, string> 类型JSON字符串";
                     case DataSourceType.UserInfo:
-                        return JavaScriptTipsPrefix + "返回值为 User 类型JSON字符串\ninterface User {\n  userId: string;\n  name: string;\n  avator: string;\n  remark: string;\n}";
+                        return JavaScriptTipsPrefix + "返回值为 User 类型JSON字符串\ninterface User {\n  userId: string;\n  name: string;\n  avatar: string;\n  remark: string;\n}";
                     case DataSourceType.PunchTime:
                         return JavaScriptTipsPrefix + "返回值为 PunchRecord[] 类型JSON字符串\ninterface PunchRecord {\n  punchTime: number; // 秒时间戳+8h\n  punchType: string; // 打卡类型\n  remark: string;\n}";
                     case DataSourceType.Attendance:
@@ -510,7 +510,7 @@ namespace PunchPal.Core.ViewModels
                 case DataSourceType.UserInfo:
                     var user = new User();
                     user.Name = await ParseJsonItem(jo, RequestMappings.FirstOrDefault(m => m.Key == nameof(User.Name)), user.Name);
-                    user.Avator = await ParseJsonItem(jo, RequestMappings.FirstOrDefault(m => m.Key == nameof(User.Avator)), user.Avator);
+                    user.Avator = await ParseJsonItem(jo, RequestMappings.FirstOrDefault(m => m.Key == nameof(User.Avatar)), user.Avatar);
                     user.UserId = await ParseJsonItem(jo, RequestMappings.FirstOrDefault(m => m.Key == nameof(User.UserId)), user.UserId);
                     user.Remark = await ParseJsonItem(jo, RequestMappings.FirstOrDefault(m => m.Key == nameof(User.Remark)), user.Remark);
                     return user;
