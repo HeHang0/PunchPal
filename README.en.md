@@ -4,6 +4,7 @@
 
 [![image](https://img.shields.io/github/v/release/hehang0/PunchPal.svg?label=latest)](https://github.com/HeHang0/PunchPal/releases)
 [![GitHub license](https://img.shields.io/github/license/hehang0/PunchPal.svg)](https://github.com/hehang0/PunchPal/blob/master/LICENSE)
+[![GitHub license](https://img.shields.io/badge/license-Anti%20996-blue)](https://github.com/996icu/996.ICU)
 [![GitHub stars](https://img.shields.io/github/stars/hehang0/PunchPal.svg)](https://github.com/hehang0/PunchPal/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/hehang0/PunchPal.svg)](https://github.com/hehang0/PunchPal/network)
 [![GitHub issues](https://img.shields.io/github/issues/hehang0/PunchPal.svg)](https://github.com/hehang0/PunchPal/issues)
