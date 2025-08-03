@@ -5,6 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:PunchPal.WPF.Pages"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:controls="clr-namespace:PunchPal.WPF.Controls"
       xmlns:vm="clr-namespace:PunchPal.Core.ViewModels;assembly=PunchPal.Core"
       mc:Ignorable="d"
       d:DesignHeight="450" d:DesignWidth="800" Margin="10 0 0 0"
@@ -55,6 +56,24 @@
                 </StackPanel>
             </ui:CardControl.Header>
             <ui:ToggleSwitch IsChecked="{Binding IsTranslucentBackground}" />
+        </ui:CardControl>
+        <ui:CardControl Margin="0,0,0,12" Padding="15 10 10 10">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Margin="0 0 10 0" Symbol="EmojiLaugh24" />
+                    <ui:TextBlock FontTypography="Body" Text="日历表情" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <StackPanel Orientation="Horizontal">
+                <controls:EmojiPicker Emoji="{Binding Emoji00}" />
+                <controls:EmojiPicker Emoji="{Binding Emoji01}" />
+                <controls:EmojiPicker Emoji="{Binding Emoji02}" />
+                <controls:EmojiPicker Emoji="{Binding Emoji03}" />
+                <controls:EmojiPicker Emoji="{Binding Emoji04}" />
+                <controls:EmojiPicker Emoji="{Binding Emoji05}" />
+                <controls:EmojiPicker Emoji="{Binding Emoji06}" />
+
+            </StackPanel>
         </ui:CardControl>
         <ui:CardExpander Margin="0,0,0,12" ContentPadding="0" Width="Auto" HorizontalAlignment="Stretch" IsExpanded="True">
             <ui:CardExpander.Header>

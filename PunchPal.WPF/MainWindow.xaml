@@ -72,16 +72,18 @@
                                 MouseDoubleClick="UpdateDataSource" ToolTip="双击更新数据"
                                 Visibility="{Binding IsSettings, Converter={StaticResource BooleanToNotVisibility}}">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Foreground="{DynamicResource WindowForeground}">
-                    <Run Text="{Binding Overview.MonthHourUnit, Mode=OneWay}" />
-                    <Run Text="{Binding Overview.MonthHourText, Mode=OneWay}" FontWeight="Bold" Foreground="{Binding Overview.MonthMinuteColor, Converter={StaticResource DrawBrushToMediaBrush}}"/>
-                    <Run Text="小时，" />
-                        </TextBlock>
-                        <TextBlock Foreground="{DynamicResource WindowForeground}">
-                    <Run Text="日均" />
-                    <Run Text="{Binding Overview.DayAverageText, Mode=OneWay}" FontWeight="Bold" Foreground="{Binding Overview.DayAverageColor, Converter={StaticResource DrawBrushToMediaBrush}}"/>
-                    <Run Text="小时" />
-                        </TextBlock>
+                    <TextBlock Foreground="{DynamicResource WindowForeground}">
+                        <Run Text="{Binding Overview.MonthFlag, Mode=OneWay}" /><Run Text="{Binding Overview.MonthOverviewItem.HourUnit, Mode=OneWay}" />
+                        <Run Text="{Binding Overview.MonthOverviewItem.HourText, Mode=OneWay}" FontWeight="Bold"
+                             Foreground="{Binding Overview.MonthOverviewItem.MinuteColor, Converter={StaticResource DrawBrushToMediaBrush}}"/>
+                        <Run Text="小时，" />
+                    </TextBlock>
+                    <TextBlock Foreground="{DynamicResource WindowForeground}">
+                        <Run Text="日均" />
+                        <Run Text="{Binding Overview.MonthOverviewItem.DayAverageText, Mode=OneWay}" FontWeight="Bold"
+                             Foreground="{Binding Overview.MonthOverviewItem.DayAverageColor, Converter={StaticResource DrawBrushToMediaBrush}}"/>
+                        <Run Text="小时" />
+                    </TextBlock>
                     </StackPanel>
                 </ui:HyperlinkButton>
             </StackPanel>

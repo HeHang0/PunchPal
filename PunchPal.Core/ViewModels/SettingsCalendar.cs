@@ -64,6 +64,83 @@ namespace PunchPal.Core.ViewModels
             }
         }
 
+        private string _emoji00 = "😊";
+        public string Emoji00
+        {
+            get => _emoji00;
+            set
+            {
+                _emoji00 = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _emoji01 = "😅";
+        public string Emoji01
+        {
+            get => _emoji01;
+            set
+            {
+                _emoji01 = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _emoji02 = "🥲";
+        public string Emoji02
+        {
+            get => _emoji02;
+            set
+            {
+                _emoji02 = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _emoji03 = "😐";
+        public string Emoji03
+        {
+            get => _emoji03;
+            set
+            {
+                _emoji03 = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _emoji04 = "😔";
+        public string Emoji04
+        {
+            get => _emoji04;
+            set
+            {
+                _emoji04 = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _emoji05 = "😠";
+        public string Emoji05
+        {
+            get => _emoji05;
+            set
+            {
+                _emoji05 = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _emoji06 = "👿";
+        public string Emoji06
+        {
+            get => _emoji06;
+            set
+            {
+                _emoji06 = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Dictionary<string, string> GetSchedule(DateTime date, List<CalendarItem> calendars)
         {
             var result = new Dictionary<string, string>();

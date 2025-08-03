@@ -5,6 +5,7 @@ using PunchPal.Tools;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -303,12 +304,13 @@ namespace PunchPal.Core.ViewModels
         {
             Loading = true;
             var (start, end) = Calendar.GetDateTimeRange(Date);
+            var timeRange = DateTimeTools.GetTimeRange(Date, false, true);
+            start = Math.Min(start.TimestampUnix(), timeRange[0].TimestampUnix()).Unix2DateTime();
             await PunchRecord.InitItems(Date, start, end);
             await AttendanceRecord.InitItems(Date, start, end);
             await WorkingHours.InitItems(Date, start, end, PunchRecord.ItemsAll, AttendanceRecord.ItemsAll);
             await Calendar.InitItems(Date, WorkingHours.ItemsAll);
-            var recentWeekWorkingHours = await GetRecentWeekWorkingHours();
-            await Overview.InitItems(Date, WorkingHours.Items, recentWeekWorkingHours);
+            await Overview.InitItems(Date, WorkingHours.ItemsAll);
             Loading = false;
         }
 

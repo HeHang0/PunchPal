@@ -148,27 +148,28 @@ namespace PunchPal.Core.ViewModels
         {
             get
             {
+                var _settings = SettingsModel.Load();
                 if (WorkMinutes <= 0)
                 {
                     return string.Empty;
                 }
                 if (_overtimeCoefficient <= 0)
                 {
-                    return "😊";
+                    return _settings.Calendar.Emoji00;
                 }
                 switch (_overtimeCoefficient)
                 {
                     case 1:
-                    case 2: return "😅";
+                    case 2: return _settings.Calendar.Emoji01;
                     case 3:
-                    case 4: return "🥲";
+                    case 4: return _settings.Calendar.Emoji02;
                     case 5:
-                    case 6: return "😐";
+                    case 6: return _settings.Calendar.Emoji03;
                     case 7:
-                    case 8: return "😔";
+                    case 8: return _settings.Calendar.Emoji04;
                     case 9:
-                    case 10: return "😠";
-                    default: return "👿";
+                    case 10: return _settings.Calendar.Emoji05;
+                    default: return _settings.Calendar.Emoji06;
                 }
             }
         }

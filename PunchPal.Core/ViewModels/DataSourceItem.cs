@@ -510,7 +510,7 @@ namespace PunchPal.Core.ViewModels
                 case DataSourceType.UserInfo:
                     var user = new User();
                     user.Name = await ParseJsonItem(jo, RequestMappings.FirstOrDefault(m => m.Key == nameof(User.Name)), user.Name);
-                    user.Avator = await ParseJsonItem(jo, RequestMappings.FirstOrDefault(m => m.Key == nameof(User.Avatar)), user.Avatar);
+                    user.Avatar = await ParseJsonItem(jo, RequestMappings.FirstOrDefault(m => m.Key == nameof(User.Avatar)), user.Avatar);
                     user.UserId = await ParseJsonItem(jo, RequestMappings.FirstOrDefault(m => m.Key == nameof(User.UserId)), user.UserId);
                     user.Remark = await ParseJsonItem(jo, RequestMappings.FirstOrDefault(m => m.Key == nameof(User.Remark)), user.Remark);
                     return user;

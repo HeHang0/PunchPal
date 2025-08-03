@@ -23,8 +23,7 @@ namespace PunchPal.Core.ViewModels
             set
             {
                 _isWeeklySelected = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(IsMonthSelected));
+                UpdateData();
             }
         }
         public bool IsMonthSelected
@@ -37,89 +36,122 @@ namespace PunchPal.Core.ViewModels
                     return;
                 }
                 _isWeeklySelected = !value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(IsWeeklySelected));
+                UpdateData();
             }
         }
+
+        private void UpdateData()
+        {
+            OnPropertyChanged(nameof(IsMonthSelected));
+            OnPropertyChanged(nameof(IsWeeklySelected));
+            OnPropertyChanged(nameof(MonthFlag));
+            OnPropertyChanged(nameof(MonthWeekFlag));
+            OnPropertyChanged(nameof(MonthOverviewItem));
+            OnPropertyChanged(nameof(CurrentOverviewItem));
+        }
+
         public int StandardHours => SettingsModel.Load().Data.EveryDayWorkHour;
 
-        public bool AdequateDaysVisible => _adequateDays > 0;
-        public int _adequateDays = 0;
-        public int AdequateDays
-        {
-            get => _adequateDays;
-            set
-            {
-                _adequateDays = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(StandardHours));
-                OnPropertyChanged(nameof(AdequateDaysVisible));
-            }
-        }
-
-        private int _dayAverage = 0;
-        private int _standardAverage = 0;
-        private int _overtimeAverage = 0;
-        private int _holidayAverage = 0;
-        private int _monthMinute = 0;
-        public Brush DayAverageColor => _dayAverage >= SettingsModel.Load().Data.EveryDayWorkHour * 60 ? Brushes.Green : Brushes.Red;
-        public Brush MonthMinuteColor => _monthMinute >= 0 ? Brushes.Green : Brushes.Red;
-
-        public string DayAverageText => (_dayAverage / 60f).ToString("F3").TrimEnd('0').TrimEnd('.');
-        public string MonthHourText => (Math.Abs(_monthMinute) / 60f).ToString("F3").TrimEnd('0').TrimEnd('.');
-        public string MonthHourUnit => "当月" + (_monthMinute >= 0 ? "贡献" : "欠");
-        public string StandardAverageText => $"{_standardAverage / 60f:F3}";
-        public string OvertimeAverageText => $"{_overtimeAverage / 60f:F3}";
-        public string HolidayAverageText => $"{_holidayAverage / 60f:F3}";
-        private ObservableCollection<WorkingHours> workingHours;
-        private IEnumerable<WorkingHours> currentWeekWorkingHours;
+        public OverviewItem MonthOverviewItem { get; private set; } = new OverviewItem();
+        private OverviewItem _weekOverviewItem = new OverviewItem();
+        public OverviewItem CurrentOverviewItem => IsMonthSelected ? MonthOverviewItem : _weekOverviewItem;
+        public string MonthFlag => IsCurrentMonth ? "本月" : "当月";
+        public string MonthWeekFlag => IsMonthSelected ? MonthFlag : (SettingsModel.Load().Data.IsWeekRecent ? "近一周" : "本周");
+        private List<WorkingHours> workingHours;
         private DateTime currentDate;
         public int MonthSpan => IsCurrentMonth ? 1 : 3;
         public int MonthCol => IsCurrentMonth ? 3 : 1;
         public bool IsCurrentMonth => currentDate != null && currentDate.Year == DateTime.Now.Year && currentDate.Month == DateTime.Now.Month;
-        public ObservableCollection<string> TipsTextList { get; } = new ObservableCollection<string>();
-        public async Task InitItems(DateTime date, ObservableCollection<WorkingHours> items, IEnumerable<WorkingHours> weekWorkingHours)
+        public async Task InitItems(DateTime date, List<WorkingHours> items)
         {
             currentDate = date;
             workingHours = items;
-            currentWeekWorkingHours = weekWorkingHours;
             await InitData();
             OnPropertyChanged(nameof(MonthSpan));
             OnPropertyChanged(nameof(MonthCol));
             OnPropertyChanged(nameof(IsCurrentMonth));
-            OnPropertyChanged(nameof(IsMonthSelected));
-            OnPropertyChanged(nameof(IsWeeklySelected));
         }
 
-        private async Task InitData()
+        private OverviewItem GetData(DateTime start, DateTime end)
         {
             if (currentDate == null || workingHours == null)
             {
-                return;
+                return null;
             }
-            var (start, end) = GetTimeRange(currentDate, true);
+            var settings = SettingsModel.Load();
             var startUnix = start.TimestampUnix();
             var endUnix = end.TimestampUnix();
-            var settings = SettingsModel.Load();
             var dayHours = settings.Data.EveryDayWorkHour;
-            var cmHours = settings.Data.IsWeekendTime ? workingHours.Where(m => !m.IsToday) : workingHours.Where(m => !m.IsToday && !m.IsHoliday);
-            _monthMinute = cmHours.Select(m => m.TotalMinutes - dayHours * 60).Sum();
-            var currentWorkHours = workingHours.Where(m => !m.IsToday && m.WorkingDate >= startUnix && m.WorkingDate <= endUnix).ToList();
-            var workDayHours = cmHours.ToList();
-            AdequateDays = workDayHours.Count(m => m.TotalMinutes < dayHours * 60);
-            var standardMinute = workDayHours.Sum(m => m.StandardMinutes);
-            var overtimeMinute = workDayHours.Sum(m => m.WorkOvertimeMinutes);
-            _standardAverage = workDayHours.Count == 0 ? 0 : standardMinute / workDayHours.Count;
-            _overtimeAverage = workDayHours.Count == 0 ? 0 : overtimeMinute / workDayHours.Count;
-            var holidayList = currentWorkHours.Where(m => m.IsHoliday).ToList();
+            //var cmHours = settings.Data.IsWeekendTime ? workingHours.Where(m => !m.IsToday) : workingHours.Where(m => !m.IsToday && !m.IsHoliday);
+            var allCurrentWorkHours = workingHours.Where(m => !m.IsToday && m.WorkingDate >= startUnix && m.WorkingDate <= endUnix);
+            var currentWorkHours = (settings.Data.IsWeekendTime ? allCurrentWorkHours : allCurrentWorkHours.Where(m => !m.IsHoliday)).ToList();
+            // 总加班时长
+            var monthMinute = currentWorkHours.Select(m => m.TotalMinutes - dayHours * 60).Sum();
+            // 小于标准工作时长的天数
+            var adequateDays = currentWorkHours.Count(m => m.TotalMinutes < dayHours * 60);
+            // 当前工作日的标准工作时长
+            var standardMinute = currentWorkHours.Sum(m => m.StandardMinutes);
+            // 当前工作日的加班时长
+            var overtimeMinute = currentWorkHours.Sum(m => m.WorkOvertimeMinutes);
+            // 当前工作日的平均标准工作时长
+            var standardAverage = currentWorkHours.Count == 0 ? 0 : standardMinute / currentWorkHours.Count;
+            // 当前工作日的平均加班时长
+            var overtimeAverage = currentWorkHours.Count == 0 ? 0 : overtimeMinute / currentWorkHours.Count;
+            // 当前工作日的平均工作时长
+            var dayAverage = currentWorkHours.Count == 0 ? 0 : currentWorkHours.Sum(m => m.TotalMinutes) / currentWorkHours.Count;
+            var holidayList = allCurrentWorkHours.Where(m => m.IsHoliday).ToList();
             var holidayMinute = holidayList.Sum(m => m.TotalMinutes);
-            _holidayAverage = holidayList.Count == 0 ? 0 : holidayMinute / holidayList.Count;
-            _dayAverage = workDayHours.Count == 0 ? 0 : workDayHours.Sum(m => m.TotalMinutes) / workDayHours.Count;
+            var holidayAverage = holidayList.Count == 0 ? 0 : holidayMinute / holidayList.Count;
+
+            var extraMinute = dayAverage - dayHours * 60;
+            var tipsTextList = new List<string>();
+            if (extraMinute > 60)
+            {
+                tipsTextList.Add($"日均工作时长超过标准工作时间{(extraMinute / 60f).ToString("F1").TrimEnd('0').TrimEnd('.')}小时，请合理安排工作时间");
+            }
+            if (overtimeAverage > 90)
+            {
+                tipsTextList.Add($"日均加班时长超过1.5小时，建议保证充足休息时间");
+            }
+            if (holidayList.Count > 1)
+            {
+                tipsTextList.Add($"周末加班过多，建议关注工作与生活的平衡");
+            }
+            if (dayAverage >= 10 * 60)
+            {
+                tipsTextList.Add($"当前工作强度过高，建议本周减少加班并安排至少 1 天完整休息时间");
+            }
+            if (tipsTextList.Count == 0)
+            {
+                if (dayAverage < (dayHours * 60))
+                {
+                    tipsTextList.Add($"当前工作强度轻松，非常不错");
+                }
+                else
+                {
+                    tipsTextList.Add($"当前工作强度正常，建议保持");
+                }
+            }
+
+            return new OverviewItem(monthMinute, adequateDays, standardMinute, overtimeMinute, standardAverage, overtimeAverage, dayAverage, holidayMinute, holidayAverage, tipsTextList);
+        }
+
+        private void InitMonthData()
+        {
+            var settings = SettingsModel.Load();
+            var monthRange = DateTimeTools.GetTimeRange(currentDate, true, false);
+            var data = GetData(monthRange[0], monthRange[1]);
             _index = 0;
             ChartSeries.Clear();
-            if (standardMinute != 0 || overtimeMinute != 0 || holidayMinute != 0)
+            MonthOverviewItem = data ?? new OverviewItem();
+            if (data == null)
             {
-                ChartSeries = new[] { standardMinute, overtimeMinute, holidayMinute }.AsPieSeries((value, series) =>
+                return;
+            }
+
+            if (data.StandardMinute != 0 || data.OvertimeMinute != 0 || data.HolidayMinute != 0)
+            {
+                ChartSeries = new[] { data.StandardMinute, data.OvertimeMinute, data.HolidayMinute }.AsPieSeries((value, series) =>
                 {
                     series.InnerRadius = 0;
                     series.Name = _pieNames[_index];
@@ -133,74 +165,30 @@ namespace PunchPal.Core.ViewModels
                     $"({point.StackedValue.Share:P2})";
                 });
             }
-            InitWeekCharts();
-            TipsTextList.Clear();
-            var extraMinute = _dayAverage - dayHours * 60;
-            if (extraMinute > 60)
-            {
-                TipsTextList.Add($"日均工作时长超过标准工作时间{(extraMinute / 60f).ToString("F1").TrimEnd('0').TrimEnd('.')}小时，请合理安排工作时间");
-            }
-            if (_overtimeAverage > 90)
-            {
-                TipsTextList.Add($"日均加班时长超过1.5小时，建议保证充足休息时间");
-            }
-            if (holidayList.Count > 1)
-            {
-                TipsTextList.Add($"周末加班过多，建议关注工作与生活的平衡");
-            }
-            if (_dayAverage >= 10 * 60)
-            {
-                TipsTextList.Add($"当前工作强度过高，建议本周减少加班并安排至少 1 天完整休息时间");
-            }
-            if (TipsTextList.Count == 0 && _dayAverage < ((dayHours + 1) * 60))
-            {
-                TipsTextList.Add($"当前工作强度正常，建议保持");
-            }
-            OnPropertyChanged(nameof(DayAverageText));
-            OnPropertyChanged(nameof(StandardAverageText));
-            OnPropertyChanged(nameof(OvertimeAverageText));
-            OnPropertyChanged(nameof(HolidayAverageText));
-            OnPropertyChanged(nameof(DayAverageColor));
-            OnPropertyChanged(nameof(MonthMinuteColor));
-            OnPropertyChanged(nameof(MonthHourUnit));
-            OnPropertyChanged(nameof(MonthHourText));
-            await Task.CompletedTask;
         }
 
-        public SolidColorPaint TooltipTextPaint => new SolidColorPaint
+        private void InitWeekData()
         {
-            Color = IsDarkMode ? SKColor.Parse("#000000") : SKColor.Parse("#FFFFFF"),
-            FontFamily = SystemFonts.DefaultFont.Name
-        };
-
-        private SolidColorPaint TextPaint => new SolidColorPaint
-        {
-            Color = IsDarkMode ? SKColor.Parse("#FFFFFF") : SKColor.Parse("#000000"),
-            FontFamily = SystemFonts.DefaultFont.Name
-        };
-
-        private readonly string[] _weekNames = { "日", "一", "二", "三", "四", "五", "六" };
-        private void InitWeekCharts()
-        {
+            var settings = SettingsModel.Load();
+            var timeRange = DateTimeTools.GetTimeRange(currentDate, false, settings.Data.IsWeekRecent);
+            var data = GetData(timeRange[0], timeRange[1]);
             ChartWeekStackSeries.Clear();
             ChartWeekStackXAxis.Clear();
             ChartWeekStackYAxis.Clear();
-            if (currentDate == null || currentWeekWorkingHours == null)
-            {
-                return;
-            }
             var _chartWeekStackSeries = new ObservableCollection<StackedColumnSeries<int>>();
             var standardHours = new List<double>();
             var overtimeHours = new List<double>();
             List<string> weekNames = new List<string>();
             List<string> weekDates = new List<string>();
             double max = 0;
-            for (int i = -7; i < 0; i++)
+            var start = timeRange[0];
+            var end = timeRange[1];
+            for (; start <= end; start = start.AddDays(1))
             {
-                var day = DateTime.Now.AddDays(i).Date;
+                var day = start.Date;
                 weekNames.Add(_weekNames[(int)day.DayOfWeek]);
                 weekDates.Add(day.ToDateString());
-                var work = currentWeekWorkingHours.FirstOrDefault(m => m.WorkingDateTime.Date == day);
+                var work = workingHours.FirstOrDefault(m => m.WorkingDateTime.Date == day);
                 standardHours.Add(Math.Round(((work?.IsHoliday ?? false) ? 0 : work?.StandardMinutes ?? 0) / 60f, 3));
                 overtimeHours.Add(Math.Round(((work?.IsHoliday ?? false) ? work?.TotalMinutes ?? 0 : work?.WorkOvertimeMinutes ?? 0) / 60f, 3));
                 var total = Math.Ceiling((work?.TotalMinutes ?? 0) / 60f);
@@ -255,26 +243,42 @@ namespace PunchPal.Core.ViewModels
                     Fill = _chartsColors[1]
                 }
             };
+            _weekOverviewItem = data ?? new OverviewItem();
         }
 
-        private static (DateTime start, DateTime end) GetTimeRange(DateTime dateTime, bool isMonth)
+        private async Task InitData()
         {
-            if (isMonth)
+            if (currentDate == null || workingHours == null)
             {
-                // 获取当前月的时间范围
-                DateTime start = new DateTime(dateTime.Year, dateTime.Month, 1); // 当月第一天
-                DateTime end = start.AddMonths(1).AddTicks(-1);                 // 当月最后一天的最后时刻
-                return (start, end);
+                return;
             }
-            else
-            {
-                // 获取当前周的时间范围（假设一周从周一开始）
-                int diffToMonday = dateTime.DayOfWeek == 0 ? 6 : (int)dateTime.DayOfWeek - 1; // 计算距周一的天数
-                DateTime start = dateTime.Date.AddDays(-diffToMonday);                             // 本周周一
-                DateTime end = start.AddDays(7).AddTicks(-1);                                     // 本周周日的最后时刻
-                return (start, end);
-            }
+            var settings = SettingsModel.Load();
+            var timeRange = DateTimeTools.GetTimeRange(currentDate, !_isWeeklySelected, settings.Data.IsWeekRecent);
+            var start = timeRange[0];
+            var end = timeRange[1];
+            var startUnix = start.TimestampUnix();
+            var endUnix = end.TimestampUnix();
+            var cmHours = settings.Data.IsWeekendTime ? workingHours.Where(m => !m.IsToday) : workingHours.Where(m => !m.IsToday && !m.IsHoliday);
+            
+            InitMonthData();
+            InitWeekData();
+            UpdateData();
+            await Task.CompletedTask;
         }
+
+        public SolidColorPaint TooltipTextPaint => new SolidColorPaint
+        {
+            Color = IsDarkMode ? SKColor.Parse("#000000") : SKColor.Parse("#FFFFFF"),
+            FontFamily = SystemFonts.DefaultFont.Name
+        };
+
+        private SolidColorPaint TextPaint => new SolidColorPaint
+        {
+            Color = IsDarkMode ? SKColor.Parse("#FFFFFF") : SKColor.Parse("#000000"),
+            FontFamily = SystemFonts.DefaultFont.Name
+        };
+
+        private readonly string[] _weekNames = { "日", "一", "二", "三", "四", "五", "六" };
 
         private int _index = 0;
         private readonly SolidColorPaint[] _chartsColors = new SolidColorPaint[] { new SolidColorPaint(new SKColor(0x42, 0x99, 0xE1)), new SolidColorPaint(new SKColor(0x48, 0xBB, 0x78)), new SolidColorPaint(new SKColor(0xED, 0x89, 0x36)) };

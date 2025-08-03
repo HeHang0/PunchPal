@@ -62,41 +62,39 @@
             </Grid.RowDefinitions>
             <StackPanel>
                 <TextBlock FontSize="22" Foreground="{DynamicResource WindowForeground}">
-                    <Run Text="{Binding MonthHourUnit, Mode=OneWay}" />
-                    <Run Text="{Binding MonthHourText, Mode=OneWay}" FontWeight="Bold" Foreground="{Binding MonthMinuteColor, Converter={StaticResource DrawBrushToMediaBrush}}"/>
+                    <Run Text="{Binding MonthWeekFlag, Mode=OneWay}" /><Run Text="{Binding CurrentOverviewItem.HourUnit, Mode=OneWay}" />
+                    <Run Text="{Binding CurrentOverviewItem.HourText, Mode=OneWay}" FontWeight="Bold"
+                         Foreground="{Binding CurrentOverviewItem.MinuteColor, Converter={StaticResource DrawBrushToMediaBrush}}"/>
                     <Run Text="小时" />
                 </TextBlock>
                 <TextBlock FontSize="22" Foreground="{DynamicResource WindowForeground}">
                     <Run Text="日均" />
-                    <Run Text="{Binding DayAverageText, Mode=OneWay}" FontWeight="Bold" Foreground="{Binding DayAverageColor, Converter={StaticResource DrawBrushToMediaBrush}}"/>
+                    <Run Text="{Binding CurrentOverviewItem.DayAverageText, Mode=OneWay}" FontWeight="Bold"
+                         Foreground="{Binding CurrentOverviewItem.DayAverageColor, Converter={StaticResource DrawBrushToMediaBrush}}"/>
                     <Run Text="小时" />
                 </TextBlock>
                 <StackPanel Orientation="Horizontal" Margin="0 20 0 0">
                     <TextBlock Text="正常上班：" Foreground="{DynamicResource WindowForeground}"/>
-                    <TextBlock Text="{Binding StandardAverageText}" Foreground="{DynamicResource WindowForeground}"/>
+                    <TextBlock Text="{Binding CurrentOverviewItem.StandardAverageText}" Foreground="{DynamicResource WindowForeground}"/>
                     <TextBlock Text=" 小时/天" Foreground="{DynamicResource WindowForeground}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0 5 0 0">
                     <TextBlock Text="工作日加班：" Foreground="{DynamicResource WindowForeground}"/>
-                    <TextBlock Text="{Binding OvertimeAverageText}" Foreground="{DynamicResource WindowForeground}"/>
+                    <TextBlock Text="{Binding CurrentOverviewItem.OvertimeAverageText}" Foreground="{DynamicResource WindowForeground}"/>
                     <TextBlock Text=" 小时/天" Foreground="{DynamicResource WindowForeground}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0 5 0 0">
                     <TextBlock Text="节假日加班：" Foreground="{DynamicResource WindowForeground}"/>
-                    <TextBlock Text="{Binding HolidayAverageText}" Foreground="{DynamicResource WindowForeground}"/>
+                    <TextBlock Text="{Binding CurrentOverviewItem.HolidayAverageText}" Foreground="{DynamicResource WindowForeground}"/>
                     <TextBlock Text=" 小时/天" Foreground="{DynamicResource WindowForeground}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0 5 0 0"
-                            Visibility="{Binding AdequateDaysVisible, Converter={StaticResource BooleanToVisibility}}">
-                    <TextBlock Text="当" Foreground="{DynamicResource WindowForeground}"/>
-                    <TextBlock Text="月" Foreground="{DynamicResource WindowForeground}"
-                               Visibility="{Binding IsMonthSelected, Converter={StaticResource BooleanToVisibility}}"/>
-                    <TextBlock Text="周" Foreground="{DynamicResource WindowForeground}"
-                               Visibility="{Binding IsWeeklySelected, Converter={StaticResource BooleanToVisibility}}"/>
+                            Visibility="{Binding CurrentOverviewItem.AdequateDaysVisible, Converter={StaticResource BooleanToVisibility}}">
+                    <TextBlock Text="{Binding MonthWeekFlag, Mode=OneWay}" Foreground="{DynamicResource WindowForeground}"/>
                     <TextBlock Text="工时不满" Foreground="{DynamicResource WindowForeground}"/>
                     <TextBlock Text="{Binding StandardHours}" Margin="5 0" FontWeight="Bold" Foreground="Green"/>
                     <TextBlock Text="小时天数：" Foreground="{DynamicResource WindowForeground}"/>
-                    <TextBlock Text="{Binding AdequateDays}" Foreground="{DynamicResource WindowForeground}"/>
+                    <TextBlock Text="{Binding CurrentOverviewItem.AdequateDays}" Foreground="{DynamicResource WindowForeground}"/>
                 </StackPanel>
             </StackPanel>
             <Border Grid.Row="1" Background="{DynamicResource ToggleButtonBackground}"
@@ -104,7 +102,7 @@
                 <ListBox VerticalAlignment="Top"
                      ScrollViewer.VerticalScrollBarVisibility="Auto"
                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                     ItemsSource="{Binding TipsTextList}">
+                     ItemsSource="{Binding CurrentOverviewItem.TipsTextList}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock FontSize="13" Text="{Binding }" HorizontalAlignment="Left" Margin="0 3 0 3"

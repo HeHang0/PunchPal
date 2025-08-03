@@ -1,0 +1,165 @@
+﻿<UserControl x:Class="PunchPal.WPF.Controls.EmojiPicker"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:local="clr-namespace:PunchPal.WPF.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             x:Name="Root">
+    <Grid>
+        <ui:HyperlinkButton Cursor="Hand" Width="30" Padding="0" Click="EmojiLabel_Click">
+            <emoji:TextBlock FontSize="20"
+               Text="{Binding Emoji, ElementName=Root}"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center"
+               />
+        </ui:HyperlinkButton>
+        <!--<Popup x:Name="EmojiPopup"  MouseLeftButtonUp="EmojiLabel_Click"
+               PlacementTarget="{Binding ElementName=Root}"
+               Placement="Bottom"
+               StaysOpen="True"
+               AllowsTransparency="True"
+               PopupAnimation="Fade"
+               Opened="EmojiPopup_Opened"
+               Closed="EmojiPopup_Closed">
+
+            <Border Background="{DynamicResource ApplicationBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}"
+                    BorderThickness="1" Padding="0" CornerRadius="4"
+                    MaxWidth="400" MaxHeight="220">
+                <ScrollViewer Padding="5">
+                    <WrapPanel>
+                        <TextBox x:Name="FocusHelper" Cursor="Arrow" Padding="0" Margin="0" Width="0" Opacity="0" LostFocus="FocusHelper_LostFocus"/>
+                        <emoji:TextBlock Text="😀" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😃" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😄" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😁" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😆" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😅" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😂" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🤣" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🥲" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🥹" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😊" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😇" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🙂" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🙃" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😉" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😌" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😍" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🥰" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😘" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😗" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😙" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😚" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😋" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😛" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😝" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😜" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🤪" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🤨" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🧐" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🤓" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😎" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🥸" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🤩" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🥳" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🙂‍" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😏" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😒" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🙂‍" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😞" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😔" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😟" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😕" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🙁" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😣" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😖" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😫" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😩" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🥺" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😢" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😭" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😮‍💨" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😤" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😠" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😡" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🤬" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🤯" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😳" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🥵" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🥶" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😱" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😨" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😰" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😥" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😓" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🫣" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🤗" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🫡" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🤔" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🫢" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🤭" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🤫" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🤥" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😶" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😶‍🌫️" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😐" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😑" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😬" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🫨" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🫠" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🙄" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😯" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😦" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😧" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😮" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😲" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🥱" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😴" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🤤" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😪" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😵" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😵‍💫" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🫥" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🤐" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🥴" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🤢" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🤮" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🤧" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😷" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🤒" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🤕" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🤑" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🤠" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😈" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="👿" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="👹" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="👺" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🤡" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="💩" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="👻" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="💀" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="☠️" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="👽" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="👾" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🤖" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🎃" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😺" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😸" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😹" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😻" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😼" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😽" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="🙀" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😿" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                        <emoji:TextBlock Text="😾" FontSize="24" Margin="5" MouseLeftButtonDown="EmojiItem_Click"/>
+                    </WrapPanel>
+                </ScrollViewer>
+                
+            </Border>
+        </Popup>-->
+    </Grid>
+</UserControl>

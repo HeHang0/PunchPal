@@ -226,6 +226,10 @@ namespace PunchPal.Core.Services
                 var endWorkTime = new DateTime(date.Year, date.Month, date.Day, workingTime.Work.EndHour, workingTime.Work.EndMinute, 0);
                 item.IsToday = endWorkTime >= now;
             }
+            if(item.IsHoliday)
+            {
+                item.Remark = "加班";
+            }
             return item;
         }
 
@@ -242,12 +246,17 @@ namespace PunchPal.Core.Services
 
         private static int CalcTotalMinutes(long startTime, long endTime, WorkingTimeRangeItems workingTime, bool ignoreDinner = false)
         {
+            var startDateTime = startTime.Unix2DateTime();
+            var endDateTime = endTime.Unix2DateTime();
+            startDateTime = startDateTime.AddSeconds(-startDateTime.Second);
+            endDateTime = endDateTime.AddSeconds(-endDateTime.Second);
+            startTime = startDateTime.TimestampUnix();
+            endTime = endDateTime.TimestampUnix();
             var totalMinute = endTime - startTime;
             if (workingTime == null)
             {
                 return (int)(totalMinute / 60);
             }
-            var startDateTime = startTime.Unix2DateTime();
             if (workingTime.Lunch != null)
             {
                 var lunchStart = new DateTime(startDateTime.Year, startDateTime.Month, startDateTime.Day, workingTime.Lunch.StartHour, workingTime.Lunch.StartMinute, 0).TimestampUnix();

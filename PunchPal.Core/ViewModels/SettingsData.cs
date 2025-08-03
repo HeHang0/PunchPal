@@ -121,5 +121,27 @@ namespace PunchPal.Core.ViewModels
                 OnPropertyChanged();
             }
         }
+
+        private bool _isWeekRecent = true;
+        public bool IsWeekRecent
+        {
+            get => _isWeekRecent;
+            set
+            {
+                _isWeekRecent = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsCurrentWeek));
+            }
+        }
+        public bool IsCurrentWeek
+        {
+            get => !_isWeekRecent;
+            set
+            {
+                _isWeekRecent = !value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsWeekRecent));
+            }
+        }
     }
 }
